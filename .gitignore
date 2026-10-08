@@ -39,3 +39,15 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# ---- release artefacts & secrets (never commit) ----
+*.apk
+*.aab
+*.zip
+*.keystore
+*.jks
+keystore/*
+!keystore/keystore.properties.example
+!keystore/README.md
+*.local.md
+build-logs/*.log

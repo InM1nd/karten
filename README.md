@@ -1,39 +1,85 @@
-# Karten — German flashcards (A2–B1, RU interface)
+# Karten — German flashcards (A2–B1)
 
-Offline React Native + Expo (SDK 57, RN 0.86, TypeScript) app. No backend, no account.
+**Karten** is a calm, offline flashcard app for learning everyday German at A2–B1 level, with a Russian
+interface and a soft spot for Austrian German. No account, no backend, no ads — your progress stays on
+the device.
 
-## Build (local, no EAS)
+![Karten overview](design/v1.2-screens/overview.png)
+
+## Features
+
+- **390 hand-picked words in 11 topics** — everyday life, work, flat, offices (Amt), shopping, health,
+  transport, food, time, plus core verbs and adjectives. 42 entries carry the Austrian variant
+  (Paradeiser, Erdäpfel, Jänner…).
+- **Spaced repetition** — an SM-2-style scheduler builds a daily queue of due + new cards; streaks and stats.
+- **Rich cards** — article colour dot, plural, verb principal parts, example sentence with translation,
+  text-to-speech pronunciation.
+- **Mini games** — *der / die / das* article game, a speed round and a typing drill with an umlaut/case
+  tolerant checker and a character-level diff.
+- **Your own words** — add custom cards, browse and search the whole dictionary.
+- **15 achievements**, daily reminders (local notifications) and a *Word of the day* home-screen widget.
+- **Minimal design** — Inter Tight, light and true-black dark theme, one orange accent, a bundled icon font.
+- Safe data model with versioned migration and backups.
+
+## Screenshots
+
+| Home | Card | Article game | Typing | Dark mode |
+|---|---|---|---|---|
+| ![](design/v1.2-screens/01-home-light.png) | ![](design/v1.2-screens/05-card-back.png) | ![](design/v1.2-screens/10-article-play.png) | ![](design/v1.2-screens/14-typing-result.png) | ![](design/v1.2-screens/03-home-dark.png) |
+
+| Speed round | Custom words | Dictionary | Achievements | Settings |
+|---|---|---|---|---|
+| ![](design/v1.2-screens/12-speed-play.png) | ![](design/v1.2-screens/16-custom-editor.png) | ![](design/v1.2-screens/17-dictionary.png) | ![](design/v1.2-screens/18-achievements.png) | ![](design/v1.2-screens/21-settings-dark.png) |
+
+All screenshots are rendered from the real app code (react-native-web + headless Chrome), see
+`scripts/web-screens/`. Earlier design explorations live in `design/`.
+
+## Tech stack
+
+- **Expo SDK 57**, **React Native 0.86** (New Architecture, Hermes), **TypeScript**
+- `@react-native-async-storage/async-storage` for persistence, `expo-notifications` for reminders,
+  `expo-speech` for pronunciation, `react-native-android-widget` for the home-screen widget
+- Tests: `node:test` via `tsx` (logic) and Jest + React Native Testing Library (UI)
+- Local Gradle release build (no EAS): arm64-v8a only, R8 + resource shrinking, uncompressed 16 KB-aligned
+  native libraries, APK signature schemes v1 + v2 + v3
+
+## Project layout
+
+| Path | What |
+|---|---|
+| `src/data/` | the deck (`words.ts`, topic → entries, `at` = Austrian word) and RU translations of examples |
+| `src/logic/` | pure logic: data model + migration, store, SRS scheduler, typing checker, games, achievements, reminder plan |
+| `src/screens/` | Home, Session, Browse, Settings, Article, Speed, Typing, CustomWords, Achievements |
+| `src/ui/` | theme tokens, components, icon font glyphs, notifications, speech |
+| `src/widget/` | *Word of the day* Android widget |
+| `scripts/` | build configuration, toolchain installer, font / icon / brand asset generators, web screenshots |
+| `tests/`, `tests-rn/` | logic tests and UI tests |
+
+## Build
+
+Requirements: Node 22, JDK 17, Android SDK + NDK (see `scripts/install-toolchain.sh`; `env.sh` puts them on the PATH).
 
 ```bash
-. ./env.sh                       # Node 22, JDK 17, Android SDK from ~/opt and ~/Android/Sdk
+. ./env.sh
 npm install
-npm run typecheck                # tsc --noEmit
-npm test                         # node:test logic tests (SRS, typing checker, achievements, migration, reminders, games, deck)
-npm run test:ui                  # jest + @testing-library/react-native UI tests
+npm run typecheck          # tsc --noEmit
+npm test                   # logic tests (node:test)
+npm run test:ui            # UI tests (jest + RNTL)
+
+# release APK
 CI=1 npx expo prebuild --platform android --clean --no-install
-./scripts/configure-android.sh   # release signing v1+v2+v3, arm64-only, stored 16 KB-aligned libs, R8, Gradle limits
+./scripts/configure-android.sh     # signing v1+v2+v3, arm64-only, stored 16 KB-aligned libs, R8
 cd android && ./gradlew assembleRelease
-cp app/build/outputs/apk/release/app-release.apk ../Karten-v1.2.0.apk
+# -> android/app/build/outputs/apk/release/app-release.apk
 ```
 
-Logs and verification output: `build-logs/`. Release keystore: `keystore/karten-release.jks`
-(local, self-generated — keep it, otherwise updates can't be installed over the existing app).
+### Signing
 
-## Structure
-- `src/data/words.ts` — the deck (topic → entries; `at` = Austrian word); `src/data/exRu.ts` — RU translations of examples
-- `src/logic/data.ts` — data model v2 + pure `migrate()` (v1 → v2, never throws); `store.ts` — AsyncStorage I/O with backups
-- `src/logic/srs.ts` — SM-2-style scheduler (+ `markMistake` for game errors), session queue, streak, stats
-- `src/logic/typing.ts` — umlaut/case tolerant answer checker + character diff
-- `src/logic/games.ts`, `achievements.ts`, `reminders.ts` — article/speed game logic, 15 achievements, 7-day reminder plan
-- `src/ui/notifications.ts` — expo-notifications channel/permission/scheduling
-- `src/widget/*` — "Слово дня" home-screen widget (react-native-android-widget)
-- `src/screens/*` — Home, Session, Browse, Settings, Article, Speed, Typing, CustomWords, Achievements
-- `tests/` — `node:test` unit tests (run with `tsx`); `tests-rn/` — jest UI tests
-- `src/ui/theme.ts` — v1.2 minimal design tokens (light + true-black dark, one orange accent, article dot colours, Inter Tight weights)
-- `src/ui/components.tsx` — typography (`T`), `Pressy` (press scale), `Btn`, `GermanWord` (dot + article), headers, progress, `FadeIn`
-- `src/ui/Icon.tsx` + `src/ui/iconGlyphs.ts` — line icons from the bundled icon font, Austrian flag and progress ring in plain Views
-- `assets/fonts/` — Inter Tight 400/500/600 (Latin + Cyrillic subset, OFL) and `KartenIcons.ttf`
-- `scripts/make_fonts.py` — Inter Tight static instances + subsetting; `scripts/make_icon_font.py` — icon font (needs `skia-pathops`)
-- `scripts/make_brand_v12.py` — v1.2 icon/adaptive/monochrome/splash (light+dark)/notification icon/widget preview
-- `scripts/make_icons.py`, `scripts/make_extra_assets.py` — the older (≤ v1.1) gradient assets, kept for reference
-- `design/` — mockups; `design/v1.2-screens/` — screenshots rendered from the real app code (react-native-web + headless Chrome)
+Release signing reads `keystore/keystore.properties`, which is **not** in git. Copy
+`keystore/keystore.properties.example`, put your keystore next to it and fill in your own passwords — see
+`keystore/README.md`. Keystores, passwords, APKs and build logs are git-ignored.
+
+## License
+
+Not chosen yet: `LICENSE` is still the MIT file from the Expo project template (© 650 Industries) and
+should be replaced before publishing. Fonts: Inter Tight (SIL Open Font License 1.1, `assets/fonts/LICENSE.txt`).
