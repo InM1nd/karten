@@ -1,11 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { TOPICS, TopicId, Word } from "../data/types";
 import { useDeck } from "../ui/deck";
 import { CardState, MATURE_INTERVAL } from "../logic/srs";
-import { AtBadge, Chip, GermanWord, grammarLine } from "../ui/components";
+import { Chip, FadeIn, GermanWord, grammarLine, IconBtn, ScreenHeader, T } from "../ui/components";
+import { AtFlag, Icon } from "../ui/Icon";
 import { germanText, speakGerman } from "../ui/speech";
-import { useTheme } from "../ui/theme";
+import { font, useTheme } from "../ui/theme";
+import { plural } from "../ui/format";
+import { Example } from "./SessionScreen";
 
 export function BrowseScreen(p: { cards: Record<string, CardState>; onBack: () => void }) {
   const t = useTheme();
@@ -27,77 +30,86 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack: () =
 
   const status = (w: Word) => {
     const c = p.cards[w.id];
-    if (!c) return { label: "новое", color: t.textDim };
+    if (!c) return { label: "новое", color: t.faint };
     if (c.interval >= MATURE_INTERVAL) return { label: "знаю", color: t.good };
     return { label: "учу", color: t.hard };
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Pressable onPress={p.onBack} hitSlop={14} accessibilityLabel="Назад">
-          <Text style={{ fontSize: 26, color: t.text }}>←</Text>
-        </Pressable>
-        <Text style={[styles.title, { color: t.text }]}>Словарь</Text>
-        <Text style={{ color: t.textDim, fontSize: 15 }}>{list.length}</Text>
-      </View>
-      <TextInput
-        value={q}
-        onChangeText={setQ}
-        placeholder="Поиск по-немецки или по-русски"
-        placeholderTextColor={t.textDim}
-        style={[styles.search, { backgroundColor: t.card, color: t.text, borderColor: t.border }]}
+    <FadeIn>
+      <ScreenHeader
+        title="Словарь"
+        onBack={p.onBack}
+        subtitle={`${list.length} ${plural(list.length, "слово", "слова", "слов")}`}
       />
+      <View style={[styles.search, { backgroundColor: t.card }]}>
+        <Icon name="search" size={18} color={t.textDim} />
+        <TextInput
+          value={q}
+          onChangeText={setQ}
+          placeholder="Поиск по-немецки или по-русски"
+          placeholderTextColor={t.textDim}
+          selectionColor={t.accent}
+          cursorColor={t.accent}
+          style={[font.regular, { flex: 1, outlineWidth: 0, color: t.text, fontSize: 16, paddingVertical: 12 }]}
+        />
+        {q ? <IconBtn name="x" label="Очистить" size={16} onPress={() => setQ("")} /> : null}
+      </View>
       <View>
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 4 }}
           data={[null, ...TOPICS.filter((x) => x.id !== "custom" || WORDS.some((w) => w.custom)).map((x) => x.id)] as (TopicId | null)[]}
           keyExtractor={(x) => x ?? "all"}
-          ListFooterComponent={<Chip label="🇦🇹 Австрийские" active={atOnly} onPress={() => setAtOnly(!atOnly)} />}
+          ListFooterComponent={<Chip label="Австрийские" active={atOnly} onPress={() => setAtOnly(!atOnly)} />}
           renderItem={({ item }) => {
             const tp = TOPICS.find((x) => x.id === item);
-            return (
-              <Chip
-                label={tp ? `${tp.emoji} ${tp.de}` : "Все"}
-                active={topic === item}
-                onPress={() => setTopic(item)}
-              />
-            );
+            return <Chip label={tp ? tp.de : "Все"} active={topic === item} onPress={() => setTopic(item)} />;
           }}
         />
       </View>
       <FlatList
         data={list}
         keyExtractor={(w) => w.id}
-        contentContainerStyle={{ padding: 20, paddingTop: 6 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 40 }}
         initialNumToRender={20}
+        keyboardShouldPersistTaps="handled"
+        ListEmptyComponent={<T v="body" dim style={{ textAlign: "center", marginTop: 40 }}>Ничего не найдено.</T>}
         renderItem={({ item: w }) => {
           const st = status(w);
           const g = grammarLine(w);
           const isOpen = open === w.id;
           return (
-            <Pressable
-              onPress={() => setOpen(isOpen ? null : w.id)}
-              style={[styles.row, { backgroundColor: t.card, borderColor: t.border }]}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Pressable onPress={() => setOpen(isOpen ? null : w.id)} style={[styles.row, { borderColor: t.border }]}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                 <View style={{ flex: 1 }}>
-                  <GermanWord w={w} size={20} center={false} />
-                  <Text style={{ color: t.textDim, fontSize: 16, marginTop: 2 }}>{w.ru}</Text>
+                  <GermanWord w={w} size={19} center={false} />
+                  <T v="bodyM" dim style={{ marginTop: 3 }}>{w.ru}</T>
                 </View>
-                {w.at ? <AtBadge /> : null}
-                <Text style={{ color: st.color, fontSize: 12, fontWeight: "700", marginLeft: 8 }}>{st.label}</Text>
+                {w.at ? <AtFlag width={16} /> : null}
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, minWidth: 54, justifyContent: "flex-end" }}>
+                  <View style={[styles.dot, { backgroundColor: st.color }]} />
+                  <T v="small" dim>{st.label}</T>
+                </View>
               </View>
               {isOpen ? (
-                <View style={{ marginTop: 10 }}>
-                  {g ? <Text style={{ color: t.textDim, fontSize: 15 }}>{g}</Text> : null}
-                  {w.ex ? <Text style={{ color: t.text, fontSize: 16, fontStyle: "italic", marginTop: 6 }}>{w.ex}</Text> : null}
-                  {w.exRu ? <Text style={{ color: t.textDim, fontSize: 15, marginTop: 3 }}>{w.exRu}</Text> : null}
-                  {w.note ? <Text style={{ color: t.textDim, fontSize: 14, marginTop: 6 }}>💡 {w.note}</Text> : null}
-                  <Pressable onPress={() => speakGerman(germanText(w) + ". " + w.ex)} style={{ marginTop: 8 }}>
-                    <Text style={{ color: t.accent, fontSize: 15, fontWeight: "700" }}>🔊 Прослушать</Text>
+                <View style={{ marginTop: 12, paddingBottom: 2 }}>
+                  {g ? <T v="bodyM" dim>{g}</T> : null}
+                  {w.ex ? (
+                    <View style={[styles.ex, { borderColor: t.border }]}>
+                      <Example w={w} size={16} />
+                      {w.exRu ? <T v="bodyM" dim style={{ marginTop: 3 }}>{w.exRu}</T> : null}
+                    </View>
+                  ) : null}
+                  {w.note ? <T v="small" dim style={{ marginTop: 10 }}>{w.note}</T> : null}
+                  <Pressable
+                    onPress={() => speakGerman(germanText(w) + ". " + w.ex)}
+                    hitSlop={8}
+                    style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 12 }}
+                  >
+                    <Icon name="volume" size={16} color={t.text} />
+                    <T v="label">Прослушать</T>
                   </Pressable>
                 </View>
               ) : null}
@@ -105,13 +117,13 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack: () =
           );
         }}
       />
-    </View>
+    </FadeIn>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", gap: 16, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 },
-  title: { fontSize: 26, fontWeight: "800", flex: 1 },
-  search: { marginHorizontal: 20, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 17 },
-  row: { borderWidth: 1, borderRadius: 14, padding: 14, marginBottom: 8 },
+  search: { marginHorizontal: 24, marginTop: 18, borderRadius: 14, paddingLeft: 14, paddingRight: 6, flexDirection: "row", alignItems: "center", gap: 10 },
+  row: { borderBottomWidth: 1, paddingVertical: 14 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  ex: { borderLeftWidth: 2, paddingLeft: 12, marginTop: 10 },
 });

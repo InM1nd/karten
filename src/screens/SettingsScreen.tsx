@@ -1,12 +1,29 @@
 import React from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Settings, ThemePref } from "../logic/data";
 import { useDeck } from "../ui/deck";
 import { PermState } from "../ui/notifications";
-import { Btn, SectionTitle, Segmented } from "../ui/components";
+import { Btn, FadeIn, Pressy, ScreenHeader, SectionTitle, Segmented, T } from "../ui/components";
 import { speakGerman } from "../ui/speech";
-import { useTheme } from "../ui/theme";
+import { font, useTheme } from "../ui/theme";
 import { DIRECTION_OPTIONS } from "./HomeScreen";
+
+function ToggleRow(p: { label: string; value: boolean; onChange: (v: boolean) => void; a11y?: string }) {
+  const t = useTheme();
+  return (
+    <View style={[styles.switchRow, { borderColor: t.border }]}>
+      <T v="body" style={{ flex: 1, paddingRight: 12 }}>{p.label}</T>
+      <Switch
+        value={p.value}
+        onValueChange={p.onChange}
+        accessibilityLabel={p.a11y}
+        trackColor={{ false: t.cardAlt, true: t.ink }}
+        thumbColor={p.value ? t.inkText : "#FFFFFF"}
+        ios_backgroundColor={t.cardAlt}
+      />
+    </View>
+  );
+}
 
 export function SettingsScreen(p: {
   settings: Settings;
@@ -30,105 +47,104 @@ export function SettingsScreen(p: {
       { text: "Отмена", style: "cancel" },
       { text: "Сбросить", style: "destructive", onPress: p.onReset },
     ]);
+  const TimeBtn = ({ label, d }: { label: string; d: number }) => (
+    <Pressy onPress={() => shiftTime(d)} hitSlop={6} accessibilityRole="button" style={[styles.tbtn, { borderColor: t.border }]}>
+      <Text style={[font.medium, { fontSize: 14, color: t.text }]}>{label}</Text>
+    </Pressy>
+  );
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-      <View style={styles.header}>
-        <Pressable onPress={p.onBack} hitSlop={14} accessibilityLabel="Назад">
-          <Text style={{ fontSize: 26, color: t.text }}>←</Text>
-        </Pressable>
-        <Text style={[styles.title, { color: t.text }]}>Настройки</Text>
-      </View>
+    <FadeIn>
+      <ScreenHeader title="Настройки" onBack={p.onBack} />
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
+        <SectionTitle>Направление карточек</SectionTitle>
+        <Segmented value={s.direction} options={DIRECTION_OPTIONS} onChange={(v) => p.onChange({ direction: v })} />
 
-      <SectionTitle>Направление карточек</SectionTitle>
-      <Segmented value={s.direction} options={DIRECTION_OPTIONS} onChange={(v) => p.onChange({ direction: v })} />
+        <SectionTitle>Новых слов в день</SectionTitle>
+        <Segmented
+          value={s.newPerDay}
+          options={[5, 10, 15, 20].map((n) => ({ value: n, label: String(n) }))}
+          onChange={(v) => p.onChange({ newPerDay: v })}
+        />
 
-      <SectionTitle>Новых слов в день</SectionTitle>
-      <Segmented
-        value={s.newPerDay}
-        options={[5, 10, 15, 20].map((n) => ({ value: n, label: String(n) }))}
-        onChange={(v) => p.onChange({ newPerDay: v })}
-      />
+        <SectionTitle>Карточек за занятие (макс.)</SectionTitle>
+        <Segmented
+          value={s.sessionSize}
+          options={[10, 20, 30].map((n) => ({ value: n, label: String(n) }))}
+          onChange={(v) => p.onChange({ sessionSize: v })}
+        />
 
-      <SectionTitle>Карточек за занятие (макс.)</SectionTitle>
-      <Segmented
-        value={s.sessionSize}
-        options={[10, 20, 30].map((n) => ({ value: n, label: String(n) }))}
-        onChange={(v) => p.onChange({ sessionSize: v })}
-      />
+        <SectionTitle>Тема оформления</SectionTitle>
+        <Segmented<ThemePref>
+          value={s.theme}
+          options={[
+            { value: "system", label: "Системная" },
+            { value: "light", label: "Светлая" },
+            { value: "dark", label: "Тёмная" },
+          ]}
+          onChange={(v) => p.onChange({ theme: v })}
+        />
 
-      <SectionTitle>Тема оформления</SectionTitle>
-      <Segmented<ThemePref>
-        value={s.theme}
-        options={[
-          { value: "system", label: "Системная" },
-          { value: "light", label: "Светлая" },
-          { value: "dark", label: "Тёмная" },
-        ]}
-        onChange={(v) => p.onChange({ theme: v })}
-      />
-
-      <SectionTitle>Напоминание</SectionTitle>
-      <View style={[styles.switchRow, { backgroundColor: t.card, borderColor: t.border }]}>
-        <Text style={{ color: t.text, fontSize: 17, flex: 1 }}>Ежедневное напоминание</Text>
-        <Switch value={s.reminderEnabled} onValueChange={p.onToggleReminder} accessibilityLabel="Ежедневное напоминание" />
-      </View>
-      <View style={[styles.timeRow, { backgroundColor: t.card, borderColor: t.border }]}>
-        <Pressable onPress={() => shiftTime(-60)} hitSlop={6} style={[styles.tbtn, { backgroundColor: t.cardAlt }]}>
-          <Text style={[styles.tbtnText, { color: t.text }]}>−1 ч</Text>
-        </Pressable>
-        <Pressable onPress={() => shiftTime(-15)} hitSlop={6} style={[styles.tbtn, { backgroundColor: t.cardAlt }]}>
-          <Text style={[styles.tbtnText, { color: t.text }]}>−15</Text>
-        </Pressable>
-        <Text style={{ fontSize: 28, fontWeight: "800", color: s.reminderEnabled ? t.text : t.textDim, minWidth: 90, textAlign: "center" }}>
-          {hh}:{mm}
-        </Text>
-        <Pressable onPress={() => shiftTime(15)} hitSlop={6} style={[styles.tbtn, { backgroundColor: t.cardAlt }]}>
-          <Text style={[styles.tbtnText, { color: t.text }]}>+15</Text>
-        </Pressable>
-        <Pressable onPress={() => shiftTime(60)} hitSlop={6} style={[styles.tbtn, { backgroundColor: t.cardAlt }]}>
-          <Text style={[styles.tbtnText, { color: t.text }]}>+1 ч</Text>
-        </Pressable>
-      </View>
-      <Text style={{ color: t.textDim, fontSize: 14, marginTop: 8 }}>
-        В уведомлении — сколько карточек ждёт сегодня. Если занятие уже сделано, сегодня напоминания не будет.
-      </Text>
-      {p.permission === "blocked" || (p.permission === "denied" && s.reminderEnabled) ? (
-        <View style={{ marginTop: 10 }}>
-          <Text style={{ color: t.again, fontSize: 15 }}>Уведомления для Karten запрещены в настройках Android.</Text>
-          <Btn title="Открыть настройки Android" outline onPress={() => Linking.openSettings()} style={{ marginTop: 8 }} />
+        <SectionTitle>Напоминание</SectionTitle>
+        <ToggleRow label="Ежедневное напоминание" value={s.reminderEnabled} onChange={p.onToggleReminder} a11y="Ежедневное напоминание" />
+        <View style={[styles.timeRow, { borderColor: t.border }]}>
+          <View style={{ flexDirection: "row", gap: 6 }}>
+            <TimeBtn label="−1 ч" d={-60} />
+            <TimeBtn label="−15" d={-15} />
+          </View>
+          <Text style={[font.semibold, { fontSize: 30, letterSpacing: -1, color: s.reminderEnabled ? t.text : t.faint, textAlign: "center" }]}>
+            {`${hh}:${mm}`}
+          </Text>
+          <View style={{ flexDirection: "row", gap: 6 }}>
+            <TimeBtn label="+15" d={15} />
+            <TimeBtn label="+1 ч" d={60} />
+          </View>
         </View>
-      ) : null}
-      {s.reminderEnabled && p.permission === "granted" ? (
-        <Btn title="🔔 Проверить (через 5 секунд)" outline onPress={p.onTestReminder} style={{ marginTop: 10 }} />
-      ) : null}
+        <T v="small" dim style={{ marginTop: 10 }}>
+          В уведомлении — сколько карточек ждёт сегодня. Если занятие уже сделано, сегодня напоминания не будет.
+        </T>
+        {p.permission === "blocked" || (p.permission === "denied" && s.reminderEnabled) ? (
+          <View style={{ marginTop: 12 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={[styles.dot, { backgroundColor: t.again }]} />
+              <T v="bodyM" color={t.again} style={{ flex: 1 }}>Уведомления для Karten запрещены в настройках Android.</T>
+            </View>
+            <Btn title="Открыть настройки Android" variant="outline" onPress={() => Linking.openSettings()} style={{ marginTop: 10 }} />
+          </View>
+        ) : null}
+        {s.reminderEnabled && p.permission === "granted" ? (
+          <Btn title="Проверить (через 5 секунд)" icon="bell" variant="outline" onPress={p.onTestReminder} style={{ marginTop: 12 }} />
+        ) : null}
 
-      <SectionTitle>Озвучка</SectionTitle>
-      <View style={[styles.switchRow, { backgroundColor: t.card, borderColor: t.border }]}>
-        <Text style={{ color: t.text, fontSize: 17, flex: 1 }}>Автоматически произносить немецкое слово</Text>
-        <Switch value={s.autoSpeak} onValueChange={(v) => p.onChange({ autoSpeak: v })} />
-      </View>
-      <Btn title="🔊 Проверить голос" outline onPress={() => speakGerman("Grüß Gott! Wie geht es Ihnen?")} style={{ marginTop: 10 }} />
-      <Text style={{ color: t.textDim, fontSize: 14, marginTop: 8 }}>
-        Если голоса нет — установите немецкий язык в настройках Android: «Синтез речи» → Google → Немецкий.
-      </Text>
+        <SectionTitle>Озвучка</SectionTitle>
+        <ToggleRow label="Автоматически произносить немецкое слово" value={s.autoSpeak} onChange={(v) => p.onChange({ autoSpeak: v })} />
+        <Btn title="Проверить голос" icon="volume" variant="outline" onPress={() => speakGerman("Grüß Gott! Wie geht es Ihnen?")} style={{ marginTop: 12 }} />
+        <T v="small" dim style={{ marginTop: 10 }}>
+          Если голоса нет — установите немецкий язык в настройках Android: «Синтез речи» → Google → Немецкий.
+        </T>
 
-      <SectionTitle>Данные</SectionTitle>
-      <Btn title="Сбросить прогресс" color={t.again} outline onPress={confirmReset} />
+        <SectionTitle>Данные</SectionTitle>
+        <Btn title="Сбросить прогресс" variant="danger" onPress={confirmReset} />
 
-      <Text style={{ color: t.textDim, textAlign: "center", marginTop: 28, fontSize: 13 }}>
-        Karten v1.1 · {WORDS.length} слов · {WORDS.filter((w) => w.at).length} австрийских{"\n"}
-        Интервальное повторение (SM-2), всё хранится на телефоне.
-      </Text>
-    </ScrollView>
+        <View style={{ alignItems: "center", marginTop: 36 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Text style={[font.semibold, { color: t.text, fontSize: 15, letterSpacing: -0.2 }]}>Karten</Text>
+            <View style={[styles.dot, { backgroundColor: t.accent }]} />
+            <T v="small" dim>v1.2</T>
+          </View>
+          <T v="small" faint style={{ textAlign: "center", marginTop: 6 }}>
+            {WORDS.length} слов · {WORDS.filter((w) => w.at).length} австрийских{"\n"}
+            Интервальное повторение (SM-2), всё хранится на телефоне.
+          </T>
+        </View>
+      </ScrollView>
+    </FadeIn>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", gap: 16, marginBottom: 4 },
-  title: { fontSize: 26, fontWeight: "800" },
-  switchRow: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderRadius: 14, padding: 14 },
-  timeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderRadius: 14, padding: 10, marginTop: 10 },
-  tbtn: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 10 },
-  tbtnText: { fontSize: 15, fontWeight: "700" },
+  switchRow: { flexDirection: "row", alignItems: "center", borderTopWidth: 1, borderBottomWidth: 1, paddingVertical: 12 },
+  timeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, paddingVertical: 14 },
+  tbtn: { borderRadius: 12, borderWidth: 1, paddingVertical: 8, paddingHorizontal: 10 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
 });

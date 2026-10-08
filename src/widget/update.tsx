@@ -2,7 +2,7 @@ import React from "react";
 import { Platform } from "react-native";
 import { requestWidgetUpdate } from "react-native-android-widget";
 import { AppData } from "../logic/data";
-import { WordOfDayWidget } from "./WordOfDayWidget";
+import { widgetRepresentation } from "./WordOfDayWidget";
 import { widgetProps } from "./widgetData";
 import { WIDGET_NAME } from "./handler";
 
@@ -10,5 +10,5 @@ import { WIDGET_NAME } from "./handler";
 export function updateWidgets(data: AppData) {
   if (Platform.OS !== "android") return;
   const p = widgetProps(data);
-  requestWidgetUpdate({ widgetName: WIDGET_NAME, renderWidget: () => <WordOfDayWidget {...p} /> }).catch(() => {});
+  requestWidgetUpdate({ widgetName: WIDGET_NAME, renderWidget: () => widgetRepresentation(p) }).catch(() => {});
 }

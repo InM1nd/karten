@@ -2,9 +2,10 @@ import React, { useMemo, useRef, useState } from "react";
 import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Article, Word } from "../data/types";
 import { articlePool, shuffle, SWIPE_ARTICLE } from "../logic/games";
-import { Btn, ScreenHeader, TimerBar, useCountdown } from "../ui/components";
+import { Btn, FadeIn, GermanWord, Hairline, Pressy, ResultHero, ScreenHeader, T, TimerBar, useCountdown } from "../ui/components";
+import { Icon } from "../ui/Icon";
 import { hapticBad, hapticOk } from "../ui/haptics";
-import { useTheme } from "../ui/theme";
+import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
 
 export const ARTICLE_ROUND_SECONDS = 60;
@@ -14,6 +15,8 @@ export interface ArticleRoundResult {
   answered: number;
   mistakes: string[];
 }
+
+const LABELS: Record<Article, string> = { der: "← der", die: "↑ die", das: "das →" };
 
 export function ArticleScreen(p: {
   best: number;
@@ -74,6 +77,7 @@ export function ArticleScreen(p: {
       hapticBad();
     }
     setFeedback({ chosen: a, ok });
+    Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false, speed: 20, bounciness: 0 }).start();
     setTimeout(() => {
       setFeedback(null);
       pan.setValue({ x: 0, y: 0 });
@@ -100,55 +104,64 @@ export function ArticleScreen(p: {
 
   if (phase === "intro") {
     return (
-      <View style={{ flex: 1 }}>
-        <ScreenHeader title="Артикли" onBack={p.onBack} />
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={[styles.big, { color: t.text }]}>der · die · das</Text>
-          <Text style={[styles.p, { color: t.textDim }]}>
-            {ARTICLE_ROUND_SECONDS} секунд. Определи артикль как можно большего числа существительных.{"\n\n"}
-            Свайп карточки: ← <Text style={{ color: t.article.der, fontWeight: "800" }}>der</Text>, ↑{" "}
-            <Text style={{ color: t.article.die, fontWeight: "800" }}>die</Text>, →{" "}
-            <Text style={{ color: t.article.das, fontWeight: "800" }}>das</Text> — или нажимай на кнопки.{"\n\n"}
-            Ошибки попадут в повторение.
-          </Text>
-          <Text style={[styles.p, { color: t.text, fontWeight: "700" }]}>🏆 Рекорд: {p.best}</Text>
-          <Btn title="Старт" onPress={start} style={{ marginTop: 20 }} />
+      <FadeIn>
+        <ScreenHeader title="Артикли" onBack={p.onBack} subtitle={`${ARTICLE_ROUND_SECONDS} секунд на раунд`} />
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30, flexGrow: 1 }}>
+          <T v="body" dim style={{ marginTop: 18 }}>
+            Определи артикль как можно большего числа существительных. Свайпни карточку или нажми кнопку. Ошибки попадут в повторение.
+          </T>
+          <View style={{ marginTop: 28 }}>
+            {(["der", "die", "das"] as Article[]).map((a, i) => (
+              <View key={a} style={[styles.introRow, { borderColor: t.border }, i === 0 && { borderTopWidth: 1 }]}>
+                <Icon name={a === "der" ? "arrowLeft" : a === "die" ? "arrowUp" : "arrowRight"} size={20} color={t.text} />
+                <T v="body" dim style={{ flex: 1 }}>{a === "der" ? "свайп влево" : a === "die" ? "свайп вверх" : "свайп вправо"}</T>
+                <View style={[styles.dot, { backgroundColor: t.article[a] }]} />
+                <T v="h3" color={t.article[a]}>{a}</T>
+              </View>
+            ))}
+          </View>
+          <T v="bodyM" style={{ marginTop: 24 }}>Рекорд: {p.best}</T>
+          <View style={{ flex: 1, minHeight: 30 }} />
+          <Btn title="Старт" arrow onPress={start} />
         </ScrollView>
-      </View>
+      </FadeIn>
     );
   }
 
   if (phase === "done" && result) {
     const record = result.score > prevBest;
     return (
-      <View style={{ flex: 1 }}>
-        <ScreenHeader title="Артикли" onBack={p.onBack} />
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={{ fontSize: 56, textAlign: "center" }}>{record ? "🏆" : result.mistakes.length === 0 ? "🎯" : "👏"}</Text>
-          <Text style={[styles.big, { color: t.text }]}>{result.score} очк.</Text>
-          <Text style={[styles.p, { color: t.textDim, textAlign: "center" }]}>
-            {record ? "Новый рекорд!" : `Рекорд: ${Math.max(prevBest, result.score)}`} · ответов: {result.answered} · ошибок:{" "}
-            {result.mistakes.length}
-          </Text>
+      <FadeIn>
+        <ScreenHeader title="Артикли" onBack={p.onBack} compact />
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30 }}>
+          <ResultHero
+            value={result.score}
+            label="очк."
+            note={record ? "Новый рекорд!" : `Рекорд: ${Math.max(prevBest, result.score)}`}
+            accentNote={record}
+          />
+          <T v="bodyM" dim style={{ marginTop: 10 }}>
+            ответов: {result.answered} · ошибок: {result.mistakes.length}
+          </T>
           {result.mistakes.length ? (
-            <View style={[styles.box, { backgroundColor: t.card, borderColor: t.border }]}>
-              <Text style={{ color: t.textDim, marginBottom: 8 }}>Добавлено в повторение:</Text>
+            <View style={{ marginTop: 28 }}>
+              <T v="caps" dim style={{ marginBottom: 6 }}>Добавлено в повторение</T>
               {[...new Set(result.mistakes)].map((id) => {
                 const w = words.find((x) => x.id === id);
                 if (!w || !w.article) return null;
                 return (
-                  <Text key={id} style={{ fontSize: 18, color: t.text, marginVertical: 3 }}>
-                    <Text style={{ color: t.article[w.article], fontWeight: "800" }}>{w.article}</Text> {w.de}
-                    <Text style={{ color: t.textDim, fontSize: 15 }}> — {w.ru}</Text>
-                  </Text>
+                  <View key={id} style={[styles.mRow, { borderColor: t.border }]}>
+                    <GermanWord w={w} size={18} center={false} />
+                    <T v="bodyM" dim style={{ flexShrink: 1, textAlign: "right" }}>{w.ru}</T>
+                  </View>
                 );
               })}
             </View>
           ) : null}
-          <Btn title="Ещё раз" onPress={start} style={{ marginTop: 20 }} />
-          <Btn title="Назад" outline onPress={p.onBack} style={{ marginTop: 12 }} />
+          <Btn title="Ещё раз" onPress={start} style={{ marginTop: 28 }} />
+          <Btn title="Назад" variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} />
         </ScrollView>
-      </View>
+      </FadeIn>
     );
   }
 
@@ -157,10 +170,11 @@ export function ArticleScreen(p: {
     <View style={{ flex: 1 }}>
       <ScreenHeader
         title={`Очки: ${score}`}
+        compact
         onBack={p.onBack}
         right={
-          <Pressable onPress={finish} hitSlop={10}>
-            <Text style={{ color: t.accent, fontWeight: "700", fontSize: 16 }}>Стоп</Text>
+          <Pressable onPress={finish} hitSlop={10} accessibilityRole="button">
+            <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>Стоп</Text>
           </Pressable>
         }
       />
@@ -171,50 +185,57 @@ export function ArticleScreen(p: {
             {...responder.panHandlers}
             style={[
               styles.card,
-              { backgroundColor: t.card, borderColor: border, transform: [...pan.getTranslateTransform(), { rotate: pan.x.interpolate({ inputRange: [-200, 0, 200], outputRange: ["-12deg", "0deg", "12deg"] }) }] },
+              {
+                backgroundColor: t.bg,
+                borderColor: border,
+                transform: [...pan.getTranslateTransform(), { rotate: pan.x.interpolate({ inputRange: [-200, 0, 200], outputRange: ["-8deg", "0deg", "8deg"] }) }],
+              },
             ]}
           >
-            {feedback && !feedback.ok ? (
-              <Text style={{ fontSize: 40, fontWeight: "800", color: t.article[word.article!], textAlign: "center" }}>
-                {word.article} {word.de}
-              </Text>
-            ) : (
-              <Text style={{ fontSize: 40, fontWeight: "800", color: t.text, textAlign: "center" }}>
-                {feedback?.ok ? <Text style={{ color: t.article[word.article!] }}>{word.article} </Text> : "___ "}
-                {word.de}
-              </Text>
-            )}
-            <Text style={{ fontSize: 18, color: t.textDim, marginTop: 12, textAlign: "center" }}>{word.ru}</Text>
             {feedback ? (
-              <Text style={{ fontSize: 22, marginTop: 16, color: feedback.ok ? t.good : t.again, fontWeight: "800" }}>
-                {feedback.ok ? "✓ Верно" : `✗ Не ${feedback.chosen}`}
-              </Text>
-            ) : null}
+              <GermanWord w={word} size={40} stack />
+            ) : (
+              <View style={{ alignItems: "center" }}>
+                <Text style={[font.semibold, { fontSize: 18, color: t.faint, letterSpacing: 2 }]}>— — —</Text>
+                <Text style={[font.semibold, { fontSize: 40, lineHeight: 46, letterSpacing: -1.6, color: t.text, marginTop: 8, textAlign: "center" }]}>{word.de}</Text>
+              </View>
+            )}
+            <T v="body" dim style={{ marginTop: 12, textAlign: "center" }}>{word.ru}</T>
+            <Text style={[font.semibold, { fontSize: 16, marginTop: 18, minHeight: 22, color: feedback ? (feedback.ok ? t.good : t.again) : "transparent" }]}>
+              {feedback ? (feedback.ok ? "✓ Верно" : `✗ Не ${feedback.chosen}`) : " "}
+            </Text>
           </Animated.View>
         ) : null}
       </View>
       <View style={styles.row}>
-        {(["der", "die", "das"] as Article[]).map((a, i) => (
-          <Btn
+        {(["der", "die", "das"] as Article[]).map((a) => (
+          <Pressy
             key={a}
-            title={["← der", "↑ die", "das →"][i]}
-            color={t.article[a]}
-            textColor={t.dark ? "#0F1117" : "#FFFFFF"}
             onPress={() => answer(a)}
-            style={{ flex: 1, paddingVertical: 22 }}
-          />
+            accessibilityRole="button"
+            style={[
+              styles.artBtn,
+              { borderColor: t.border },
+              feedback && word?.article === a && { borderColor: t.article[a] },
+            ]}
+          >
+            <View style={[styles.dot, { backgroundColor: t.article[a] }]} />
+            <Text style={[font.semibold, { fontSize: 17, color: t.text, letterSpacing: -0.2 }]}>{LABELS[a]}</Text>
+          </Pressy>
         ))}
       </View>
-      <Text style={{ textAlign: "center", color: t.textDim, marginBottom: 12 }}>ошибок: {mistakes.length}</Text>
+      <Hairline style={{ marginHorizontal: 24, marginTop: 6 }} />
+      <T v="small" dim style={{ textAlign: "center", marginVertical: 12 }}>ошибок: {mistakes.length}</T>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  big: { fontSize: 34, fontWeight: "800", textAlign: "center", marginVertical: 12 },
-  p: { fontSize: 17, lineHeight: 25, marginTop: 8 },
-  box: { borderWidth: 1, borderRadius: 16, padding: 16, marginTop: 18 },
-  cardArea: { flex: 1, justifyContent: "center", padding: 20 },
-  card: { borderRadius: 24, borderWidth: 3, padding: 28, minHeight: 240, alignItems: "center", justifyContent: "center", elevation: 3 },
-  row: { flexDirection: "row", gap: 10, paddingHorizontal: 20, paddingBottom: 10 },
+  introRow: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 16, borderBottomWidth: 1 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  mRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingVertical: 12, borderBottomWidth: 1 },
+  cardArea: { flex: 1, justifyContent: "center", paddingHorizontal: 24 },
+  card: { borderRadius: 28, borderWidth: 1, padding: 28, minHeight: 280, alignItems: "center", justifyContent: "center" },
+  row: { flexDirection: "row", gap: 8, paddingHorizontal: 20, paddingBottom: 10 },
+  artBtn: { flex: 1, height: 64, borderRadius: 18, borderWidth: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
 });

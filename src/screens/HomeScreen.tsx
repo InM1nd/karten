@@ -3,16 +3,22 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { TOPICS, TopicId } from "../data/types";
 import { Direction, Settings } from "../logic/data";
 import { DeckStats } from "../logic/srs";
-import { Btn, Chip, SectionTitle, Segmented, StatTile } from "../ui/components";
-import { useTheme } from "../ui/theme";
+import { Btn, Chip, FadeIn, Pressy, SectionTitle, Segmented, StatSplit, T } from "../ui/components";
+import { Icon, IconName } from "../ui/Icon";
+import { dateLabel, greeting, plural, weekDots } from "../ui/format";
+import { font, useTheme } from "../ui/theme";
 
 export interface HomeProps {
   stats: DeckStats;
   streak: number;
   bestStreak: number;
+  lastStudyDay: number | null;
+  today: number;
   newToday: number;
   reviewsToday: number;
   queueSize: number;
+  queueDue: number;
+  queueNew: number;
   unseenInFilter: number;
   settings: Settings;
   onStart: (extraNew: boolean) => void;
@@ -26,25 +32,7 @@ export interface HomeProps {
   achievementsUnlocked: number;
   achievementsTotal: number;
   onEnableReminder: () => void;
-}
-
-function ModeTile(p: { emoji: string; title: string; sub: string; onPress: () => void; color: string }) {
-  const t = useTheme();
-  return (
-    <Pressable
-      onPress={p.onPress}
-      accessibilityRole="button"
-      style={({ pressed }) => [
-        styles.mode,
-        { backgroundColor: t.card, borderColor: t.border, borderLeftColor: p.color },
-        pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-      ]}
-    >
-      <Text style={{ fontSize: 28 }}>{p.emoji}</Text>
-      <Text style={{ color: t.text, fontSize: 17, fontWeight: "800", marginTop: 6 }}>{p.title}</Text>
-      <Text style={{ color: t.textDim, fontSize: 13, marginTop: 2 }}>{p.sub}</Text>
-    </Pressable>
-  );
+  now?: Date;
 }
 
 export const DIRECTION_OPTIONS: { value: Direction; label: string }[] = [
@@ -53,133 +41,182 @@ export const DIRECTION_OPTIONS: { value: Direction; label: string }[] = [
   { value: "mixed", label: "Вперемешку" },
 ];
 
+function ModeTile(p: { icon: IconName; title: string; sub: string; onPress: () => void; right: boolean; last: boolean }) {
+  const t = useTheme();
+  return (
+    <Pressy
+      onPress={p.onPress}
+      accessibilityRole="button"
+      scaleTo={0.98}
+      style={[
+        styles.tile,
+        { borderBottomColor: t.border },
+        !p.right && { borderRightWidth: 1, borderRightColor: t.border, paddingRight: 12 },
+        p.right && { paddingLeft: 16 },
+      ]}
+    >
+      <Icon name={p.icon} size={22} color={t.text} />
+      <View style={{ flex: 1 }}>
+        <T v="h3" style={{ fontSize: 16 }}>{p.title}</T>
+        <T v="small" dim style={{ marginTop: 3 }} numberOfLines={1}>{p.sub}</T>
+      </View>
+    </Pressy>
+  );
+}
+
 export function HomeScreen(p: HomeProps) {
   const t = useTheme();
+  const now = p.now ?? new Date();
+  const g = greeting(now);
   const minutes = Math.max(1, Math.ceil((p.queueSize * 15) / 60));
+  const week = weekDots(p.today, p.lastStudyDay, p.streak);
   const toggleTopic = (id: TopicId) => {
     const set = new Set(p.settings.topics);
     set.has(id) ? set.delete(id) : set.add(id);
     p.onSettings({ topics: TOPICS.map((x) => x.id).filter((x) => set.has(x)) });
   };
+  const hh = String(p.settings.reminderHour).padStart(2, "0"), mm = String(p.settings.reminderMinute).padStart(2, "0");
+
+  const tiles: { icon: IconName; title: string; sub: string; go: () => void }[] = [
+    { icon: "target", title: "Артикли", sub: `рекорд ${p.articleBest}`, go: () => p.onOpen("article") },
+    { icon: "bolt", title: "Скорость", sub: `рекорд ${p.speedBest}`, go: () => p.onOpen("speed") },
+    { icon: "pen", title: "Письмо", sub: "10 за раунд", go: () => p.onOpen("typing") },
+    { icon: "star", title: "Мои слова", sub: p.customCount ? `${p.customCount} ${plural(p.customCount, "слово", "слова", "слов")}` : "добавь свои", go: () => p.onOpen("custom") },
+    { icon: "book", title: "Словарь", sub: `${p.stats.total} ${plural(p.stats.total, "слово", "слова", "слов")}`, go: p.onOpenBrowse },
+    { icon: "trophy", title: "Достижения", sub: `${p.achievementsUnlocked}/${p.achievementsTotal}`, go: () => p.onOpen("achievements") },
+  ];
 
   return (
-    <ScrollView contentContainerStyle={styles.wrap}>
-      <View style={styles.header}>
-        <View>
-          <Text style={[styles.title, { color: t.text }]}>Karten</Text>
-          <Text style={{ color: t.textDim, fontSize: 16 }}>Немецкий A2–B1 · 5 минут в день</Text>
+    <FadeIn>
+      <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
+        <View style={styles.top}>
+          <T v="bodyM" dim>{dateLabel(now)}</T>
+          <Pressy onPress={p.onOpenSettings} hitSlop={14} accessibilityRole="button" accessibilityLabel="Настройки" scaleTo={0.9}>
+            <Icon name="sliders" size={21} color={t.text} />
+          </Pressy>
         </View>
-        <Pressable onPress={p.onOpenSettings} hitSlop={12} style={[styles.iconBtn, { backgroundColor: t.card }]}>
-          <Text style={{ fontSize: 22 }}>⚙️</Text>
-        </Pressable>
-      </View>
 
-      <View style={styles.tiles}>
-        <StatTile icon="🔥" value={p.streak} label={`дней подряд\nрекорд ${p.bestStreak}`} />
-        <StatTile icon="🧠" value={`${p.stats.learned}`} label={`выучено из ${p.stats.total}`} />
-        <StatTile icon="⏳" value={p.stats.dueToday} label="повторить сегодня" />
-      </View>
+        <Text style={[styles.hello, { color: t.text }]}>
+          {g.ru}
+          {"\n"}
+          <Text style={{ color: t.faint }}>{g.de}</Text>
+        </Text>
 
-      <View style={[styles.startCard, { backgroundColor: t.card, borderColor: t.border }]}>
+        <View style={styles.streak}>
+          <View style={[styles.dot, { backgroundColor: p.streak > 0 ? t.accent : t.faint }]} />
+          <T v="bodyM">
+            {p.streak > 0 ? `${p.streak} ${plural(p.streak, "день", "дня", "дней")} подряд` : "Начни серию сегодня"}
+          </T>
+          {p.bestStreak > 0 ? <T v="bodyM" dim> · рекорд {p.bestStreak}</T> : null}
+        </View>
+
         {p.queueSize > 0 ? (
           <>
-            <Text style={[styles.startTitle, { color: t.text }]}>Занятие на сегодня</Text>
-            <Text style={{ color: t.textDim, fontSize: 16, marginBottom: 14 }}>
-              {p.queueSize} карточек · ~{minutes} мин · новых сегодня {p.newToday}/{p.settings.newPerDay}
-            </Text>
-            <Btn title="Начать" onPress={() => p.onStart(false)} />
+            <View style={styles.big}>
+              <Text style={[styles.bigNum, { color: t.text }]} accessibilityLabel={`${p.queueSize} карточек на сегодня`}>{p.queueSize}</Text>
+              <T v="body" dim style={{ paddingBottom: 8, fontSize: 17 }}>
+                {plural(p.queueSize, "карточка", "карточки", "карточек")}
+                {"\n"}на сегодня
+              </T>
+            </View>
+            <View style={{ marginTop: 24 }}>
+              <StatSplit
+                items={[
+                  { value: p.queueDue, label: "повторить" },
+                  { value: p.queueNew, label: "новых" },
+                  { value: `${minutes} мин`, label: "примерно" },
+                ]}
+              />
+            </View>
+            <Btn title="Начать" arrow onPress={() => p.onStart(false)} style={{ marginTop: 22 }} />
           </>
         ) : (
-          <>
-            <Text style={[styles.startTitle, { color: t.text }]}>На сегодня всё! 🎉</Text>
-            <Text style={{ color: t.textDim, fontSize: 16, marginBottom: 14 }}>
-              {p.reviewsToday > 0 ? `Сегодня повторено: ${p.reviewsToday}. ` : ""}
-              Возвращайся завтра — или выучи ещё несколько слов.
-            </Text>
-            <Btn
-              title="Ещё 10 новых слов"
-              outline
-              disabled={p.unseenInFilter === 0}
-              onPress={() => p.onStart(true)}
-            />
+          <View style={{ marginTop: 34 }}>
+            <T v="h1">На сегодня всё.</T>
+            <T v="body" dim style={{ marginTop: 10 }}>
+              {p.reviewsToday > 0 ? `Сегодня повторено: ${p.reviewsToday}. ` : ""}Возвращайся завтра — или выучи ещё несколько слов.
+            </T>
+            <Btn title="Ещё 10 новых слов" variant="outline" disabled={p.unseenInFilter === 0} onPress={() => p.onStart(true)} style={{ marginTop: 22 }} />
             {p.unseenInFilter === 0 ? (
-              <Text style={{ color: t.textDim, marginTop: 8, textAlign: "center" }}>
-                В выбранных темах новых слов больше нет.
-              </Text>
+              <T v="small" dim style={{ marginTop: 10, textAlign: "center" }}>В выбранных темах новых слов больше нет.</T>
             ) : null}
-          </>
+          </View>
         )}
-      </View>
 
-      {!p.settings.reminderEnabled && !p.settings.reminderPromptDismissed ? (
-        <View style={[styles.banner, { backgroundColor: t.cardAlt }]}>
-          <Text style={{ fontSize: 24 }}>🔔</Text>
-          <Text style={{ flex: 1, color: t.text, fontSize: 15 }}>
-            Напоминать каждый день в {String(p.settings.reminderHour).padStart(2, "0")}:
-            {String(p.settings.reminderMinute).padStart(2, "0")}?
-          </Text>
-          <Pressable onPress={p.onEnableReminder} hitSlop={8}>
-            <Text style={{ color: t.accent, fontWeight: "800", fontSize: 15 }}>Включить</Text>
-          </Pressable>
-          <Pressable onPress={() => p.onSettings({ reminderPromptDismissed: true })} hitSlop={10} accessibilityLabel="Скрыть">
-            <Text style={{ color: t.textDim, fontSize: 18, marginLeft: 6 }}>✕</Text>
-          </Pressable>
+        <View style={styles.week}>
+          {week.map((d) => (
+            <View key={d.day} style={styles.wd}>
+              <T v="small" color={d.today ? t.accent : d.done ? t.text : t.faint} style={{ fontSize: 12 }}>{d.label}</T>
+              <View
+                style={[
+                  styles.wdot,
+                  { backgroundColor: d.done ? t.text : t.border },
+                  d.today && !d.done && { backgroundColor: t.bg, borderWidth: 2, borderColor: t.accent, width: 10, height: 10 },
+                  d.today && d.done && { backgroundColor: t.accent },
+                ]}
+              />
+            </View>
+          ))}
         </View>
-      ) : null}
 
-      <SectionTitle>Тренировки</SectionTitle>
-      <View style={styles.grid}>
-        <ModeTile emoji="🎯" title="Артикли" sub={`der/die/das · рекорд ${p.articleBest}`} color={t.article.der} onPress={() => p.onOpen("article")} />
-        <ModeTile emoji="⚡" title="Скорость" sub={`60 сек · рекорд ${p.speedBest}`} color={t.hard} onPress={() => p.onOpen("speed")} />
-      </View>
-      <View style={styles.grid}>
-        <ModeTile emoji="⌨️" title="Письмо" sub="напиши слово по-немецки" color={t.article.das} onPress={() => p.onOpen("typing")} />
-        <ModeTile emoji="⭐" title="Мои слова" sub={p.customCount ? `слов: ${p.customCount}` : "добавь свои"} color={t.article.die} onPress={() => p.onOpen("custom")} />
-      </View>
-      <View style={styles.grid}>
-        <ModeTile emoji="📖" title="Словарь" sub="поиск и примеры" color={t.accent} onPress={p.onOpenBrowse} />
-        <ModeTile
-          emoji="🏆"
-          title="Достижения"
-          sub={`${p.achievementsUnlocked} из ${p.achievementsTotal}`}
-          color={t.good}
-          onPress={() => p.onOpen("achievements")}
-        />
-      </View>
+        {!p.settings.reminderEnabled && !p.settings.reminderPromptDismissed ? (
+          <View style={[styles.banner, { borderColor: t.border }]}>
+            <Icon name="bell" size={20} color={t.text} />
+            <T v="bodyM" style={{ flex: 1 }}>Напоминать каждый день в {hh}:{mm}?</T>
+            <Pressable onPress={p.onEnableReminder} hitSlop={8} accessibilityRole="button">
+              <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>Включить</Text>
+            </Pressable>
+            <Pressable onPress={() => p.onSettings({ reminderPromptDismissed: true })} hitSlop={10} accessibilityLabel="Скрыть">
+              <Icon name="x" size={18} color={t.textDim} />
+            </Pressable>
+          </View>
+        ) : null}
 
-      <SectionTitle>Направление</SectionTitle>
-      <Segmented value={p.settings.direction} options={DIRECTION_OPTIONS} onChange={(v) => p.onSettings({ direction: v })} />
+        <SectionTitle>Режимы</SectionTitle>
+        <View style={[styles.grid, { borderTopColor: t.border }]}>
+          {tiles.map((x, i) => (
+            <ModeTile key={x.title} icon={x.icon} title={x.title} sub={x.sub} onPress={x.go} right={i % 2 === 1} last={i >= 4} />
+          ))}
+        </View>
 
-      <SectionTitle>Темы</SectionTitle>
-      <View style={styles.chips}>
-        <Chip label="Все темы" active={p.settings.topics.length === 0} onPress={() => p.onSettings({ topics: [] })} />
-        {TOPICS.filter((tp) => tp.id !== "custom" || p.customCount > 0).map((tp) => (
-          <Chip
-            key={tp.id}
-            label={`${tp.emoji} ${tp.de}`}
-            active={p.settings.topics.includes(tp.id)}
-            onPress={() => toggleTopic(tp.id)}
+        <SectionTitle>Направление</SectionTitle>
+        <Segmented value={p.settings.direction} options={DIRECTION_OPTIONS} onChange={(v) => p.onSettings({ direction: v })} />
+
+        <SectionTitle>Темы</SectionTitle>
+        <View style={styles.chips}>
+          <Chip label="Все темы" active={p.settings.topics.length === 0} onPress={() => p.onSettings({ topics: [] })} />
+          {TOPICS.filter((tp) => tp.id !== "custom" || p.customCount > 0).map((tp) => (
+            <Chip key={tp.id} label={tp.de} active={p.settings.topics.includes(tp.id)} onPress={() => toggleTopic(tp.id)} />
+          ))}
+        </View>
+
+        <View style={{ marginTop: 26 }}>
+          <StatSplit
+            items={[
+              { value: p.stats.learned, label: `выучено из ${p.stats.total}` },
+              { value: p.stats.mature, label: "знаю хорошо" },
+              { value: p.stats.dueToday, label: "к повторению" },
+            ]}
           />
-        ))}
-      </View>
-
-      <Text style={{ color: t.textDim, textAlign: "center", marginTop: 16, fontSize: 13 }}>
-        Знаю хорошо (интервал ≥ 21 дн.): {p.stats.mature} · начато: {p.stats.seen}
-      </Text>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </FadeIn>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { padding: 20, paddingBottom: 40 },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-  title: { fontSize: 36, fontWeight: "800" },
-  iconBtn: { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center" },
-  tiles: { flexDirection: "row", marginHorizontal: -4 },
-  startCard: { borderRadius: 20, borderWidth: 1, padding: 20, marginTop: 16 },
-  startTitle: { fontSize: 22, fontWeight: "800", marginBottom: 4 },
+  wrap: { paddingHorizontal: 24, paddingTop: 12, paddingBottom: 48 },
+  top: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  hello: { ...font.semibold, fontSize: 34, lineHeight: 37, letterSpacing: -1.2, marginTop: 22 },
+  streak: { flexDirection: "row", alignItems: "center", marginTop: 14 },
+  dot: { width: 7, height: 7, borderRadius: 4, marginRight: 8 },
+  big: { flexDirection: "row", alignItems: "flex-end", gap: 14, marginTop: 30 },
+  bigNum: { ...font.semibold, fontSize: 112, lineHeight: 108, letterSpacing: -6.5, includeFontPadding: false },
+  week: { flexDirection: "row", justifyContent: "space-between", marginTop: 28, paddingHorizontal: 4 },
+  wd: { alignItems: "center", gap: 9, width: 30 },
+  wdot: { width: 8, height: 8, borderRadius: 5 },
+  banner: { flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 14, marginTop: 26 },
+  grid: { flexDirection: "row", flexWrap: "wrap", borderTopWidth: 1 },
+  tile: { width: "50%", flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 16, borderBottomWidth: 1 },
   chips: { flexDirection: "row", flexWrap: "wrap" },
-  grid: { flexDirection: "row", gap: 10, marginBottom: 10 },
-  mode: { flex: 1, borderWidth: 1, borderLeftWidth: 5, borderRadius: 16, padding: 14 },
-  banner: { flexDirection: "row", alignItems: "center", gap: 10, borderRadius: 16, padding: 14, marginTop: 14 },
 });

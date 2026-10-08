@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, FlatList, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Article, Kind, Word } from "../data/types";
 import { CardState, MATURE_INTERVAL } from "../logic/srs";
 import { normalize } from "../logic/typing";
-import { Btn, GermanWord, ScreenHeader, SectionTitle, Segmented } from "../ui/components";
-import { useTheme } from "../ui/theme";
+import { Btn, FadeIn, GermanWord, Pressy, ScreenHeader, SectionTitle, Segmented, T } from "../ui/components";
+import { Icon } from "../ui/Icon";
+import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
 
 type ArtChoice = "none" | Article;
@@ -62,6 +63,7 @@ export function CustomWordsScreen(p: {
   const { words } = useDeck();
   const [editing, setEditing] = useState<{ id: string | null; form: Form } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [focus, setFocus] = useState<string | null>(null);
 
   if (editing) {
     const f = editing.form;
@@ -88,25 +90,33 @@ export function CustomWordsScreen(p: {
           },
         },
       ]);
-    const input = (label: string, value: string, onChange: (v: string) => void, placeholder: string, multiline = false) => (
-      <View style={{ marginTop: 12 }}>
-        <Text style={{ color: t.textDim, fontSize: 14, marginBottom: 6 }}>{label}</Text>
+    const input = (label: string, value: string, onChange: (v: string) => void, placeholder: string, multiline = false, big = false) => (
+      <View style={{ marginTop: 22 }}>
+        <T v="caps" dim>{label}</T>
         <TextInput
           value={value}
           onChangeText={onChange}
           placeholder={placeholder}
-          placeholderTextColor={t.textDim}
+          placeholderTextColor={t.faint}
           autoCorrect={false}
           multiline={multiline}
           accessibilityLabel={label}
-          style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
+          selectionColor={t.accent}
+          cursorColor={t.accent}
+          onFocus={() => setFocus(label)}
+          onBlur={() => setFocus((x) => (x === label ? null : x))}
+          style={[
+            big ? font.semibold : font.regular,
+            styles.input,
+            { outlineWidth: 0, fontSize: big ? 26 : 18, letterSpacing: big ? -0.6 : -0.1, color: t.text, borderColor: focus === label ? t.text : t.border },
+          ]}
         />
       </View>
     );
     return (
-      <View style={{ flex: 1 }}>
+      <FadeIn key={editing.id ?? "new"}>
         <ScreenHeader title={editing.id ? "Изменить слово" : "Новое слово"} onBack={() => setEditing(null)} />
-        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
           <SectionTitle>Артикль</SectionTitle>
           <Segmented<ArtChoice>
             value={f.article}
@@ -131,60 +141,76 @@ export function CustomWordsScreen(p: {
               />
             </View>
           ) : null}
-          {input("По-немецки *", f.de, (v) => set({ de: v }), f.article === "none" ? "z. B. sich beeilen" : "z. B. Kaffeehaus")}
-          {dup ? <Text style={{ color: t.hard, marginTop: 6 }}>Похожее слово уже есть: {dup.article ? dup.article + " " : ""}{dup.de} — {dup.ru}</Text> : null}
+          {input("По-немецки *", f.de, (v) => set({ de: v }), f.article === "none" ? "z. B. sich beeilen" : "z. B. Kaffeehaus", false, true)}
+          {dup ? (
+            <T v="small" color={t.hard} style={{ marginTop: 8 }}>
+              Похожее слово уже есть: {dup.article ? dup.article + " " : ""}{dup.de} — {dup.ru}
+            </T>
+          ) : null}
           {f.article !== "none" ? input("Множественное число", f.plural, (v) => set({ plural: v }), "z. B. Kaffeehäuser (пусто — нет)") : null}
           {input("Перевод *", f.ru, (v) => set({ ru: v }), "по-русски")}
           {input("Пример (по-немецки)", f.ex, (v) => set({ ex: v }), "необязательно", true)}
           {input("Перевод примера", f.exRu, (v) => set({ exRu: v }), "необязательно", true)}
-          {error ? <Text style={{ color: t.again, marginTop: 12, fontSize: 16 }}>{error}</Text> : null}
-          <Btn title="Сохранить" onPress={save} style={{ marginTop: 20 }} />
-          {editing.id ? <Btn title="Удалить" color={t.again} outline onPress={del} style={{ marginTop: 12 }} /> : null}
+          {error ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 16 }}>
+              <View style={[styles.dot, { backgroundColor: t.again }]} />
+              <T v="bodyM" color={t.again}>{error}</T>
+            </View>
+          ) : null}
+          <Btn title="Сохранить" onPress={save} style={{ marginTop: 28 }} />
+          {editing.id ? <Btn title="Удалить" variant="danger" icon="trash" onPress={del} style={{ marginTop: 10 }} /> : null}
         </ScrollView>
-      </View>
+      </FadeIn>
     );
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScreenHeader title="Мои слова" onBack={p.onBack} />
+    <FadeIn>
+      <ScreenHeader title="Мои слова" onBack={p.onBack} subtitle={p.custom.length ? `${p.custom.length} в словаре` : undefined} />
       <FlatList
         data={p.custom}
         keyExtractor={(w) => w.id}
-        contentContainerStyle={{ padding: 20 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
         ListHeaderComponent={
-          <View>
-            <Btn title="＋ Добавить слово" onPress={() => setEditing({ id: null, form: emptyForm })} />
-            <Text style={{ color: t.textDim, marginTop: 12, marginBottom: 8, fontSize: 15 }}>
-              Свои слова попадают в ежедневные занятия и повторения так же, как встроенные (тема «⭐ Мои слова»).
-            </Text>
+          <View style={{ marginTop: 18, marginBottom: 14 }}>
+            <Btn title="Добавить слово" icon="plus" onPress={() => setEditing({ id: null, form: emptyForm })} />
+            <T v="bodyM" dim style={{ marginTop: 14 }}>
+              Свои слова попадают в ежедневные занятия и повторения так же, как встроенные (тема «Мои слова»).
+            </T>
           </View>
         }
         ListEmptyComponent={
-          <Text style={{ color: t.textDim, textAlign: "center", marginTop: 30, fontSize: 16 }}>Пока нет своих слов.</Text>
+          <View style={{ alignItems: "center", marginTop: 50 }}>
+            <Icon name="pen" size={28} color={t.faint} />
+            <T v="body" dim style={{ textAlign: "center", marginTop: 12 }}>Пока нет своих слов.</T>
+          </View>
         }
-        renderItem={({ item: w }) => {
+        renderItem={({ item: w, index }) => {
           const c = p.cards[w.id];
           const status = !c ? "новое" : c.interval >= MATURE_INTERVAL ? "знаю" : "учу";
           return (
-            <Pressable
+            <Pressy
+              scaleTo={0.99}
               onPress={() => setEditing({ id: w.id, form: wordToForm(w) })}
-              style={[styles.row, { backgroundColor: t.card, borderColor: t.border }]}
+              accessibilityRole="button"
+              style={[styles.row, { borderColor: t.border }, index === 0 && { borderTopWidth: 1 }]}
             >
               <View style={{ flex: 1 }}>
-                <GermanWord w={w} size={20} center={false} />
-                <Text style={{ color: t.textDim, fontSize: 16, marginTop: 2 }}>{w.ru}</Text>
+                <GermanWord w={w} size={19} center={false} />
+                <T v="bodyM" dim style={{ marginTop: 3 }}>{w.ru}</T>
               </View>
-              <Text style={{ color: t.textDim, fontSize: 12, fontWeight: "700" }}>{status} ✎</Text>
-            </Pressable>
+              <Text style={[font.medium, { color: status === "знаю" ? t.text : t.textDim, fontSize: 13 }]}>{status}</Text>
+              <Icon name="chevron" size={16} color={t.faint} />
+            </Pressy>
           );
         }}
       />
-    </View>
+    </FadeIn>
   );
 }
 
 const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 18 },
-  row: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderRadius: 14, padding: 14, marginBottom: 8 },
+  input: { borderBottomWidth: 1, paddingHorizontal: 0, paddingVertical: 10 },
+  row: { flexDirection: "row", alignItems: "center", gap: 10, borderBottomWidth: 1, paddingVertical: 14 },
+  dot: { width: 7, height: 7, borderRadius: 4 },
 });

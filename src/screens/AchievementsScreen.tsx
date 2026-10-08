@@ -1,53 +1,73 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { AchievementCtx, ACHIEVEMENTS } from "../logic/achievements";
-import { ScreenHeader } from "../ui/components";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Achievement, AchievementCtx, ACHIEVEMENTS } from "../logic/achievements";
+import { FadeIn, ProgressLine, ScreenHeader, SectionTitle, T } from "../ui/components";
+import { Icon, Ring } from "../ui/Icon";
 import { useTheme } from "../ui/theme";
 
-export function AchievementsScreen(p: { unlocked: Record<string, number>; ctx: AchievementCtx; onBack: () => void }) {
+const DATE = (ms: number) => new Date(ms).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+
+function Badge({ done, progress }: { done: boolean; progress: number }) {
   const t = useTheme();
-  const count = ACHIEVEMENTS.filter((a) => p.unlocked[a.id]).length;
   return (
-    <View style={{ flex: 1 }}>
-      <ScreenHeader title="Достижения" onBack={p.onBack} right={<Text style={{ color: t.textDim, fontSize: 16 }}>{count}/{ACHIEVEMENTS.length}</Text>} />
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 8 }}>
-        {ACHIEVEMENTS.map((a) => {
-          const at = p.unlocked[a.id];
-          const prog = Math.min(a.goal, a.progress(p.ctx));
-          return (
-            <View
-              key={a.id}
-              style={[styles.row, { backgroundColor: t.card, borderColor: at ? t.good : t.border, opacity: at ? 1 : 0.85 }]}
-            >
-              <Text style={[styles.emoji, !at && { opacity: 0.35 }]}>{a.emoji}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: t.text, fontSize: 17, fontWeight: "800" }}>{a.title}</Text>
-                <Text style={{ color: t.textDim, fontSize: 14, marginTop: 2 }}>{a.desc}</Text>
-                {at ? (
-                  <Text style={{ color: t.good, fontSize: 13, marginTop: 6, fontWeight: "700" }}>
-                    ✓ получено {new Date(at).toLocaleDateString("ru-RU")}
-                  </Text>
-                ) : (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 }}>
-                    <View style={[styles.track, { backgroundColor: t.cardAlt }]}>
-                      <View style={{ width: `${(prog / a.goal) * 100}%`, height: 8, backgroundColor: t.accent, borderRadius: 4 }} />
-                    </View>
-                    <Text style={{ color: t.textDim, fontSize: 12 }}>
-                      {prog}/{a.goal}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </View>
-          );
-        })}
-      </ScrollView>
+    <View style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+      <View style={StyleSheet.absoluteFill}>
+        <Ring size={44} progress={done ? 1 : progress} color={done ? t.accent : t.text} track={t.border} stroke={done ? 2 : 1.6} />
+      </View>
+      {done ? <Icon name="check" size={18} color={t.text} stroke={2} /> : null}
     </View>
   );
 }
 
+function Row({ a, at, prog, first }: { a: Achievement; at?: number; prog: number; first: boolean }) {
+  const t = useTheme();
+  return (
+    <View style={[styles.row, { borderColor: t.border }, first && { borderTopWidth: 1 }]}>
+      <Badge done={!!at} progress={prog / a.goal} />
+      <View style={{ flex: 1 }}>
+        <T v="h3" color={at ? t.text : t.text}>{a.title}</T>
+        <T v="small" dim style={{ marginTop: 3 }}>{a.desc}</T>
+        {at ? <T v="small" faint style={{ marginTop: 6 }}>{`получено ${DATE(at)}`}</T> : null}
+      </View>
+      {!at ? <T v="small" dim>{`${prog}/${a.goal}`}</T> : null}
+    </View>
+  );
+}
+
+export function AchievementsScreen(p: { unlocked: Record<string, number>; ctx: AchievementCtx; onBack: () => void }) {
+  const t = useTheme();
+  const done = ACHIEVEMENTS.filter((a) => p.unlocked[a.id]);
+  const todo = ACHIEVEMENTS.filter((a) => !p.unlocked[a.id]);
+  return (
+    <FadeIn>
+      <ScreenHeader title="Достижения" onBack={p.onBack} />
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
+        <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 10, marginTop: 20 }}>
+          <T v="h1" style={{ fontSize: 44, lineHeight: 46, letterSpacing: -1.8 }}>{`${done.length}/${ACHIEVEMENTS.length}`}</T>
+          <T v="body" dim style={{ paddingBottom: 4 }}>получено</T>
+        </View>
+        <ProgressLine progress={done.length / ACHIEVEMENTS.length} color={t.accent} style={{ marginTop: 14 }} />
+        {done.length ? (
+          <>
+            <SectionTitle>Получено</SectionTitle>
+            {done.map((a, i) => (
+              <Row key={a.id} a={a} at={p.unlocked[a.id]} prog={a.goal} first={i === 0} />
+            ))}
+          </>
+        ) : null}
+        {todo.length ? (
+          <>
+            <SectionTitle>Впереди</SectionTitle>
+            {todo.map((a, i) => (
+              <Row key={a.id} a={a} prog={Math.min(a.goal, a.progress(p.ctx))} first={i === 0} />
+            ))}
+          </>
+        ) : null}
+      </ScrollView>
+    </FadeIn>
+  );
+}
+
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: 14, alignItems: "center", borderWidth: 1.5, borderRadius: 16, padding: 14, marginBottom: 10 },
-  emoji: { fontSize: 36 },
-  track: { flex: 1, height: 8, borderRadius: 4, overflow: "hidden" },
+  row: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 14, borderBottomWidth: 1 },
 });

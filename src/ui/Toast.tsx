@@ -1,22 +1,33 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Pressable, Text, View } from "react-native";
-import { useTheme } from "./theme";
+import { Animated, Easing, Pressable, Text, View } from "react-native";
+import { font, useTheme } from "./theme";
+import { Icon } from "./Icon";
 
-export function AchievementToast(p: { emoji: string; title: string; desc: string; onDone: () => void }) {
+/** Achievement unlock toast: a quiet card that slides down from the top, then away. */
+export function AchievementToast(p: { emoji?: string; title: string; desc: string; onDone: () => void }) {
   const t = useTheme();
-  const y = useRef(new Animated.Value(-160)).current;
+  const a = useRef(new Animated.Value(0)).current;
   const done = useRef(p.onDone);
   done.current = p.onDone;
   useEffect(() => {
-    Animated.spring(y, { toValue: 0, useNativeDriver: true }).start();
+    Animated.timing(a, { toValue: 1, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
     const id = setTimeout(() => {
-      Animated.timing(y, { toValue: -160, duration: 250, useNativeDriver: true }).start(() => done.current());
+      Animated.timing(a, { toValue: 0, duration: 220, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(() => done.current());
     }, 3200);
     return () => clearTimeout(id);
-  }, [y]);
+  }, [a]);
   return (
     <Animated.View
-      style={{ position: "absolute", top: 12, left: 16, right: 16, transform: [{ translateY: y }], zIndex: 100, elevation: 12 }}
+      style={{
+        position: "absolute",
+        top: 10,
+        left: 16,
+        right: 16,
+        zIndex: 100,
+        elevation: 8,
+        opacity: a,
+        transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [-24, 0] }) }],
+      }}
     >
       <Pressable onPress={() => done.current()} accessibilityRole="alert">
         <View
@@ -24,18 +35,25 @@ export function AchievementToast(p: { emoji: string; title: string; desc: string
             flexDirection: "row",
             alignItems: "center",
             gap: 14,
-            padding: 16,
-            borderRadius: 18,
-            backgroundColor: t.card,
-            borderWidth: 2,
-            borderColor: t.hard,
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            borderRadius: 20,
+            backgroundColor: t.dark ? t.card : "#FFFFFF",
+            borderWidth: 1,
+            borderColor: t.border,
+            shadowColor: "#000",
+            shadowOpacity: t.dark ? 0 : 0.08,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 6 },
           }}
         >
-          <Text style={{ fontSize: 38 }}>{p.emoji}</Text>
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: t.accent, alignItems: "center", justifyContent: "center" }}>
+            <Icon name="check" size={20} color="#FFFFFF" stroke={2.2} />
+          </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: t.hard, fontSize: 13, fontWeight: "800" }}>🏆 НОВОЕ ДОСТИЖЕНИЕ</Text>
-            <Text style={{ color: t.text, fontSize: 18, fontWeight: "800" }}>{p.title}</Text>
-            <Text style={{ color: t.textDim, fontSize: 14 }}>{p.desc}</Text>
+            <Text style={[font.medium, { color: t.textDim, fontSize: 11.5, letterSpacing: 1.4, textTransform: "uppercase" }]}>Достижение получено</Text>
+            <Text style={[font.semibold, { color: t.text, fontSize: 17, letterSpacing: -0.2, marginTop: 2 }]}>{p.title}</Text>
+            <Text style={[font.regular, { color: t.textDim, fontSize: 14, marginTop: 1 }]}>{p.desc}</Text>
           </View>
         </View>
       </Pressable>

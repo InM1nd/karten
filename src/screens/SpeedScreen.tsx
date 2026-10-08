@@ -3,9 +3,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Direction } from "../logic/data";
 import { CardState } from "../logic/srs";
 import { makeSpeedQuestion, optionLabel, shuffle, SpeedQuestion, speedPool, speedPoints } from "../logic/games";
-import { AtBadge, Btn, GermanWord, ScreenHeader, Segmented, TimerBar, useCountdown } from "../ui/components";
+import { Btn, FadeIn, GermanWord, Pressy, ResultHero, ScreenHeader, SectionTitle, Segmented, T, TimerBar, useCountdown } from "../ui/components";
+import { AtFlag } from "../ui/Icon";
 import { hapticBad, hapticOk } from "../ui/haptics";
-import { useTheme } from "../ui/theme";
+import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
 
 export const SPEED_SECONDS = 60;
@@ -16,6 +17,12 @@ export interface SpeedResult {
   wrong: number;
   maxCombo: number;
 }
+
+const DIRS: { value: Direction; label: string }[] = [
+  { value: "de-ru", label: "DE → RU" },
+  { value: "ru-de", label: "RU → DE" },
+  { value: "mixed", label: "Вперемешку" },
+];
 
 export function SpeedScreen(p: {
   best: number;
@@ -99,85 +106,83 @@ export function SpeedScreen(p: {
   if (phase === "intro" || (phase === "done" && result)) {
     const record = result ? result.score > prevBest : false;
     return (
-      <View style={{ flex: 1 }}>
-        <ScreenHeader title="Скорость" onBack={p.onBack} />
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <FadeIn>
+        {phase === "done" && result ? (
+          <ScreenHeader title="Скорость" onBack={p.onBack} compact />
+        ) : (
+          <ScreenHeader title="Скорость" onBack={p.onBack} subtitle={`${SPEED_SECONDS} секунд · 4 варианта`} />
+        )}
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30, flexGrow: 1 }}>
           {phase === "done" && result ? (
             <>
-              <Text style={{ fontSize: 56, textAlign: "center" }}>{record ? "🏆" : "⚡"}</Text>
-              <Text style={[styles.big, { color: t.text }]}>{result.score} очк.</Text>
-              <Text style={[styles.p, { color: t.textDim, textAlign: "center" }]}>
-                {record ? "Новый рекорд! " : `Рекорд: ${Math.max(prevBest, result.score)} · `}верно {result.correct} · ошибок{" "}
-                {result.wrong} · лучшее комбо ×{result.maxCombo}
-              </Text>
+              <ResultHero value={result.score} label="очк." note={record ? "Новый рекорд!" : `Рекорд: ${Math.max(prevBest, result.score)}`} accentNote={record} />
+              <T v="bodyM" dim style={{ marginTop: 10 }}>
+                верно {result.correct} · ошибок {result.wrong} · лучшее комбо ×{result.maxCombo}
+              </T>
             </>
           ) : (
             <>
-              <Text style={[styles.big, { color: t.text }]}>⚡ 60 секунд</Text>
-              <Text style={[styles.p, { color: t.textDim }]}>
-                Выбери правильный перевод из четырёх. Каждый правильный ответ — 10 очков, а каждые 5 ответов подряд
-                увеличивают множитель (×2, ×3…). Ошибка сбрасывает комбо и отправляет слово в повторение.
-              </Text>
-              <Text style={[styles.p, { color: t.text, fontWeight: "700" }]}>🏆 Рекорд: {p.best}</Text>
+              <T v="body" dim style={{ marginTop: 18 }}>
+                Выбери правильный перевод из четырёх. Каждый ответ — 10 очков, каждые 5 подряд увеличивают множитель (×2, ×3…). Ошибка сбрасывает комбо и отправляет слово в повторение.
+              </T>
+              <T v="bodyM" style={{ marginTop: 22 }}>Рекорд: {p.best}</T>
             </>
           )}
-          <View style={{ marginTop: 18 }}>
-            <Segmented
-              value={dir}
-              options={[
-                { value: "de-ru", label: "DE → RU" },
-                { value: "ru-de", label: "RU → DE" },
-                { value: "mixed", label: "Вперемешку" },
-              ]}
-              onChange={setDir}
-            />
-          </View>
-          <Btn title={phase === "done" ? "Ещё раз" : "Старт"} onPress={start} style={{ marginTop: 20 }} />
-          {phase === "done" ? <Btn title="Назад" outline onPress={p.onBack} style={{ marginTop: 12 }} /> : null}
+          <SectionTitle>Направление</SectionTitle>
+          <Segmented value={dir} options={DIRS} onChange={setDir} />
+          <View style={{ flex: 1, minHeight: 30 }} />
+          <Btn title={phase === "done" ? "Ещё раз" : "Старт"} arrow={phase !== "done"} onPress={start} />
+          {phase === "done" ? <Btn title="Назад" variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} /> : null}
         </ScrollView>
-      </View>
+      </FadeIn>
     );
   }
 
+  const mult = 1 + Math.floor(combo / 5);
   return (
     <View style={{ flex: 1 }}>
       <ScreenHeader
         title={`${score} очк.`}
+        compact
         onBack={p.onBack}
         right={
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-            {combo >= 5 ? <Text style={{ color: t.hard, fontWeight: "800", fontSize: 18 }}>×{1 + Math.floor(combo / 5)}</Text> : null}
-            <Pressable onPress={finish} hitSlop={10}>
-              <Text style={{ color: t.accent, fontWeight: "700", fontSize: 16 }}>Стоп</Text>
-            </Pressable>
-          </View>
+          <Pressable onPress={finish} hitSlop={10} accessibilityRole="button">
+            <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>Стоп</Text>
+          </Pressable>
         }
       />
       <TimerBar left={left} total={SPEED_SECONDS} />
       {q ? (
-        <View style={{ flex: 1, padding: 20 }}>
-          <View style={[styles.prompt, { backgroundColor: t.card, borderColor: t.border }]}>
-            {q.word.at ? <AtBadge /> : null}
-            {q.dir === "de-ru" ? (
-              <GermanWord w={q.word} size={32} />
-            ) : (
-              <Text style={{ fontSize: 28, fontWeight: "700", color: t.text, textAlign: "center" }}>{q.word.ru}</Text>
-            )}
-            <Text style={{ color: t.textDim, marginTop: 8 }}>{combo > 0 ? `комбо ${combo} 🔥` : " "}</Text>
+        <View style={{ flex: 1, paddingHorizontal: 24 }}>
+          <View style={styles.prompt}>
+            {q.word.at ? <AtFlag width={18} /> : null}
+            <View style={{ marginTop: 12 }}>
+              {q.dir === "de-ru" ? (
+                <GermanWord w={q.word} size={36} />
+              ) : (
+                <Text style={[font.semibold, { fontSize: 32, lineHeight: 38, letterSpacing: -1, color: t.text, textAlign: "center" }]}>{q.word.ru}</Text>
+              )}
+            </View>
+            <T v="bodyM" color={combo > 0 ? t.accent : "transparent"} style={{ marginTop: 14 }}>
+              {combo > 0 ? `комбо ${combo}${mult > 1 ? ` · ×${mult}` : ""}` : " "}
+            </T>
           </View>
-          <View style={{ gap: 10, marginTop: 16 }}>
+          <View style={{ gap: 8 }}>
             {q.options.map((o) => {
               const isAnswer = o.id === q.word.id;
-              const bg = picked ? (isAnswer ? t.good : o.id === picked ? t.again : t.card) : t.card;
-              const fg = picked && (isAnswer || o.id === picked) ? "#FFFFFF" : t.text;
+              const good = picked && isAnswer;
+              const bad = picked === o.id && !isAnswer;
               return (
-                <Pressable
+                <Pressy
                   key={o.id}
                   onPress={() => pick(o.id)}
-                  style={({ pressed }) => [styles.opt, { backgroundColor: bg, borderColor: t.border }, pressed && { opacity: 0.8 }]}
+                  accessibilityRole="button"
+                  style={[styles.opt, { borderColor: bad ? t.again : good ? t.ink : t.border, backgroundColor: good ? t.ink : "transparent" }]}
                 >
-                  <Text style={{ fontSize: 19, fontWeight: "600", color: fg, textAlign: "center" }}>{optionLabel(o, q.dir)}</Text>
-                </Pressable>
+                  <Text style={[font.medium, { fontSize: 18, letterSpacing: -0.2, color: good ? t.inkText : bad ? t.again : t.text, textAlign: "center" }]}>
+                    {optionLabel(o, q.dir)}
+                  </Text>
+                </Pressy>
               );
             })}
           </View>
@@ -188,8 +193,6 @@ export function SpeedScreen(p: {
 }
 
 const styles = StyleSheet.create({
-  big: { fontSize: 34, fontWeight: "800", textAlign: "center", marginVertical: 12 },
-  p: { fontSize: 17, lineHeight: 25, marginTop: 8 },
-  prompt: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", minHeight: 140, justifyContent: "center" },
-  opt: { borderWidth: 1, borderRadius: 16, paddingVertical: 16, paddingHorizontal: 12 },
+  prompt: { alignItems: "center", justifyContent: "center", minHeight: 220, paddingVertical: 20 },
+  opt: { borderWidth: 1, borderRadius: 18, minHeight: 58, paddingVertical: 14, paddingHorizontal: 14, justifyContent: "center" },
 });

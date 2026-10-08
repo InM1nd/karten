@@ -29,12 +29,12 @@ async function runSession(grade: "Помню" | "Не помню" | "Трудн�
 
 async function boot() {
   await render(<App />);
-  expect(await screen.findByText("Karten")).toBeTruthy();
+  expect(await screen.findByLabelText("Настройки")).toBeTruthy();
 }
 
 test("home -> daily session -> done; card back shows RU example; progress + achievement persisted", async () => {
   await boot();
-  expect(screen.getByText(/10 карточек/)).toBeTruthy();
+  expect(screen.getByLabelText("10 карточек на сегодня")).toBeTruthy();
   await fireEvent.press(screen.getByText("Начать"));
   await fireEvent.press(screen.getByText("Показать ответ"));
   // first new card is "der Alltag" (round-robin starts with Alltag topic)
@@ -45,7 +45,7 @@ test("home -> daily session -> done; card back shows RU example; progress + achi
   expect(screen.getByText("Готово!")).toBeTruthy();
   expect(await screen.findByText("Первый шаг")).toBeTruthy(); // achievement toast
   await fireEvent.press(screen.getByText("На главную"));
-  expect(screen.getByText("На сегодня всё! 🎉")).toBeTruthy();
+  expect(screen.getByText("На сегодня всё.")).toBeTruthy();
   await waitFor(async () => {
     const d = await stored();
     expect(d.version).toBe(2);
@@ -73,7 +73,7 @@ test("v1 data from Karten 1.0.x is migrated without loss and backed up", async (
   };
   await AsyncStorage.setItem(KEY, JSON.stringify(v1));
   await boot();
-  expect(screen.getByText(/новых сегодня 0\/15/)).toBeTruthy();
+  expect(screen.getByLabelText("15 карточек на сегодня")).toBeTruthy(); // 15 new/day kept, nothing learned today yet
   await waitFor(async () => {
     const d = await stored();
     expect(d.version).toBe(2);
@@ -102,7 +102,7 @@ test("speed mode: pick an option, stop, result", async () => {
   await fireEvent.press(screen.getByText("Скорость"));
   await fireEvent.press(screen.getByText("Старт"));
   expect(screen.getByText("Стоп")).toBeTruthy();
-  const shown = WORDS.find((w) => screen.queryByText(w.article ? `${w.article} ${w.de}` : w.de) && screen.queryByText(w.ru))!;
+  const shown = WORDS.find((w) => (screen.queryByText(w.de) || screen.queryByText(`${w.article} ${w.de}`)) && screen.queryByText(w.ru))!;
   expect(shown).toBeTruthy();
   await fireEvent.press(screen.getByText(shown.ru));
   expect(await screen.findByText(/комбо 1/)).toBeTruthy();
@@ -122,15 +122,15 @@ test("typing mode: tolerant check, article hint, give up; answers feed SRS", asy
   const input = screen.getByPlaceholderText("der / die / das …");
   await fireEvent.changeText(input, "DER alltag");
   await fireEvent.press(screen.getByText("Проверить"));
-  expect(screen.getByText("✅ Верно!")).toBeTruthy();
+  expect(screen.getByText("Верно!")).toBeTruthy();
   await fireEvent.press(screen.getByText("Дальше"));
   await fireEvent.changeText(screen.getByPlaceholderText(/der \/ die \/ das|по-немецки/), "Gewohnheit");
   await fireEvent.press(screen.getByText("Проверить"));
-  expect(screen.getByText("🟡 Почти: проверь артикль")).toBeTruthy();
+  expect(screen.getByText("Почти: проверь артикль")).toBeTruthy();
   await fireEvent.press(screen.getByText("Дальше"));
   await fireEvent.press(screen.getByText("ü"));
   await fireEvent.press(screen.getByText("Не знаю"));
-  expect(screen.getByText("❌ Неверно")).toBeTruthy();
+  expect(screen.getByText("Неверно")).toBeTruthy();
   await waitFor(async () => {
     const d = await stored();
     expect(d.cards["der Alltag"].interval).toBe(1);
@@ -142,7 +142,7 @@ test("typing mode: tolerant check, article hint, give up; answers feed SRS", asy
 test("custom words: add, appears in list, dictionary and unlocks badge; delete-safe editor", async () => {
   await boot();
   await fireEvent.press(screen.getByText("Мои слова"));
-  await fireEvent.press(screen.getByText("＋ Добавить слово"));
+  await fireEvent.press(screen.getByText("Добавить слово"));
   await fireEvent.press(screen.getByText("Сохранить"));
   expect(screen.getByText("Введите немецкое слово")).toBeTruthy();
   await fireEvent.press(screen.getByText("das"));
@@ -181,7 +181,7 @@ test("reminder: enable from home banner -> permission asked -> notifications sch
 test("settings: reminder time adjust; achievements screen lists badges; RU→DE + dark theme", async () => {
   await boot();
   await fireEvent.press(screen.getByText("RU → DE"));
-  await fireEvent.press(screen.getByText("⚙️"));
+  await fireEvent.press(screen.getByLabelText("Настройки"));
   expect(screen.getByText("19:00")).toBeTruthy();
   await fireEvent.press(screen.getByText("+15"));
   await fireEvent.press(screen.getByText("−1 ч"));

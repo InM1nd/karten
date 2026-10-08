@@ -4,14 +4,16 @@ import { TOPICS, Word } from "../data/types";
 import { CardState, Grade } from "../logic/srs";
 import { typingSelection } from "../logic/games";
 import { checkTyping, TypingResult } from "../logic/typing";
-import { AtBadge, Btn, GermanWord, grammarLine, ScreenHeader } from "../ui/components";
+import { Btn, FadeIn, GermanWord, grammarLine, IconBtn, Pressy, ProgressLine, ResultHero, ScreenHeader, StatSplit, T } from "../ui/components";
+import { AtFlag, Icon } from "../ui/Icon";
 import { hapticBad, hapticOk, hapticTap } from "../ui/haptics";
 import { germanText, speakGerman } from "../ui/speech";
-import { useTheme } from "../ui/theme";
+import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
+import { Example } from "./SessionScreen";
 
 const KIND_HINT: Record<Word["kind"], string> = {
-  noun: "существительное — напиши с артиклем",
+  noun: "существительное",
   verb: "глагол (инфинитив)",
   adj: "прилагательное / наречие",
   phrase: "фраза",
@@ -39,6 +41,7 @@ export function TypingScreen(p: {
   const [forceSel, setForceSel] = useState<{ start: number; end: number } | undefined>(undefined);
   const [res, setRes] = useState<TypingResult | null>(null);
   const [stats, setStats] = useState({ correct: 0, almost: 0, wrong: 0 });
+  const [focused, setFocused] = useState(false);
   const input = useRef<TextInput>(null);
   const w = list[i];
 
@@ -89,44 +92,62 @@ export function TypingScreen(p: {
 
   if (!w) {
     return (
-      <View style={{ flex: 1 }}>
-        <ScreenHeader title="Письмо" onBack={p.onBack} />
-        <View style={{ padding: 24, flex: 1, justifyContent: "center" }}>
-          <Text style={{ fontSize: 56, textAlign: "center" }}>⌨️</Text>
-          <Text style={[styles.big, { color: t.text }]}>{list.length ? "Раунд окончен" : "Нет слов"}</Text>
+      <FadeIn>
+        <ScreenHeader title="Письмо" onBack={p.onBack} compact />
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30, flexGrow: 1 }}>
           {list.length ? (
-            <Text style={{ color: t.textDim, fontSize: 17, textAlign: "center" }}>
-              Верно: {stats.correct} · почти: {stats.almost} · ошибок: {stats.wrong}
-            </Text>
-          ) : null}
-          <Btn title="Ещё 10 слов" onPress={restart} style={{ marginTop: 24 }} />
-          <Btn title="Назад" outline onPress={p.onBack} style={{ marginTop: 12 }} />
-        </View>
-      </View>
+            <>
+              <T v="caps" dim style={{ marginTop: 12 }}>Раунд окончен</T>
+              <ResultHero value={stats.correct} label={`из ${list.length} верно`} />
+              <View style={{ marginTop: 24 }}>
+                <StatSplit
+                  items={[
+                    { value: stats.correct, label: "верно" },
+                    { value: stats.almost, label: "почти" },
+                    { value: stats.wrong, label: "ошибок" },
+                  ]}
+                />
+              </View>
+            </>
+          ) : (
+            <>
+              <T v="h1" style={{ marginTop: 40 }}>Нет слов</T>
+              <T v="body" dim style={{ marginTop: 10 }}>Выбери темы на главном экране или добавь свои слова.</T>
+            </>
+          )}
+          <View style={{ flex: 1, minHeight: 30 }} />
+          <Btn title="Ещё 10 слов" onPress={restart} />
+          <Btn title="Назад" variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} />
+        </ScrollView>
+      </FadeIn>
     );
   }
 
   const topic = TOPICS.find((x) => x.id === w.topic);
   const verdict =
     res?.status === "correct"
-      ? { text: "✅ Верно!", color: t.good }
+      ? { text: "Верно!", color: t.good }
       : res?.status === "article"
-        ? { text: "🟡 Почти: проверь артикль", color: t.hard }
+        ? { text: "Почти: проверь артикль", color: t.hard }
         : res?.status === "typo"
-          ? { text: "🟡 Почти: одна опечатка", color: t.hard }
-          : { text: "❌ Неверно", color: t.again };
+          ? { text: "Почти: одна опечатка", color: t.hard }
+          : { text: "Неверно", color: t.again };
+  const grammar = grammarLine(w);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
-      <ScreenHeader title={`Письмо · ${i + 1}/${list.length}`} onBack={p.onBack} />
-      <ScrollView contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
-        <View style={[styles.prompt, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={{ color: t.textDim, fontSize: 14 }}>
-            {topic?.emoji} {topic?.de} · {KIND_HINT[w.kind]}
-          </Text>
-          {w.at ? <View style={{ marginTop: 8 }}><AtBadge /></View> : null}
-          <Text style={{ fontSize: 28, fontWeight: "700", color: t.text, textAlign: "center", marginTop: 10 }}>{w.ru}</Text>
+      <View style={styles.top}>
+        <IconBtn name="x" label="Закрыть" onPress={p.onBack} />
+        <T v="label" dim>Письмо · {i + 1} из {list.length}</T>
+        <View style={{ width: 40 }} />
+      </View>
+      <ProgressLine progress={(i + (res ? 1 : 0)) / list.length} style={{ marginHorizontal: 24 }} />
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 26 }}>
+          <T v="caps" dim>{topic?.ru} · {KIND_HINT[w.kind]}</T>
+          {w.at ? <AtFlag width={16} /> : null}
         </View>
+        <Text style={[font.semibold, { fontSize: 34, lineHeight: 40, letterSpacing: -1.2, color: t.text, marginTop: 12 }]}>{w.ru}</Text>
 
         <TextInput
           ref={input}
@@ -140,6 +161,8 @@ export function TypingScreen(p: {
             setSel(e.nativeEvent.selection);
             if (forceSel) setForceSel(undefined);
           }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           editable={!res}
           autoFocus
           autoCapitalize="none"
@@ -147,82 +170,97 @@ export function TypingScreen(p: {
           spellCheck={false}
           autoComplete="off"
           placeholder={w.kind === "noun" ? "der / die / das …" : "по-немецки…"}
-          placeholderTextColor={t.textDim}
+          placeholderTextColor={t.faint}
           onSubmitEditing={() => (res ? next() : check())}
           returnKeyType="done"
-          style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: res ? verdict.color : t.border }]}
+          selectionColor={t.accent}
+          cursorColor={t.accent}
+          style={[
+            font.medium,
+            styles.input,
+            { outlineWidth: 0, color: t.text, borderColor: res ? verdict.color : focused ? t.text : t.border },
+          ]}
         />
         {!res ? (
           <View style={styles.umlauts}>
             {UMLAUTS.map((u) => (
-              <Pressable key={u} onPress={() => insert(u)} style={[styles.uml, { backgroundColor: t.cardAlt }]}>
-                <Text style={{ fontSize: 22, color: t.text, fontWeight: "700" }}>{u}</Text>
-              </Pressable>
+              <Pressy key={u} onPress={() => insert(u)} accessibilityRole="button" style={[styles.uml, { borderColor: t.border }]}>
+                <Text style={[font.medium, { fontSize: 20, color: t.text }]}>{u}</Text>
+              </Pressy>
             ))}
           </View>
         ) : null}
 
         {res ? (
-          <View style={[styles.result, { backgroundColor: t.card, borderColor: verdict.color }]}>
-            <Text style={{ fontSize: 20, fontWeight: "800", color: verdict.color }}>{verdict.text}</Text>
-            {res.status !== "correct" && text.trim() ? (
-              <Text style={{ fontSize: 22, marginTop: 10, color: t.text }}>
-                {res.diff.map((d, k) => (
-                  <Text
-                    key={k}
-                    style={
-                      d.type === "extra"
-                        ? { color: t.again, textDecorationLine: "line-through" }
-                        : d.type === "missing"
-                          ? { color: t.good, textDecorationLine: "underline", fontWeight: "800" }
-                          : undefined
-                    }
-                  >
-                    {d.text}
-                  </Text>
-                ))}
-              </Text>
-            ) : null}
-            {res.status !== "correct" && text.trim() ? (
-              <Text style={{ color: t.textDim, fontSize: 13, marginTop: 4 }}>
-                красным — лишнее, зелёным — пропущенное
-              </Text>
-            ) : null}
-            <View style={{ marginTop: 14, alignItems: "flex-start" }}>
-              <GermanWord w={w} size={26} center={false} />
-              {grammarLine(w) ? <Text style={{ color: t.textDim, fontSize: 15, marginTop: 4 }}>{grammarLine(w)}</Text> : null}
+          <FadeIn style={{ flexGrow: 0, flexShrink: 0, flexBasis: "auto", marginTop: 22 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <View style={[styles.vdot, { backgroundColor: verdict.color }]} />
+              <T v="h3" color={verdict.color}>{verdict.text}</T>
             </View>
-            {w.ex ? <Text style={{ color: t.text, fontStyle: "italic", fontSize: 16, marginTop: 10 }}>{w.ex}</Text> : null}
-            {w.exRu ? <Text style={{ color: t.textDim, fontSize: 15, marginTop: 4 }}>{w.exRu}</Text> : null}
-            <Pressable onPress={() => speakGerman(germanText(w))} style={{ marginTop: 10 }}>
-              <Text style={{ color: t.accent, fontWeight: "700", fontSize: 15 }}>🔊 Прослушать</Text>
-            </Pressable>
-          </View>
+            {res.status !== "correct" && text.trim() ? (
+              <>
+                <Text style={[font.medium, { fontSize: 22, marginTop: 12, color: t.text }]}>
+                  {res.diff.map((d, k) => (
+                    <Text
+                      key={k}
+                      style={
+                        d.type === "extra"
+                          ? { color: t.again, textDecorationLine: "line-through" }
+                          : d.type === "missing"
+                            ? { color: t.good, textDecorationLine: "underline" }
+                            : undefined
+                      }
+                    >
+                      {d.text}
+                    </Text>
+                  ))}
+                </Text>
+                <T v="small" dim style={{ marginTop: 4 }}>красным — лишнее, зелёным — пропущенное</T>
+              </>
+            ) : null}
+            <View style={[styles.answer, { borderColor: t.border }]}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <View style={{ flexShrink: 1 }}>
+                  <GermanWord w={w} size={26} center={false} />
+                </View>
+                <IconBtn name="volume" label="Прослушать" onPress={() => speakGerman(germanText(w))} />
+              </View>
+              {grammar ? <T v="bodyM" dim style={{ marginTop: 6 }}>{grammar}</T> : null}
+              {w.ex ? (
+                <View style={[styles.ex, { borderColor: t.border }]}>
+                  <Example w={w} size={16} />
+                  {w.exRu ? <T v="bodyM" dim style={{ marginTop: 4 }}>{w.exRu}</T> : null}
+                </View>
+              ) : null}
+            </View>
+          </FadeIn>
         ) : null}
 
-        <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+        <View style={{ flexDirection: "row", gap: 10, marginTop: 22 }}>
           {res ? (
-            <Btn title="Дальше" onPress={next} style={{ flex: 1 }} />
+            <Btn title="Дальше" arrow onPress={next} style={{ flex: 1 }} />
           ) : (
             <>
-              <Btn title="Не знаю" outline onPress={() => check(true)} style={{ flex: 1 }} />
+              <Btn title="Не знаю" variant="outline" onPress={() => check(true)} style={{ flex: 1 }} />
               <Btn title="Проверить" onPress={() => check()} disabled={!text.trim()} style={{ flex: 1.4 }} />
             </>
           )}
         </View>
-        <Text style={{ color: t.textDim, textAlign: "center", marginTop: 14, fontSize: 13 }}>
-          Регистр не важен. Можно писать ae / oe / ue / ss вместо ä / ö / ü / ß.
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 16 }}>
+          <Icon name="keyboard" size={14} color={t.faint} />
+          <T v="small" faint style={{ textAlign: "center" }}>Регистр не важен · ae / oe / ue / ss = ä / ö / ü / ß</T>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  big: { fontSize: 30, fontWeight: "800", textAlign: "center", marginVertical: 12 },
-  prompt: { borderWidth: 1, borderRadius: 20, padding: 20, alignItems: "center" },
-  input: { borderWidth: 2, borderRadius: 16, fontSize: 22, paddingHorizontal: 16, paddingVertical: 14, marginTop: 16 },
-  umlauts: { flexDirection: "row", gap: 10, marginTop: 10 },
-  uml: { flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: "center" },
-  result: { borderWidth: 2, borderRadius: 16, padding: 16, marginTop: 16 },
+  top: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 },
+  input: { borderBottomWidth: 1.5, fontSize: 24, paddingHorizontal: 2, paddingVertical: 12, marginTop: 26 },
+  umlauts: { flexDirection: "row", gap: 8, marginTop: 14 },
+  uml: { flex: 1, borderRadius: 14, borderWidth: 1, height: 46, alignItems: "center", justifyContent: "center" },
+  vdot: { width: 8, height: 8, borderRadius: 4 },
+  answer: { borderTopWidth: 1, marginTop: 18, paddingTop: 14 },
+  ex: { borderLeftWidth: 2, paddingLeft: 12, marginTop: 14 },
 });

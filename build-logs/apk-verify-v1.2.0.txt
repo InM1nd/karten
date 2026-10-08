@@ -1,0 +1,107 @@
+== file
+-rw-r--r-- 1 box box 22568531 Oct  8 20:25 Karten-v1.2.0.apk
+22568531
+057fb8f9f99d9aa135ab12d5de104d5a4701da92673ea37cfadbd2f31c00203e  Karten-v1.2.0.apk
+== aapt badging
+package: name='com.zabolotny.karten' versionCode='5' versionName='1.2.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+uses-permission: name='com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Karten'
+native-code: 'arm64-v8a'
+== apksigner
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Karten, OU=Personal, O=Alexander Zabolotny, L=Wien, C=AT
+Signer #1 certificate SHA-256 digest: 9d9e11e110b18ced20249d389000418cfcd8e8c02e867a6b235da9daee0ad273
+Signer #1 certificate SHA-1 digest: 89772232ffa8b4332f5f3cb28264821af57d9aa7
+Signer #1 certificate MD5 digest: d69ec31f9fe18365d4aa4d33849aaa38
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 1a1fc3a0904e905c5a2247a1a336b79fa8a3d7496119e655c04193d842be53b2
+Signer #1 public key SHA-1 digest: 68540a06502c715b3bd607094d769e9b577fb6bf
+Signer #1 public key MD5 digest: a4ce142988257ee2ca2bc4a1e02eb654
+== apksigner v1 check (min-sdk 21)
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+== zipalign -P 16
+22454145 META-INF/MANIFEST.MF (OK - compressed)
+Verification successful
+== native libs (method)
+     16 Stored
+Stored lib/arm64-v8a/libappmodules.so
+Stored lib/arm64-v8a/libc++_shared.so
+Stored lib/arm64-v8a/libdatastore_shared_counter.so
+Stored lib/arm64-v8a/libexpo-modules-core.so
+Stored lib/arm64-v8a/libfbjni.so
+Stored lib/arm64-v8a/libgifimage.so
+Stored lib/arm64-v8a/libhermestooling.so
+Stored lib/arm64-v8a/libhermesvm.so
+Stored lib/arm64-v8a/libimagepipeline.so
+Stored lib/arm64-v8a/libjsi.so
+Stored lib/arm64-v8a/libnative-filters.so
+Stored lib/arm64-v8a/libnative-imagetranscoder.so
+Stored lib/arm64-v8a/libreact_codegen_safeareacontext.so
+Stored lib/arm64-v8a/libreactnative.so
+Stored lib/arm64-v8a/libstatic-webp.so
+Stored lib/arm64-v8a/libzstd-kmp.so
+== bundle
+    60052  1981-01-01 01:01   assets/fonts/InterTight-Medium.ttf
+    60012  1981-01-01 01:01   assets/fonts/InterTight-Regular.ttf
+    60272  1981-01-01 01:01   assets/fonts/InterTight-SemiBold.ttf
+  1499964  1981-01-01 01:01   assets/index.android.bundle
+    11704  1981-01-01 01:01   res/50.ttf
+    60052  1981-01-01 01:01   res/eE.ttf
+    60012  1981-01-01 01:01   res/mF.ttf
+    60272  1981-01-01 01:01   res/rY.ttf
+== ELF LOAD alignment
+libappmodules.so 0x4000 
+libc++_shared.so 0x4000 
+libdatastore_shared_counter.so 0x4000 
+libexpo-modules-core.so 0x4000 
+libfbjni.so 0x4000 
+libgifimage.so 0x4000 
+libhermestooling.so 0x4000 
+libhermesvm.so 0x4000 
+libimagepipeline.so 0x4000 
+libjsi.so 0x4000 
+libnative-filters.so 0x4000 
+libnative-imagetranscoder.so 0x4000 
+libreact_codegen_safeareacontext.so 0x4000 
+libreactnative.so 0x4000 
+libstatic-webp.so 0x4000 
+libzstd-kmp.so 0x4000 
+== font resources
+    resource 0x7f080000 font/inter_tight_medium
+    resource 0x7f080001 font/inter_tight_regular
+    resource 0x7f080002 font/inter_tight_semi_bold
+    resource 0x7f080003 font/karten_icons
+    resource 0x7f080004 font/xml_inter_tight
+    resource 0x7f080005 font/xml_karten_icons
+    resource 0x7f0e0000 mipmap/ic_launcher
+    resource 0x7f0e0001 mipmap/ic_launcher_background
+    resource 0x7f0e0002 mipmap/ic_launcher_foreground
+    resource 0x7f0e0003 mipmap/ic_launcher_monochrome
+    resource 0x7f0e0004 mipmap/ic_launcher_round
+== permissions diff vs v1.1.0
+identical
+== size limit
+22568531 bytes; < 24,000,000: yes; < 25,165,824 (24 MiB): yes

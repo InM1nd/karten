@@ -1,0 +1,1 @@
+Inter Tight fonts: SIL Open Font License 1.1 (https://openfontlicense.org). Copyright 2022 The Inter Tight Project Authors. Static instances subset by scripts/make_fonts.py.

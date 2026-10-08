@@ -2,15 +2,15 @@
   "expo": {
     "name": "Karten",
     "slug": "german-cards",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.zabolotny.karten",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
-        "backgroundColor": "#3D5AFE",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -50,16 +50,20 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",
-          "imageWidth": 220,
+          "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#3D5AFE"
+          "backgroundColor": "#FFFFFF",
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#000000"
+          }
         }
       ],
       [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#3D5AFE",
+          "color": "#FF6B00",
           "defaultChannel": "daily-reminder"
         }
       ],
@@ -81,9 +85,50 @@
               "updatePeriodMillis": 10800000,
               "resizeMode": "horizontal|vertical"
             }
+          ],
+          "fonts": [
+            "./assets/fonts/InterTight-Regular.ttf",
+            "./assets/fonts/InterTight-Medium.ttf",
+            "./assets/fonts/InterTight-SemiBold.ttf"
           ]
         }
+      ],
+      [
+        "expo-font",
+        {
+          "android": {
+            "fonts": [
+              {
+                "fontFamily": "InterTight",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/InterTight-Regular.ttf",
+                    "weight": 400
+                  },
+                  {
+                    "path": "./assets/fonts/InterTight-Medium.ttf",
+                    "weight": 500
+                  },
+                  {
+                    "path": "./assets/fonts/InterTight-SemiBold.ttf",
+                    "weight": 600
+                  }
+                ]
+              },
+              {
+                "fontFamily": "KartenIcons",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/KartenIcons.ttf",
+                    "weight": 400
+                  }
+                ]
+              }
+            ]
+          }
+        }
       ]
-    ]
+    ],
+    "backgroundColor": "#FFFFFF"
   }
 }

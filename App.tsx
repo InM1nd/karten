@@ -103,6 +103,8 @@ export default function App() {
       daily,
       pool,
       queueSize: q.due.length + q.fresh.length,
+      queueDue: q.due.length,
+      queueNew: q.fresh.length,
       unseen: pool.filter((w) => !data.cards[w.id]).length,
       stats,
       streak: currentStreak(data.streak, today),
@@ -330,6 +332,10 @@ export default function App() {
             stats={derived.stats}
             streak={derived.streak}
             bestStreak={data.streak.best}
+            lastStudyDay={data.streak.lastDay}
+            today={today}
+            queueDue={derived.queueDue}
+            queueNew={derived.queueNew}
             newToday={derived.daily.newCount}
             reviewsToday={derived.daily.reviewCount}
             queueSize={derived.queueSize}
@@ -357,7 +363,9 @@ export default function App() {
         <DeckContext.Provider value={deck}>
           <StatusBar style={isDark ? "light" : "dark"} />
           <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
-            {body()}
+            <View key={screen} style={{ flex: 1 }}>
+              {body()}
+            </View>
             {toast ? (
               <AchievementToast
                 key={toast.id}

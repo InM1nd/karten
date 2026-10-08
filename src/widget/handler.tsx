@@ -1,6 +1,6 @@
 import React from "react";
 import type { WidgetTaskHandlerProps } from "react-native-android-widget";
-import { WordOfDayWidget } from "./WordOfDayWidget";
+import { widgetRepresentation } from "./WordOfDayWidget";
 import { loadWidgetProps } from "./widgetData";
 
 export const WIDGET_NAME = "WordOfDay";
@@ -12,7 +12,7 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
     case "WIDGET_RESIZED":
     case "WIDGET_CLICK": {
       const p = await loadWidgetProps();
-      props.renderWidget(<WordOfDayWidget {...p} />);
+      props.renderWidget(widgetRepresentation(p));
       break;
     }
     default:

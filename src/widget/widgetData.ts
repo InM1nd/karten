@@ -1,15 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { KEY, migrate, AppData } from "../logic/data";
+import { KEY, migrate, AppData, ThemePref } from "../logic/data";
 import { WORDS } from "../data/words";
 import { dayNumber, isDue } from "../logic/srs";
 import { wordOfDay } from "../logic/games";
 import { WidgetWord } from "./WordOfDayWidget";
 
-export function widgetProps(data: AppData, today = dayNumber()): { word?: WidgetWord; due: number } {
+export function widgetProps(data: AppData, today = dayNumber()): { word?: WidgetWord; due: number; theme: ThemePref } {
   const words = [...WORDS, ...data.customWords];
   const w = wordOfDay(words, data.cards, today);
   const due = words.filter((x) => isDue(data.cards[x.id], today)).length;
-  return { word: w && { article: w.article, de: w.de, ru: w.ru, at: w.at }, due };
+  return { word: w && { article: w.article, de: w.de, ru: w.ru, at: w.at }, due, theme: data.settings.theme };
 }
 
 export async function loadWidgetProps() {
