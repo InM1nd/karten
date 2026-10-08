@@ -1,0 +1,294 @@
+tsc: clean
+
+> german-cards@1.1.0 test
+> tsx --test tests/*.test.ts
+
+TAP version 13
+# Subtest: 12–15 unique achievements
+ok 1 - 12–15 unique achievements
+  ---
+  duration_ms: 0.902566
+  type: 'test'
+  ...
+# Subtest: nothing unlocked at start
+ok 2 - nothing unlocked at start
+  ---
+  duration_ms: 0.873405
+  type: 'test'
+  ...
+# Subtest: thresholds unlock exactly the right badges
+ok 3 - thresholds unlock exactly the right badges
+  ---
+  duration_ms: 0.83563
+  type: 'test'
+  ...
+# Subtest: already unlocked badges are not reported again
+ok 4 - already unlocked badges are not reported again
+  ---
+  duration_ms: 0.220326
+  type: 'test'
+  ...
+# Subtest: deck size and topics
+ok 5 - deck size and topics
+  ---
+  duration_ms: 1.78997
+  type: 'test'
+  ...
+# Subtest: ids unique
+ok 6 - ids unique
+  ---
+  duration_ms: 0.968035
+  type: 'test'
+  ...
+# Subtest: entries well-formed
+ok 7 - entries well-formed
+  ---
+  duration_ms: 0.794569
+  type: 'test'
+  ...
+# Subtest: Austrian words present
+ok 8 - Austrian words present
+  ---
+  duration_ms: 0.263436
+  type: 'test'
+  ...
+# Subtest: every built-in example has a Russian translation
+ok 9 - every built-in example has a Russian translation
+  ---
+  duration_ms: 0.637293
+  type: 'test'
+  ...
+# Subtest: no orphan translations
+ok 10 - no orphan translations
+  ---
+  duration_ms: 7.196766
+  type: 'test'
+  ...
+# Subtest: article pool: singular nouns with article only
+ok 11 - article pool: singular nouns with article only
+  ---
+  duration_ms: 0.82862
+  type: 'test'
+  ...
+# Subtest: speed questions: 4 distinct options incl. the answer
+ok 12 - speed questions: 4 distinct options incl. the answer
+  ---
+  duration_ms: 20.228625
+  type: 'test'
+  ...
+# Subtest: speed scoring multiplier
+ok 13 - speed scoring multiplier
+  ---
+  duration_ms: 0.304168
+  type: 'test'
+  ...
+# Subtest: typing selection: due first, no phrases
+ok 14 - typing selection: due first, no phrases
+  ---
+  duration_ms: 0.868574
+  type: 'test'
+  ...
+# Subtest: markMistake: unseen -> learning today; learned -> due today, interval halved
+ok 15 - markMistake: unseen -> learning today; learned -> due today, interval halved
+  ---
+  duration_ms: 0.222549
+  type: 'test'
+  ...
+# Subtest: word of the day is deterministic and varies
+ok 16 - word of the day is deterministic and varies
+  ---
+  duration_ms: 1.654163
+  type: 'test'
+  ...
+# Subtest: v1 data migrates to v2 without losing progress
+ok 17 - v1 data migrates to v2 without losing progress
+  ---
+  duration_ms: 1.850988
+  type: 'test'
+  ...
+# Subtest: migration is idempotent on v2 data and keeps v2 fields
+ok 18 - migration is idempotent on v2 data and keeps v2 fields
+  ---
+  duration_ms: 0.57477
+  type: 'test'
+  ...
+# Subtest: garbage input never throws and falls back to defaults
+ok 19 - garbage input never throws and falls back to defaults
+  ---
+  duration_ms: 0.630149
+  type: 'test'
+  ...
+# Subtest: invalid cards are dropped, valid ones kept; bad custom words dropped; reminder time clamped
+ok 20 - invalid cards are dropped, valid ones kept; bad custom words dropped; reminder time clamped
+  ---
+  duration_ms: 0.30641
+  type: 'test'
+  ...
+# Subtest: disabled -> nothing scheduled
+ok 21 - disabled -> nothing scheduled
+  ---
+  duration_ms: 2.541956
+  type: 'test'
+  ...
+# Subtest: schedules 7 days at the chosen local time, today included when still ahead
+ok 22 - schedules 7 days at the chosen local time, today included when still ahead
+  ---
+  duration_ms: 0.57407
+  type: 'test'
+  ...
+# Subtest: counts due cards per future day and stops when nothing is left
+ok 23 - counts due cards per future day and stops when nothing is left
+  ---
+  duration_ms: 0.203134
+  type: 'test'
+  ...
+# Subtest: skips today if the session is done or the time has passed
+ok 24 - skips today if the session is done or the time has passed
+  ---
+  duration_ms: 0.176661
+  type: 'test'
+  ...
+# Subtest: custom time and month rollover
+ok 25 - custom time and month rollover
+  ---
+  duration_ms: 0.193206
+  type: 'test'
+  ...
+# Subtest: signature changes with content
+ok 26 - signature changes with content
+  ---
+  duration_ms: 0.261253
+  type: 'test'
+  ...
+# Subtest: russian plural forms
+ok 27 - russian plural forms
+  ---
+  duration_ms: 0.173971
+  type: 'test'
+  ...
+# Subtest: new card: good -> 1 day, then 3 days, then interval*ease
+ok 28 - new card: good -> 1 day, then 3 days, then interval*ease
+  ---
+  duration_ms: 1.013898
+  type: 'test'
+  ...
+# Subtest: again resets reps, keeps card due today, lowers ease, counts lapse only for learned cards
+ok 29 - again resets reps, keeps card due today, lowers ease, counts lapse only for learned cards
+  ---
+  duration_ms: 0.193143
+  type: 'test'
+  ...
+# Subtest: hard grows slowly and lowers ease, never below minimum
+ok 30 - hard grows slowly and lowers ease, never below minimum
+  ---
+  duration_ms: 0.201733
+  type: 'test'
+  ...
+# Subtest: interval is capped
+ok 31 - interval is capped
+  ---
+  duration_ms: 0.120062
+  type: 'test'
+  ...
+# Subtest: buildQueue: due first (oldest first), then new up to daily limit, max session size
+ok 32 - buildQueue: due first (oldest first), then new up to daily limit, max session size
+  ---
+  duration_ms: 2.156467
+  type: 'test'
+  ...
+# Subtest: nextQueue re-inserts 'again' cards 3 positions later
+ok 33 - nextQueue re-inserts 'again' cards 3 positions later
+  ---
+  duration_ms: 0.889888
+  type: 'test'
+  ...
+# Subtest: streak logic
+ok 34 - streak logic
+  ---
+  duration_ms: 0.341368
+  type: 'test'
+  ...
+# Subtest: dayNumber uses local calendar day
+ok 35 - dayNumber uses local calendar day
+  ---
+  duration_ms: 0.347898
+  type: 'test'
+  ...
+# Subtest: deckStats
+ok 36 - deckStats
+  ---
+  duration_ms: 0.595098
+  type: 'test'
+  ...
+# Subtest: full simulated month of daily sessions stays sane
+ok 37 - full simulated month of daily sessions stays sane
+  ---
+  duration_ms: 6.3301
+  type: 'test'
+  ...
+# Subtest: normalize: case, umlauts, ß, punctuation, spaces
+ok 38 - normalize: case, umlauts, ß, punctuation, spaces
+  ---
+  duration_ms: 1.394025
+  type: 'test'
+  ...
+# Subtest: nouns need the article; umlaut substitutes and case are accepted
+ok 39 - nouns need the article; umlaut substitutes and case are accepted
+  ---
+  duration_ms: 1.915038
+  type: 'test'
+  ...
+# Subtest: ß / ss and Austrian words
+ok 40 - ß / ss and Austrian words
+  ---
+  duration_ms: 0.334998
+  type: 'test'
+  ...
+# Subtest: verbs: optional 'sich', adjectives plain
+ok 41 - verbs: optional 'sich', adjectives plain
+  ---
+  duration_ms: 0.616633
+  type: 'test'
+  ...
+# Subtest: diffChars marks missing and extra characters
+ok 42 - diffChars marks missing and extra characters
+  ---
+  duration_ms: 1.298334
+  type: 'test'
+  ...
+# Subtest: levenshtein
+ok 43 - levenshtein
+  ---
+  duration_ms: 0.202363
+  type: 'test'
+  ...
+1..43
+# tests 43
+# suites 0
+# pass 43
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 281.064765
+PASS tests-rn/notifications.test.tsx
+  ✓ Android: channel is created before the POST_NOTIFICATIONS prompt (18 ms)
+  ✓ permanently denied permission is reported as blocked (no prompt loop) (1 ms)
+  ✓ applyPlan replaces all reminders with date triggers on the channel (2 ms)
+
+PASS tests-rn/app.test.tsx
+  ✓ home -> daily session -> done; card back shows RU example; progress + achievement persisted (1108 ms)
+  ✓ 'Не помню' re-queues the card within the session (660 ms)
+  ✓ v1 data from Karten 1.0.x is migrated without loss and backed up (30 ms)
+  ✓ article trainer: answer, stop, result + record saved (44 ms)
+  ✓ speed mode: pick an option, stop, result (43 ms)
+  ✓ typing mode: tolerant check, article hint, give up; answers feed SRS (73 ms)
+  ✓ custom words: add, appears in list, dictionary and unlocks badge; delete-safe editor (165 ms)
+  ✓ reminder: enable from home banner -> permission asked -> notifications scheduled with due info (26 ms)
+  ✓ settings: reminder time adjust; achievements screen lists badges; RU→DE + dark theme (99 ms)
+
+Test Suites: 2 passed, 2 total
+Tests:       12 passed, 12 total
+Snapshots:   0 total
+Time:        3.492 s
+Ran all test suites.

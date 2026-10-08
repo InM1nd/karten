@@ -1,0 +1,18 @@
+11105463 bytes
+package: name='com.zabolotny.karten' versionCode='2' versionName='1.0.1' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Karten'
+launchable-activity: name='com.zabolotny.karten.MainActivity'  label='' icon=''
+native-code: 'arm64-v8a'
+      A: android:extractNativeLibs(0x010104ea)=(type 0x12)0xffffffff
+Verified using v2 scheme (APK Signature Scheme v2): true
+Signer #1 certificate DN: CN=Karten, OU=Personal, O=Alexander Zabolotny, L=Wien, C=AT
+Signer #1 certificate SHA-256 digest: 9d9e11e110b18ced20249d389000418cfcd8e8c02e867a6b235da9daee0ad273
+ 6986348  Defl:N  2870190  59% 1981-01-01 01:01 f761ddd9  classes.dex
+ 2477320  Defl:N  1041761  58% 1981-01-01 01:01 9c86543a  lib/arm64-v8a/libhermesvm.so
+ 6985168  Defl:N  2324631  67% 1981-01-01 01:01 f251f56a  lib/arm64-v8a/libreactnative.so
+ 1265208  Stored  1265208   0% 1981-01-01 01:01 bcb357c3  assets/index.android.bundle

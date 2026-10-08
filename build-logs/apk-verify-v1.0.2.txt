@@ -1,0 +1,69 @@
+size: 21369582 bytes
+b6bdac513d577e254d85b91e109c61a06f2d9b17231b84d475c298542cf12f08  Karten-v1.0.2.apk
+package: name='com.zabolotny.karten' versionCode='3' versionName='1.0.2' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Karten'
+launchable-activity: name='com.zabolotny.karten.MainActivity'  label='' icon=''
+native-code: 'arm64-v8a'
+-- manifest flags
+      A: android:extractNativeLibs(0x010104ea)=(type 0x12)0x0
+        A: android:authorities(0x01010018)="com.zabolotny.karten.FileSystemFileProvider" (Raw: "com.zabolotny.karten.FileSystemFileProvider")
+        A: android:authorities(0x01010018)="com.zabolotny.karten.androidx-startup" (Raw: "com.zabolotny.karten.androidx-startup")
+-- apksigner
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Karten, OU=Personal, O=Alexander Zabolotny, L=Wien, C=AT
+Signer #1 certificate SHA-256 digest: 9d9e11e110b18ced20249d389000418cfcd8e8c02e867a6b235da9daee0ad273
+-- zipalign -c -P 16 -v 4
+Verifying alignment of Karten-v1.0.2.apk (4)...
+ 2883584 lib/arm64-v8a/libappmodules.so (OK)
+ 3063808 lib/arm64-v8a/libc++_shared.so (OK)
+ 4358144 lib/arm64-v8a/libexpo-modules-core.so (OK)
+ 5816320 lib/arm64-v8a/libfbjni.so (OK)
+ 5996544 lib/arm64-v8a/libgifimage.so (OK)
+ 6324224 lib/arm64-v8a/libhermestooling.so (OK)
+ 6471680 lib/arm64-v8a/libhermesvm.so (OK)
+ 8962048 lib/arm64-v8a/libimagepipeline.so (OK)
+ 8978432 lib/arm64-v8a/libjsi.so (OK)
+ 9404416 lib/arm64-v8a/libnative-filters.so (OK)
+ 9437184 lib/arm64-v8a/libnative-imagetranscoder.so (OK)
+10027008 lib/arm64-v8a/libreact_codegen_safeareacontext.so (OK)
+10190848 lib/arm64-v8a/libreactnative.so (OK)
+17186816 lib/arm64-v8a/libstatic-webp.so (OK)
+17694720 lib/arm64-v8a/libzstd-kmp.so (OK)
+18427144 assets/index.android.bundle (OK)
+Verification successful
+-- ELF LOAD alignment
+libappmodules.so                       0x4000 
+libc++_shared.so                       0x4000 
+libexpo-modules-core.so                0x4000 
+libfbjni.so                            0x4000 
+libgifimage.so                         0x4000 
+libhermestooling.so                    0x4000 
+libhermesvm.so                         0x4000 
+libimagepipeline.so                    0x4000 
+libjsi.so                              0x4000 
+libnative-filters.so                   0x4000 
+libnative-imagetranscoder.so           0x4000 
+libreact_codegen_safeareacontext.so    0x4000 
+libreactnative.so                      0x4000 
+libstatic-webp.so                      0x4000 
+libzstd-kmp.so                         0x4000 
+-- zip entries
+ 6986348  Defl:N  2870190  59% 1981-01-01 01:01 f761ddd9  classes.dex
+ 6985168  Stored  6985168   0% 1981-01-01 01:01 f251f56a  lib/arm64-v8a/libreactnative.so
+ 1265208  Stored  1265208   0% 1981-01-01 01:01 bcb357c3  assets/index.android.bundle
+-- apksigner verify -v --print-certs --min-sdk-version 21 (forces v1 check)
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Signer #1 certificate SHA-256 digest: 9d9e11e110b18ced20249d389000418cfcd8e8c02e867a6b235da9daee0ad273

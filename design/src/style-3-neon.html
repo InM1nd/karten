@@ -1,0 +1,142 @@
+<!doctype html><html lang='ru'><head><meta charset='utf-8'><title>Karten — Неон</title><style>
+@font-face{font-family:'Playfair Display';src:url('../fonts/PlayfairDisplay-VariableFont_wght.ttf');font-weight:400 900;font-style:normal}
+@font-face{font-family:'Playfair Display';src:url('../fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf');font-weight:400 900;font-style:italic}
+@font-face{font-family:'Unbounded';src:url('../fonts/Unbounded-VariableFont_wght.ttf');font-weight:200 900}
+@font-face{font-family:'Manrope';src:url('../fonts/Manrope-VariableFont_wght.ttf');font-weight:200 800}
+@font-face{font-family:'Nunito';src:url('../fonts/Nunito-VariableFont_wght.ttf');font-weight:200 1000}
+@font-face{font-family:'Inter Tight';src:url('../fonts/InterTight-VariableFont_wght.ttf');font-weight:100 900}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1120px;height:1240px;overflow:hidden}
+body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.page{width:1120px;height:1240px;padding:52px 60px 0;position:relative;overflow:hidden}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;height:118px}
+.page-head .kicker{font:600 13px/1 'Manrope';letter-spacing:.22em;text-transform:uppercase;opacity:.6;margin-bottom:12px}
+.page-head h2{font-size:40px;line-height:1.05}
+.page-head p{font:500 15px/1.5 'Manrope';max-width:380px;text-align:right;opacity:.75}
+.phones{display:flex;gap:64px;justify-content:center;margin-top:34px}
+.phone{width:436px;height:939px;border-radius:56px;padding:12px;position:relative;flex:none}
+.screen{width:412px;height:915px;border-radius:44px;overflow:hidden;position:relative}
+.cam{position:absolute;top:13px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#0b0b0d;z-index:50}
+.status{height:38px;display:flex;align-items:center;justify-content:space-between;padding:4px 26px 0 30px;font:600 14px/1 'Manrope';position:relative;z-index:5}
+.status .sic{display:flex;gap:6px;align-items:center}
+.gesture{position:absolute;bottom:9px;left:50%;width:120px;height:4px;margin-left:-60px;border-radius:4px;z-index:50}
+svg{display:block}
+.label-under{position:absolute;bottom:-34px;left:0;right:0;text-align:center;font:600 13px/1 'Manrope';letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+
+body{background:#040406}
+.page{background:radial-gradient(700px 500px at 10% 10%,rgba(139,92,246,.22),transparent 70%),radial-gradient(700px 600px at 95% 90%,rgba(255,62,165,.16),transparent 70%),#050508;color:#F4F4FA}
+.page-head h2{font-family:'Unbounded';font-weight:700;font-size:36px;letter-spacing:-.01em}
+.page-head h2 em{font-style:normal;color:#FF3EA5;text-shadow:0 0 18px rgba(255,62,165,.7)}
+.page-head .kicker,.page-head p{color:#C9C9DA}
+.phone{background:linear-gradient(160deg,#2a2a35,#0d0d12);box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 40px 90px -20px rgba(139,92,246,.35),0 30px 60px -30px rgba(0,0,0,.9)}
+.screen{background:#07070C;color:#F4F4FA;font-family:'Manrope'}
+.gesture{background:#fff;opacity:.7}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);z-index:0}
+.z{position:relative;z-index:2}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.11);
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 20px 40px -20px rgba(0,0,0,.8);backdrop-filter:blur(22px)}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 0}
+.top small{display:block;font:700 11px/1 'Manrope';letter-spacing:.2em;color:#8B8BA3}
+.top b{display:block;font:600 26px/1.15 'Unbounded';margin-top:8px;letter-spacing:-.01em}
+.avatar{width:46px;height:46px;border-radius:50%;padding:2px;background:conic-gradient(#22D3EE,#8B5CF6,#FF3EA5,#22D3EE)}
+.avatar div{width:100%;height:100%;border-radius:50%;background:#14141c;display:flex;align-items:center;justify-content:center;font:700 16px 'Unbounded'}
+.streak{display:inline-flex;align-items:center;gap:8px;margin:16px 22px 0;padding:8px 14px 8px 10px;border-radius:999px;font:700 13px/1 'Manrope'}
+.streak b{font:700 14px/1 'Unbounded';color:#FFB547;text-shadow:0 0 12px rgba(255,181,71,.8)}
+.session{margin:14px 18px 0;border-radius:28px;padding:20px;position:relative;overflow:hidden}
+.session .lbl{display:flex;justify-content:space-between;font:700 11px/1 'Manrope';letter-spacing:.2em;color:#8B8BA3}
+.counts{display:flex;gap:12px;margin-top:16px}
+.cnt{flex:1;padding:14px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.cnt b{display:block;font:700 36px/1 'Unbounded'}
+.cnt span{display:block;font:600 13px/1 'Manrope';color:#8B8BA3;margin-top:8px}
+.start{margin-top:16px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:10px;font:700 15px/1 'Unbounded';color:#07070C;
+  background:linear-gradient(90deg,#22D3EE,#8B5CF6 55%,#FF3EA5);box-shadow:0 0 28px rgba(139,92,246,.55),0 0 0 1px rgba(255,255,255,.2) inset}
+.start span{color:#fff}
+.week{display:flex;justify-content:space-between;align-items:flex-end;margin:16px 22px 0;height:58px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:7px;font:700 11px/1 'Manrope';color:#8B8BA3}
+.wd i{display:block;width:26px;border-radius:8px;background:rgba(255,255,255,.08)}
+.wd.done i{background:linear-gradient(180deg,#FFB547,#FF6A3D);box-shadow:0 0 14px rgba(255,140,60,.6)}
+.wd.today i{background:transparent;border:1.5px dashed #FFB547}
+.wd.today{color:#FFB547}
+.sec{display:flex;justify-content:space-between;padding:20px 22px 12px;font:600 15px/1 'Unbounded'}
+.sec span{font:600 12px/1 'Manrope';color:#8B8BA3}
+.wod{margin:12px 18px 0;border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.wod small{display:block;font:700 10.5px/1 'Manrope';letter-spacing:.2em;color:#8B8BA3}
+.wod b{display:block;font:700 17px/1 'Unbounded';margin-top:7px} .wod b em{font-style:normal;color:#A3FF12;text-shadow:0 0 10px rgba(163,255,18,.8)}
+.wod .r{margin-left:auto;font:600 13px/1 'Manrope';color:#C9C9DA}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px}
+.tile{border-radius:20px;padding:13px 14px;display:flex;align-items:center;gap:12px}
+.tile .ic{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:none}
+.tile b{display:block;font:700 14.5px/1.1 'Manrope'}
+.tile small{display:block;font:600 12px/1 'Manrope';color:#8B8BA3;margin-top:4px}
+/* card */
+.bar{display:flex;align-items:center;gap:14px;padding:12px 22px 0}
+.prog{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.08)}
+.prog i{display:block;height:100%;width:25%;border-radius:6px;background:linear-gradient(90deg,#22D3EE,#8B5CF6);box-shadow:0 0 12px rgba(34,211,238,.7)}
+.bar .n{font:600 12px/1 'Unbounded';color:#8B8BA3}
+.flash{margin:18px 18px 0;border-radius:30px;padding:24px 22px 20px;position:relative;height:618px;display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px rgba(255,62,165,.35) inset,0 0 40px -6px rgba(255,62,165,.35),0 30px 60px -30px rgba(0,0,0,.9)}
+.chips{display:flex;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font:700 12px/1 'Manrope';color:#C9C9DA}
+.art{margin-top:28px;font:700 22px/1 'Unbounded';color:#FF3EA5;text-shadow:0 0 10px rgba(255,62,165,.9),0 0 26px rgba(255,62,165,.6)}
+.word{margin-top:8px;font:700 33px/1.1 'Unbounded';letter-spacing:-.02em}
+.plural{margin-top:12px;font:600 14px/1 'Manrope';color:#8B8BA3}
+.plural b{color:#FF3EA5}
+.ru{margin-top:24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08);font:800 30px/1 'Manrope'}
+.atnote{margin-top:20px;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.28)}
+.atnote .t{font:600 13px/1.35 'Manrope';color:#E9C9D2}
+.atnote .t b{font:700 15px/1 'Unbounded';color:#fff}
+.ex{margin-top:16px;padding:14px 16px 14px 18px;border-radius:16px;background:rgba(255,255,255,.04);position:relative}
+.ex:before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:3px;background:#FF3EA5;box-shadow:0 0 10px #FF3EA5}
+.ex .de{font:600 16.5px/1.35 'Manrope';padding-right:34px}
+.ex .de u{text-decoration:none;color:#FF3EA5;font-weight:800}
+.ex .rx{font:500 13.5px/1.4 'Manrope';color:#8B8BA3;margin-top:6px}
+.ex .sp{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.4)}
+.rel{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font:600 12.5px/1 'Manrope';color:#8B8BA3}
+.rel b{font:700 14px/1 'Manrope';color:#F4F4FA} .rel b em{font-style:normal;color:#FF3EA5;text-shadow:0 0 8px rgba(255,62,165,.8)}
+.legend{position:absolute;left:0;right:0;bottom:124px;display:flex;justify-content:center;gap:18px;font:700 13px/1 'Unbounded'}
+.legend span{display:flex;align-items:center;gap:7px}
+.legend i{width:8px;height:8px;border-radius:50%}
+.grades{position:absolute;left:18px;right:18px;bottom:36px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g{height:68px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.05)}
+.g b{font:700 14.5px/1 'Manrope'}
+.g small{font:600 11.5px/1 'Unbounded';opacity:.8}
+</style></head><body><div class="page"><div class="page-head"><div><div class="kicker">Karten · стиль 3</div><h2>Неоновый <em>тёмный</em></h2></div>
+<p>Почти чёрный фон, стеклянные карточки, Unbounded и светящиеся цвета артиклей: der — циан, die — маджента, das — лайм.</p></div>
+<div class="phones"><div class="phone"><div class="screen"><div class="orb" style="width:260px;height:260px;right:-90px;top:-60px;background:#8B5CF6;opacity:.45"></div><div class="orb" style="width:240px;height:240px;left:-120px;top:330px;background:#22D3EE;opacity:.35"></div><div class="orb" style="width:260px;height:260px;right:-120px;bottom:40px;background:#FF3EA5;opacity:.3"></div><div class="cam"></div><div class="status" style="color:#F4F4FA"><span>19:55</span><span class="sic">
+<svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#F4F4FA"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="1" fill="#F4F4FA"/><rect x="9" y="3" width="3" height="9" rx="1" fill="#F4F4FA"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#F4F4FA"/></svg>
+<svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 .6 4.1a10.5 10.5 0 0 1 14.8 0Z" fill="#F4F4FA"/></svg>
+<svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="#F4F4FA" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="#F4F4FA"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="#F4F4FA" opacity=".5"/></svg>
+</span></div>
+<div class="z"><div class="top"><div><small>ДОБРЫЙ ВЕЧЕР</small><b>Александр</b></div><div class="avatar"><div>A</div></div></div>
+<div class="streak glass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB547" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 5px #FFB547)'><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg><b>12</b> дней подряд</div>
+<div class="session glass"><div class="lbl"><span>СЕГОДНЯ</span><span>≈ 8 МИН</span></div>
+<div class="counts"><div class="cnt"><b style="color:#22D3EE;text-shadow:0 0 16px rgba(34,211,238,.7)">18</b><span>к повторению</span></div>
+<div class="cnt"><b style="color:#FF3EA5;text-shadow:0 0 16px rgba(255,62,165,.7)">10</b><span>новых слов</span></div></div>
+<div class="start">Начать <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#07070C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div></div>
+<div class="week"><div class="wd done "><i style="height:40px"></i>Пн</div><div class="wd done "><i style="height:48px"></i>Вт</div><div class="wd done "><i style="height:34px"></i>Ср</div><div class="wd  today"><i style="height:44px"></i>Чт</div><div class="wd  "><i style="height:20px"></i>Пт</div><div class="wd  "><i style="height:20px"></i>Сб</div><div class="wd  "><i style="height:20px"></i>Вс</div></div>
+<div class="sec">Режимы<span>6</span></div>
+<div class="tiles"><div class="tile glass"><div class="ic" style="background:#FF3EA51A;box-shadow:0 0 0 1px #FF3EA555 inset,0 0 18px -4px #FF3EA5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF3EA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 4px #FF3EA5)'><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg></div><div><b>Артикли</b><small>рекорд 34</small></div></div><div class="tile glass"><div class="ic" style="background:#FFB5471A;box-shadow:0 0 0 1px #FFB54755 inset,0 0 18px -4px #FFB547"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFB547" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 4px #FFB547)'><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></div><div><b>Скорость</b><small>рекорд 420</small></div></div><div class="tile glass"><div class="ic" style="background:#22D3EE1A;box-shadow:0 0 0 1px #22D3EE55 inset,0 0 18px -4px #22D3EE"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 4px #22D3EE)'><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div><b>Письмо</b><small>10 за раунд</small></div></div><div class="tile glass"><div class="ic" style="background:#A3FF121A;box-shadow:0 0 0 1px #A3FF1255 inset,0 0 18px -4px #A3FF12"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3FF12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 4px #A3FF12)'><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></div><div><b>Мои слова</b><small>12 слов</small></div></div><div class="tile glass"><div class="ic" style="background:#8B5CF61A;box-shadow:0 0 0 1px #8B5CF655 inset,0 0 18px -4px #8B5CF6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 4px #8B5CF6)'><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div><b>Словарь</b><small>15 тем</small></div></div><div class="tile glass"><div class="ic" style="background:#FFD84D1A;box-shadow:0 0 0 1px #FFD84D55 inset,0 0 18px -4px #FFD84D"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD84D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style='filter:drop-shadow(0 0 4px #FFD84D)'><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div><div><b>Достижения</b><small>7/15</small></div></div></div>
+<div class="wod glass"><svg width="24" height="16" viewBox="0 0 30 20"><clipPath id="fc24"><rect width="30" height="20" rx="6"/></clipPath><g clip-path="url(#fc24)"><rect width="30" height="20" fill="#C8102E"/><rect y="6.67" width="30" height="6.67" fill="#fff"/></g></svg><div><small>СЛОВО ДНЯ</small><b><em>das</em> Vorzimmer</b></div><span class="r">прихожая</span></div></div>
+<div class="gesture"></div></div><div class="label-under">Главная</div></div><div class="phone"><div class="screen"><div class="orb" style="width:260px;height:260px;right:-90px;top:-60px;background:#FF3EA5;opacity:.45"></div><div class="orb" style="width:240px;height:240px;left:-120px;top:330px;background:#8B5CF6;opacity:.35"></div><div class="orb" style="width:260px;height:260px;right:-120px;bottom:40px;background:#22D3EE;opacity:.3"></div><div class="cam"></div><div class="status" style="color:#F4F4FA"><span>19:55</span><span class="sic">
+<svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#F4F4FA"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="1" fill="#F4F4FA"/><rect x="9" y="3" width="3" height="9" rx="1" fill="#F4F4FA"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#F4F4FA"/></svg>
+<svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 .6 4.1a10.5 10.5 0 0 1 14.8 0Z" fill="#F4F4FA"/></svg>
+<svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="#F4F4FA" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="#F4F4FA"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="#F4F4FA" opacity=".5"/></svg>
+</span></div>
+<div class="z"><div class="bar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F4F4FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 6 6 18M6 6l12 12"/></svg><div class="prog"><i></i></div><span class="n">7/28</span></div>
+<div class="flash glass">
+<div class="chips"><span class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M5 12h14"/><path d="M9 6 8 3h8l-1 3"/><path d="M8 21l1.5-3M16 21l-1.5-3"/><circle cx="9" cy="15" r=".6" fill="currentColor"/><circle cx="15" cy="15" r=".6" fill="currentColor"/></svg> Транспорт</span><span class="chip">A2</span></div>
+<div class="art">die</div>
+<div class="word">Straßenbahn</div>
+<div class="plural">мн. ч. <b>die</b> Straßenbahnen</div>
+<div class="ru">трамвай</div>
+<div class="atnote"><svg width="26" height="17" viewBox="0 0 30 20"><clipPath id="fc26"><rect width="30" height="20" rx="6"/></clipPath><g clip-path="url(#fc26)"><rect width="30" height="20" fill="#C8102E"/><rect y="6.67" width="30" height="6.67" fill="#fff"/></g></svg><div class="t">В Вене говорят <b>die Bim</b><br>разговорное венское слово</div></div>
+<div class="ex"><div class="de">Die <u>Straßenbahn</u> kommt alle fünf Minuten.</div><div class="rx">Трамвай ходит каждые пять минут.</div><div class="sp"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div></div>
+<div class="rel"><span>похожее</span><b><em>die</em> Haltestelle <span style="color:#8B8BA3;font-weight:600">· остановка</span></b></div>
+</div></div>
+<div class="legend z"><span style="color:#22D3EE"><i style="background:#22D3EE;box-shadow:0 0 10px #22D3EE"></i>der</span><span style="color:#FF3EA5"><i style="background:#FF3EA5;box-shadow:0 0 10px #FF3EA5"></i>die</span><span style="color:#A3FF12"><i style="background:#A3FF12;box-shadow:0 0 10px #A3FF12"></i>das</span></div>
+<div class="grades z">
+<div class="g" style="border:1px solid #FF4D6D88;box-shadow:0 0 18px -6px #FF4D6D;color:#FF4D6D"><b>Не помню</b><small>сейчас</small></div>
+<div class="g" style="border:1px solid #FFB54788;box-shadow:0 0 18px -6px #FFB547;color:#FFB547"><b>Трудно</b><small>2 дн.</small></div>
+<div class="g" style="border:1px solid #A3FF12;background:#A3FF1222;box-shadow:0 0 24px -4px #A3FF12;color:#A3FF12"><b>Помню</b><small>6 дн.</small></div></div>
+<div class="gesture"></div></div><div class="label-under">Карточка · ответ</div></div></div></div></body></html>

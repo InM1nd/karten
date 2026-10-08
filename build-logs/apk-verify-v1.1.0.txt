@@ -1,0 +1,186 @@
+size: 22505885 bytes (limit 24 MiB = 25165824)
+4f48a2fdb4dc3d1f9bc329705bfb85857fdefaf8c85910e41991c529dd780b09  Karten-v1.1.0.apk
+package: name='com.zabolotny.karten' versionCode='4' versionName='1.1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+uses-permission: name='com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Karten'
+launchable-activity: name='com.zabolotny.karten.MainActivity'  label='' icon=''
+native-code: 'arm64-v8a'
+-- manifest flags (testOnly/debuggable absent if not listed)
+      A: android:extractNativeLibs(0x010104ea)=(type 0x12)0x0
+-- manifest components
+      E: service (line=84)
+        A: android:name(0x01010003)="com.reactnativeandroidwidget.RNWidgetCollectionService" (Raw: "com.reactnativeandroidwidget.RNWidgetCollectionService")
+      E: activity (line=88)
+        A: android:name(0x01010003)="com.zabolotny.karten.MainActivity" (Raw: "com.zabolotny.karten.MainActivity")
+      E: receiver (line=103)
+        A: android:name(0x01010003)="com.zabolotny.karten.widget.WordOfDay" (Raw: "com.zabolotny.karten.widget.WordOfDay")
+      E: provider (line=117)
+        A: android:name(0x01010003)="com.reactnativeandroidwidget.RNWidgetImageProvider" (Raw: "com.reactnativeandroidwidget.RNWidgetImageProvider")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+      E: provider (line=129)
+        A: android:name(0x01010003)="expo.modules.filesystem.FileSystemFileProvider" (Raw: "expo.modules.filesystem.FileSystemFileProvider")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: service (line=139)
+        A: android:name(0x01010003)="expo.modules.notifications.service.ExpoFirebaseMessagingService" (Raw: "expo.modules.notifications.service.ExpoFirebaseMessagingService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: receiver (line=147)
+        A: android:name(0x01010003)="expo.modules.notifications.service.NotificationsService" (Raw: "expo.modules.notifications.service.NotificationsService")
+      E: activity (line=161)
+        A: android:name(0x01010003)="expo.modules.notifications.service.NotificationForwarderActivity" (Raw: "expo.modules.notifications.service.NotificationForwarderActivity")
+      E: provider (line=170)
+        A: android:name(0x01010003)="androidx.startup.InitializationProvider" (Raw: "androidx.startup.InitializationProvider")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: service (line=188)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.SystemAlarmService" (Raw: "androidx.work.impl.background.systemalarm.SystemAlarmService")
+      E: service (line=193)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemjob.SystemJobService" (Raw: "androidx.work.impl.background.systemjob.SystemJobService")
+      E: service (line=199)
+        A: android:name(0x01010003)="androidx.work.impl.foreground.SystemForegroundService" (Raw: "androidx.work.impl.foreground.SystemForegroundService")
+      E: receiver (line=205)
+        A: android:name(0x01010003)="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver" (Raw: "androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver")
+      E: receiver (line=210)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy")
+      E: receiver (line=220)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy")
+      E: receiver (line=230)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy")
+      E: receiver (line=240)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy")
+      E: receiver (line=249)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.RescheduleReceiver" (Raw: "androidx.work.impl.background.systemalarm.RescheduleReceiver")
+      E: receiver (line=260)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver")
+      E: receiver (line=269)
+        A: android:name(0x01010003)="androidx.work.impl.diagnostics.DiagnosticsReceiver" (Raw: "androidx.work.impl.diagnostics.DiagnosticsReceiver")
+      E: service (line=280)
+        A: android:name(0x01010003)="androidx.room.MultiInstanceInvalidationService" (Raw: "androidx.room.MultiInstanceInvalidationService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: receiver (line=292)
+        A: android:name(0x01010003)="com.google.firebase.iid.FirebaseInstanceIdReceiver" (Raw: "com.google.firebase.iid.FirebaseInstanceIdReceiver")
+      E: service (line=308)
+        A: android:name(0x01010003)="com.google.firebase.messaging.FirebaseMessagingService" (Raw: "com.google.firebase.messaging.FirebaseMessagingService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: service (line=316)
+        A: android:name(0x01010003)="com.google.firebase.components.ComponentDiscoveryService" (Raw: "com.google.firebase.components.ComponentDiscoveryService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: activity (line=340)
+        A: android:name(0x01010003)="com.google.android.gms.common.api.GoogleApiActivity" (Raw: "com.google.android.gms.common.api.GoogleApiActivity")
+      E: provider (line=345)
+        A: android:name(0x01010003)="com.google.firebase.provider.FirebaseInitProvider" (Raw: "com.google.firebase.provider.FirebaseInitProvider")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: receiver (line=356)
+        A: android:name(0x01010003)="androidx.profileinstaller.ProfileInstallReceiver" (Raw: "androidx.profileinstaller.ProfileInstallReceiver")
+      E: service (line=376)
+        A: android:name(0x01010003)="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery" (Raw: "com.google.android.datatransport.runtime.backends.TransportBackendDiscovery")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: service (line=383)
+        A: android:name(0x01010003)="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" (Raw: "com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService")
+      E: receiver (line=389)
+        A: android:name(0x01010003)="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver" (Raw: "com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+-- apksigner (APK minSdk 24)
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Karten, OU=Personal, O=Alexander Zabolotny, L=Wien, C=AT
+Signer #1 certificate SHA-256 digest: 9d9e11e110b18ced20249d389000418cfcd8e8c02e867a6b235da9daee0ad273
+-- apksigner --min-sdk-version 21 (v1 JAR signature check)
+Verifies
+Verified using v1 scheme (JAR signing): true
+-- zipalign -c -P 16 -v 4
+ 3538944 lib/arm64-v8a/libappmodules.so (OK)
+ 3719168 lib/arm64-v8a/libc++_shared.so (OK)
+ 5013504 lib/arm64-v8a/libdatastore_shared_counter.so (OK)
+ 5029888 lib/arm64-v8a/libexpo-modules-core.so (OK)
+ 6488064 lib/arm64-v8a/libfbjni.so (OK)
+ 6668288 lib/arm64-v8a/libgifimage.so (OK)
+ 6995968 lib/arm64-v8a/libhermestooling.so (OK)
+ 7143424 lib/arm64-v8a/libhermesvm.so (OK)
+ 9633792 lib/arm64-v8a/libimagepipeline.so (OK)
+ 9650176 lib/arm64-v8a/libjsi.so (OK)
+10076160 lib/arm64-v8a/libnative-filters.so (OK)
+10108928 lib/arm64-v8a/libnative-imagetranscoder.so (OK)
+10698752 lib/arm64-v8a/libreact_codegen_safeareacontext.so (OK)
+10862592 lib/arm64-v8a/libreactnative.so (OK)
+17858560 lib/arm64-v8a/libstatic-webp.so (OK)
+18366464 lib/arm64-v8a/libzstd-kmp.so (OK)
+Verification successful
+-- zip entries: .so stored + JS bundle
+  176024  Stored   176024   0% 1981-01-01 01:01 5f3b62b0  lib/arm64-v8a/libappmodules.so
+ 1292904  Stored  1292904   0% 1981-01-01 01:01 e7c24752  lib/arm64-v8a/libc++_shared.so
+    7112  Stored     7112   0% 1981-01-01 01:01 4f56ac38  lib/arm64-v8a/libdatastore_shared_counter.so
+ 1457240  Stored  1457240   0% 1981-01-01 01:01 24c262a0  lib/arm64-v8a/libexpo-modules-core.so
+  177000  Stored   177000   0% 1981-01-01 01:01 67ad3e05  lib/arm64-v8a/libfbjni.so
+  318992  Stored   318992   0% 1981-01-01 01:01 dc8f7846  lib/arm64-v8a/libgifimage.so
+  141432  Stored   141432   0% 1981-01-01 01:01 e9c8c0e3  lib/arm64-v8a/libhermestooling.so
+ 2477320  Stored  2477320   0% 1981-01-01 01:01 9c86543a  lib/arm64-v8a/libhermesvm.so
+    8760  Stored     8760   0% 1981-01-01 01:01 ba5a5bd2  lib/arm64-v8a/libimagepipeline.so
+  412696  Stored   412696   0% 1981-01-01 01:01 9db4052e  lib/arm64-v8a/libjsi.so
+   23712  Stored    23712   0% 1981-01-01 01:01 5e99aaab  lib/arm64-v8a/libnative-filters.so
+  585376  Stored   585376   0% 1981-01-01 01:01 104fb448  lib/arm64-v8a/libnative-imagetranscoder.so
+  159208  Stored   159208   0% 1981-01-01 01:01 ae8db141  lib/arm64-v8a/libreact_codegen_safeareacontext.so
+ 6985168  Stored  6985168   0% 1981-01-01 01:01 f251f56a  lib/arm64-v8a/libreactnative.so
+  501856  Stored   501856   0% 1981-01-01 01:01 4e0f02ff  lib/arm64-v8a/libstatic-webp.so
+  731872  Stored   731872   0% 1981-01-01 01:01 334dc250  lib/arm64-v8a/libzstd-kmp.so
+ 1482912  Stored  1482912   0% 1981-01-01 01:01 a9df03be  assets/index.android.bundle
+-- ELF LOAD p_align
+libappmodules.so: 0x4000 
+libc++_shared.so: 0x4000 
+libdatastore_shared_counter.so: 0x4000 
+libexpo-modules-core.so: 0x4000 
+libfbjni.so: 0x4000 
+libgifimage.so: 0x4000 
+libhermestooling.so: 0x4000 
+libhermesvm.so: 0x4000 
+libimagepipeline.so: 0x4000 
+libjsi.so: 0x4000 
+libnative-filters.so: 0x4000 
+libnative-imagetranscoder.so: 0x4000 
+libreact_codegen_safeareacontext.so: 0x4000 
+libreactnative.so: 0x4000 
+libstatic-webp.so: 0x4000 
+libzstd-kmp.so: 0x4000 
+-- widget provider xml + preview
+      spec resource 0x7f0503a8 com.zabolotny.karten:color/notification_icon_bg_color: flags=0x00000000
+      spec resource 0x7f0503a9 com.zabolotny.karten:color/notification_icon_color: flags=0x00000000
+      spec resource 0x7f0700fa com.zabolotny.karten:drawable/notification_icon: flags=0x00000100
+      spec resource 0x7f0700fb com.zabolotny.karten:drawable/notification_icon_background: flags=0x00000000
+      spec resource 0x7f070100 com.zabolotny.karten:drawable/notify_panel_notification_icon_bg: flags=0x00000100
+      spec resource 0x7f07010a com.zabolotny.karten:drawable/wordofday_preview: flags=0x00000000
+      spec resource 0x7f0801ae com.zabolotny.karten:id/rn_widget_clickable_area: flags=0x00000000
+      spec resource 0x7f0801af com.zabolotny.karten:id/rn_widget_clickable_container: flags=0x00000000
+      spec resource 0x7f0801b0 com.zabolotny.karten:id/rn_widget_clickable_positioner: flags=0x00000000
+      spec resource 0x7f0801b1 com.zabolotny.karten:id/rn_widget_collection_container: flags=0x00000000
+      spec resource 0x7f0801b2 com.zabolotny.karten:id/rn_widget_image_dark: flags=0x00000000
+      spec resource 0x7f0801b3 com.zabolotny.karten:id/rn_widget_image_light: flags=0x00000000
+      spec resource 0x7f0801b4 com.zabolotny.karten:id/rn_widget_list_0: flags=0x00000000
+      spec resource 0x7f0801b5 com.zabolotny.karten:id/rn_widget_list_0_wrapper: flags=0x00000000
+      spec resource 0x7f0801b6 com.zabolotny.karten:id/rn_widget_list_1: flags=0x00000000
+      spec resource 0x7f0801b7 com.zabolotny.karten:id/rn_widget_list_1_wrapper: flags=0x00000000
+      spec resource 0x7f0801b8 com.zabolotny.karten:id/rn_widget_list_item_clickable_container: flags=0x00000000
+      spec resource 0x7f0801b9 com.zabolotny.karten:id/rn_widget_list_item_dark: flags=0x00000000
+      spec resource 0x7f0801ba com.zabolotny.karten:id/rn_widget_list_item_light: flags=0x00000000
+      spec resource 0x7f0801bb com.zabolotny.karten:id/rn_widget_list_positioner: flags=0x00000000
+      spec resource 0x7f0b0071 com.zabolotny.karten:layout/rn_widget: flags=0x00001000
+      spec resource 0x7f0b0072 com.zabolotny.karten:layout/rn_widget_clickable: flags=0x00000000
+      spec resource 0x7f0b0073 com.zabolotny.karten:layout/rn_widget_list: flags=0x00000000
+      spec resource 0x7f0b0074 com.zabolotny.karten:layout/rn_widget_list_item: flags=0x00001000
+      spec resource 0x7f100102 com.zabolotny.karten:string/widget_wordofday_description: flags=0x00000000
+      spec resource 0x7f130006 com.zabolotny.karten:xml/widgetprovider_wordofday: flags=0x00000000
+drawable/wordofday_preview -> res/id.png 31345 bytes
+drawable/notification_icon -> res/U4.png 393 bytes
+xml/widgetprovider_wordofday -> res/3R.xml 768 bytes

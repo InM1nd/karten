@@ -1,0 +1,161 @@
+<!doctype html><html lang='ru'><head><meta charset='utf-8'><title>Karten — Игровой</title><style>
+@font-face{font-family:'Playfair Display';src:url('../fonts/PlayfairDisplay-VariableFont_wght.ttf');font-weight:400 900;font-style:normal}
+@font-face{font-family:'Playfair Display';src:url('../fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf');font-weight:400 900;font-style:italic}
+@font-face{font-family:'Unbounded';src:url('../fonts/Unbounded-VariableFont_wght.ttf');font-weight:200 900}
+@font-face{font-family:'Manrope';src:url('../fonts/Manrope-VariableFont_wght.ttf');font-weight:200 800}
+@font-face{font-family:'Nunito';src:url('../fonts/Nunito-VariableFont_wght.ttf');font-weight:200 1000}
+@font-face{font-family:'Inter Tight';src:url('../fonts/InterTight-VariableFont_wght.ttf');font-weight:100 900}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1120px;height:1240px;overflow:hidden}
+body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.page{width:1120px;height:1240px;padding:52px 60px 0;position:relative;overflow:hidden}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;height:118px}
+.page-head .kicker{font:600 13px/1 'Manrope';letter-spacing:.22em;text-transform:uppercase;opacity:.6;margin-bottom:12px}
+.page-head h2{font-size:40px;line-height:1.05}
+.page-head p{font:500 15px/1.5 'Manrope';max-width:380px;text-align:right;opacity:.75}
+.phones{display:flex;gap:64px;justify-content:center;margin-top:34px}
+.phone{width:436px;height:939px;border-radius:56px;padding:12px;position:relative;flex:none}
+.screen{width:412px;height:915px;border-radius:44px;overflow:hidden;position:relative}
+.cam{position:absolute;top:13px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#0b0b0d;z-index:50}
+.status{height:38px;display:flex;align-items:center;justify-content:space-between;padding:4px 26px 0 30px;font:600 14px/1 'Manrope';position:relative;z-index:5}
+.status .sic{display:flex;gap:6px;align-items:center}
+.gesture{position:absolute;bottom:9px;left:50%;width:120px;height:4px;margin-left:-60px;border-radius:4px;z-index:50}
+svg{display:block}
+.label-under{position:absolute;bottom:-34px;left:0;right:0;text-align:center;font:600 13px/1 'Manrope';letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+
+body{background:#DDF4FF}
+.page{background:radial-gradient(900px 600px at 0% 0%,#E9F9DC 0%,transparent 60%),radial-gradient(900px 700px at 100% 100%,#DCEFFF 0%,transparent 60%),#F3FAFF;color:#3C3C3C}
+.page-head h2{font-family:'Nunito';font-weight:900;color:#3C3C3C}
+.page-head h2 em{font-style:normal;color:#58CC02}
+.phone{background:#2B2B2B;box-shadow:0 40px 70px -25px rgba(28,120,180,.45),0 0 0 2px #1a1a1a inset}
+.screen{background:#fff;color:#3C3C3C;font-family:'Nunito'}
+.gesture{background:#3C3C3C}
+.chipsrow{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 0}
+.pill{display:flex;align-items:center;gap:6px;font:900 17px/1 'Nunito';padding:6px 4px}
+.hero{display:flex;align-items:flex-end;gap:6px;padding:10px 18px 0}
+.bubble{position:relative;flex:1;border:2px solid #E5E5E5;border-radius:20px;padding:14px 16px;margin-bottom:22px;background:#fff}
+.bubble:before{content:'';position:absolute;left:-10px;bottom:20px;width:16px;height:16px;background:#fff;border-left:2px solid #E5E5E5;border-bottom:2px solid #E5E5E5;transform:rotate(45deg)}
+.bubble b{display:block;font:900 19px/1.15 'Nunito'}
+.bubble span{display:block;font:700 14px/1.3 'Nunito';color:#777;margin-top:4px}
+.session{margin:4px 18px 0;border:2px solid #E5E5E5;border-bottom-width:5px;border-radius:24px;padding:16px}
+.s-top{display:flex;justify-content:space-between;align-items:center}
+.s-top b{font:900 18px/1 'Nunito'}
+.s-top span{display:flex;align-items:center;gap:4px;font:800 13px/1 'Nunito';color:#AFAFAF}
+.counts{display:flex;gap:10px;margin-top:14px}
+.cnt{flex:1;border-radius:16px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.cnt .ic{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.cnt b{display:block;font:900 24px/1 'Nunito'}
+.cnt small{display:block;font:800 12px/1 'Nunito';opacity:.8;margin-top:2px}
+.btn3d{display:flex;align-items:center;justify-content:center;gap:10px;border-radius:16px;color:#fff;font:900 17px/1 'Nunito';letter-spacing:.06em;text-transform:uppercase}
+.start{margin-top:14px;height:56px;background:#58CC02;box-shadow:0 5px 0 #46A302}
+.week{display:flex;justify-content:space-between;margin:20px 22px 0}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;font:800 12px/1 'Nunito';color:#AFAFAF}
+.dd{width:34px;height:34px;border-radius:50%;background:#F2F2F2;display:flex;align-items:center;justify-content:center}
+.dd.done{background:#FF9600;box-shadow:0 3px 0 #E08600}
+.dd.today{background:#fff;border:3px dashed #FF9600}
+.sec{font:900 18px/1 'Nunito';padding:20px 20px 12px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 18px}
+.tile{height:124px;border-radius:20px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+.tile .ic{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center}
+.tile b{font:900 14.5px/1 'Nunito'}
+.tile small{font:800 11.5px/1 'Nunito';opacity:.9;margin-top:-3px}
+/* card */
+.bar{display:flex;align-items:center;gap:14px;padding:12px 20px 0}
+.prog{flex:1;height:16px;border-radius:10px;background:#E5E5E5;overflow:hidden}
+.prog i{display:block;height:100%;width:25%;background:#58CC02;border-radius:10px;position:relative}
+.prog i:after{content:'';position:absolute;left:8px;right:8px;top:4px;height:4px;border-radius:4px;background:rgba(255,255,255,.4)}
+.bar .n{font:900 15px/1 'Nunito';color:#58CC02}
+.praise{display:flex;align-items:center;gap:8px;padding:14px 22px 0;font:900 16px/1 'Nunito';color:#58CC02}
+.flash{height:604px;display:flex;flex-direction:column;margin:12px 18px 0;border:2px solid #E5E5E5;border-bottom-width:6px;border-radius:28px;padding:20px 20px 18px;position:relative}
+.chips{display:flex;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:#F2F2F2;font:900 12.5px/1 'Nunito';color:#777}
+.artchip{align-self:flex-start;display:inline-block;margin-top:18px;padding:6px 14px;border-radius:12px;background:#FF5FA2;box-shadow:0 3px 0 #E0438A;color:#fff;font:900 18px/1 'Nunito'}
+.word{margin-top:12px;font:900 46px/1.05 'Nunito';letter-spacing:-.01em}
+.plural{margin-top:8px;font:800 15px/1 'Nunito';color:#AFAFAF}
+.plural b{color:#FF5FA2}
+.ru{margin-top:22px;padding-top:20px;border-top:2px dashed #E5E5E5;font:900 30px/1 'Nunito';color:#3C3C3C}
+.atnote{margin-top:20px;display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;border-radius:18px;background:#FFF5D1;border:2px solid #FFE38A}
+.atnote .t{font:800 14px/1.3 'Nunito';color:#8A6A00}
+.atnote .t b{color:#FF4B4B;font-weight:900;font-size:17px}
+.ex{margin-top:16px;padding:14px;border-radius:18px;background:#EAF7FE;display:flex;gap:12px;align-items:flex-start}
+.ex .sp{flex:none;width:42px;height:42px;border-radius:14px;background:#1CB0F6;box-shadow:0 4px 0 #1899D6;display:flex;align-items:center;justify-content:center}
+.ex .de{font:800 16.5px/1.3 'Nunito';color:#3C3C3C}
+.ex .de u{text-decoration:none;color:#FF5FA2;font-weight:900}
+.ex .rx{font:700 14px/1.35 'Nunito';color:#6F8796;margin-top:5px}
+.rel{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:16px;border:2px solid #E5E5E5;font:800 13px/1 'Nunito';color:#AFAFAF}
+.rel b{font:900 15px/1 'Nunito';color:#3C3C3C} .rel b em{font-style:normal;color:#FF5FA2}
+.legend{position:absolute;left:0;right:0;bottom:124px;display:flex;justify-content:center;gap:10px}
+.legend span{padding:5px 12px;border-radius:10px;color:#fff;font:900 13px/1 'Nunito'}
+.grades{position:absolute;left:18px;right:18px;bottom:36px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g{height:66px;flex-direction:column;gap:4px;letter-spacing:0;text-transform:none;font-size:16px}
+.g small{font:800 12.5px/1 'Nunito';opacity:.9}
+</style></head><body><div class="page"><div class="page-head"><div><div class="kicker">Karten · стиль 2</div><h2>Игровой <em>с Бимми</em></h2></div>
+<p>Яркие цвета, «объёмные» кнопки, округлый Nunito и талисман — венский трамвайчик Бимми.</p></div>
+<div class="phones"><div class="phone"><div class="screen"><div class="cam"></div><div class="status" style="color:#3C3C3C"><span>19:55</span><span class="sic">
+<svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3C3C3C"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="1" fill="#3C3C3C"/><rect x="9" y="3" width="3" height="9" rx="1" fill="#3C3C3C"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#3C3C3C"/></svg>
+<svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 .6 4.1a10.5 10.5 0 0 1 14.8 0Z" fill="#3C3C3C"/></svg>
+<svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="#3C3C3C" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="#3C3C3C"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="#3C3C3C" opacity=".5"/></svg>
+</span></div>
+<div class="chipsrow"><span class="pill" style="color:#AFAFAF"><svg width="28" height="19" viewBox="0 0 30 20"><clipPath id="fc28"><rect width="30" height="20" rx="6"/></clipPath><g clip-path="url(#fc28)"><rect width="30" height="20" fill="#C8102E"/><rect y="6.67" width="30" height="6.67" fill="#fff"/></g></svg>&nbsp;DE</span>
+<span style="display:flex;gap:14px"><span class="pill" style="color:#FF9600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF9600" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>12</span><span class="pill" style="color:#E0AE00"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC800" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" ><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>7</span></span></div>
+<div class="hero"><svg width="118" height="110" viewBox="0 0 120 112" fill="none">
+<path d="M44 20 60 6 76 20" stroke="#4B4B4B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M48 6h24" stroke="#4B4B4B" stroke-width="3" stroke-linecap="round"/>
+<rect x="16" y="20" width="88" height="76" rx="22" fill="#E03A3A"/>
+<rect x="16" y="20" width="88" height="70" rx="22" fill="#FF4B4B"/>
+<rect x="44" y="24" width="32" height="12" rx="5" fill="#fff"/><text x="60" y="34" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="10" fill="#FF4B4B">D</text>
+<rect x="24" y="40" width="72" height="40" rx="14" fill="#fff"/>
+<circle cx="45" cy="56" r="9" fill="#3C3C3C"/><circle cx="75" cy="56" r="9" fill="#3C3C3C"/>
+<circle cx="48" cy="53" r="3.2" fill="#fff"/><circle cx="78" cy="53" r="3.2" fill="#fff"/>
+<ellipse cx="33" cy="68" rx="5" ry="3.2" fill="#FFB3B3"/><ellipse cx="87" cy="68" rx="5" ry="3.2" fill="#FFB3B3"/>
+<path d="M50 70q10 9 20 0" stroke="#3C3C3C" stroke-width="3.5" fill="#fff" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="82" width="88" height="6" fill="#fff" opacity=".9"/>
+<circle cx="36" cy="100" r="9" fill="#4B4B4B"/><circle cx="84" cy="100" r="9" fill="#4B4B4B"/>
+<circle cx="36" cy="100" r="3.5" fill="#AFAFAF"/><circle cx="84" cy="100" r="3.5" fill="#AFAFAF"/>
+<path d="M4 108h112" stroke="#E5E5E5" stroke-width="4" stroke-linecap="round"/>
+</svg><div class="bubble"><b>Servus, Александр!</b><span>Уже 12 дней подряд!</span></div></div>
+<div class="session"><div class="s-top"><b>Занятие на сегодня</b><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#AFAFAF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 8 мин</span></div>
+<div class="counts"><div class="cnt" style="background:#E3F5FE;color:#1899D6"><div class="ic" style="background:#1CB0F6"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><div><b>18</b><small>повторить</small></div></div>
+<div class="cnt" style="background:#F6EBFF;color:#A968D9"><div class="ic" style="background:#CE82FF"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg></div><div><b>10</b><small>новых</small></div></div></div>
+<div class="btn3d start">Начать</div></div>
+<div class="week"><div class="day">Пн<div class="dd done "><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div></div><div class="day">Вт<div class="dd done "><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div></div><div class="day">Ср<div class="dd done "><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div></div><div class="day">Чт<div class="dd  today"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF9600" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div></div><div class="day">Пт<div class="dd  "></div></div><div class="day">Сб<div class="dd  "></div></div><div class="day">Вс<div class="dd  "></div></div></div>
+<div class="sec">Тренировки</div>
+<div class="tiles"><div class="tile" style="background:#1CB0F6;box-shadow:0 5px 0 #1899D6"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg></div><b>Артикли</b><small>рекорд 34</small></div><div class="tile" style="background:#FF9600;box-shadow:0 5px 0 #E08600"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></div><b>Скорость</b><small>рекорд 420</small></div><div class="tile" style="background:#CE82FF;box-shadow:0 5px 0 #A968D9"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><b>Письмо</b><small>10 за раунд</small></div><div class="tile" style="background:#FFC800;box-shadow:0 5px 0 #E0AE00"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></div><b>Мои слова</b><small>12 слов</small></div><div class="tile" style="background:#58CC02;box-shadow:0 5px 0 #46A302"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><b>Словарь</b><small>15 тем</small></div><div class="tile" style="background:#FF5FA2;box-shadow:0 5px 0 #E0438A"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div><b>Достижения</b><small>7/15</small></div></div>
+<div class="gesture"></div></div><div class="label-under">Главная</div></div><div class="phone"><div class="screen"><div class="cam"></div><div class="status" style="color:#3C3C3C"><span>19:55</span><span class="sic">
+<svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3C3C3C"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="1" fill="#3C3C3C"/><rect x="9" y="3" width="3" height="9" rx="1" fill="#3C3C3C"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#3C3C3C"/></svg>
+<svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 .6 4.1a10.5 10.5 0 0 1 14.8 0Z" fill="#3C3C3C"/></svg>
+<svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="#3C3C3C" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="#3C3C3C"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="#3C3C3C" opacity=".5"/></svg>
+</span></div>
+<div class="bar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#AFAFAF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" ><path d="M18 6 6 18M6 6l12 12"/></svg><div class="prog"><i></i></div><span class="n">7/28</span></div>
+<div class="praise"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9600" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" ><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg><span style="color:#FF9600">3 подряд верно!</span></div>
+<div class="flash">
+<div class="chips"><span class="chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M5 12h14"/><path d="M9 6 8 3h8l-1 3"/><path d="M8 21l1.5-3M16 21l-1.5-3"/><circle cx="9" cy="15" r=".6" fill="currentColor"/><circle cx="15" cy="15" r=".6" fill="currentColor"/></svg> Транспорт</span><span class="chip">A2</span></div>
+<div class="artchip">die</div>
+<div class="word">Straßenbahn</div>
+<div class="plural">мн. ч. <b>die</b> Straßenbahnen</div>
+<div class="ru">трамвай</div>
+<div class="atnote"><svg width="52" height="49" viewBox="0 0 120 112" fill="none">
+<path d="M44 20 60 6 76 20" stroke="#4B4B4B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M48 6h24" stroke="#4B4B4B" stroke-width="3" stroke-linecap="round"/>
+<rect x="16" y="20" width="88" height="76" rx="22" fill="#E03A3A"/>
+<rect x="16" y="20" width="88" height="70" rx="22" fill="#FF4B4B"/>
+<rect x="44" y="24" width="32" height="12" rx="5" fill="#fff"/><text x="60" y="34" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="10" fill="#FF4B4B">D</text>
+<rect x="24" y="40" width="72" height="40" rx="14" fill="#fff"/>
+<circle cx="45" cy="56" r="9" fill="#3C3C3C"/><circle cx="75" cy="56" r="9" fill="#3C3C3C"/>
+<circle cx="48" cy="53" r="3.2" fill="#fff"/><circle cx="78" cy="53" r="3.2" fill="#fff"/>
+<ellipse cx="33" cy="68" rx="5" ry="3.2" fill="#FFB3B3"/><ellipse cx="87" cy="68" rx="5" ry="3.2" fill="#FFB3B3"/>
+<path d="M50 70q10 9 20 0" stroke="#3C3C3C" stroke-width="3.5" fill="#fff" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16" y="82" width="88" height="6" fill="#fff" opacity=".9"/>
+<circle cx="36" cy="100" r="9" fill="#4B4B4B"/><circle cx="84" cy="100" r="9" fill="#4B4B4B"/>
+<circle cx="36" cy="100" r="3.5" fill="#AFAFAF"/><circle cx="84" cy="100" r="3.5" fill="#AFAFAF"/>
+<path d="M4 108h112" stroke="#E5E5E5" stroke-width="4" stroke-linecap="round"/>
+</svg><div class="t">В Вене говорят просто<br><span style="white-space:nowrap;display:inline-flex;align-items:center;gap:6px"><b>die Bim!</b><svg width="20" height="13" viewBox="0 0 30 20"><clipPath id="fc20"><rect width="30" height="20" rx="6"/></clipPath><g clip-path="url(#fc20)"><rect width="30" height="20" fill="#C8102E"/><rect y="6.67" width="30" height="6.67" fill="#fff"/></g></svg></span></div></div>
+<div class="ex"><div class="sp"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" ><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div><div><div class="de">Die <u>Straßenbahn</u> kommt alle fünf Minuten.</div><div class="rx">Трамвай ходит каждые пять минут.</div></div></div>
+<div class="rel"><span>ПОХОЖЕЕ</span><b><em>die</em> Haltestelle <span style="color:#AFAFAF;font-weight:800">· остановка</span></b></div>
+</div>
+<div class="legend"><span style="background:#1CB0F6">der</span><span style="background:#FF5FA2">die</span><span style="background:#58CC02">das</span></div>
+<div class="grades"><div class="btn3d g" style="background:#FF4B4B;box-shadow:0 5px 0 #E03A3A">Не помню<small>сейчас</small></div>
+<div class="btn3d g" style="background:#FF9600;box-shadow:0 5px 0 #E08600">Трудно<small>2 дн.</small></div>
+<div class="btn3d g" style="background:#58CC02;box-shadow:0 5px 0 #46A302">Помню<small>6 дн.</small></div></div>
+<div class="gesture"></div></div><div class="label-under">Карточка · ответ</div></div></div></div></body></html>

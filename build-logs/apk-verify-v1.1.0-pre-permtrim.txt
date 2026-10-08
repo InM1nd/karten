@@ -1,0 +1,289 @@
+size: 22506210 bytes
+b062f982f77dde22ecb4361ce14c66793912e5cd352bae163b2f37df106f1a16  Karten-v1.1.0.apk
+package: name='com.zabolotny.karten' versionCode='4' versionName='1.1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+uses-permission: name='com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+uses-permission: name='com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE'
+uses-permission: name='com.sec.android.provider.badge.permission.READ'
+uses-permission: name='com.sec.android.provider.badge.permission.WRITE'
+uses-permission: name='com.htc.launcher.permission.READ_SETTINGS'
+uses-permission: name='com.htc.launcher.permission.UPDATE_SHORTCUT'
+uses-permission: name='com.sonyericsson.home.permission.BROADCAST_BADGE'
+uses-permission: name='com.sonymobile.home.permission.PROVIDER_INSERT_BADGE'
+uses-permission: name='com.anddoes.launcher.permission.UPDATE_COUNT'
+uses-permission: name='com.majeur.launcher.permission.UPDATE_BADGE'
+uses-permission: name='com.huawei.android.launcher.permission.CHANGE_BADGE'
+uses-permission: name='com.huawei.android.launcher.permission.READ_SETTINGS'
+uses-permission: name='com.huawei.android.launcher.permission.WRITE_SETTINGS'
+uses-permission: name='android.permission.READ_APP_BADGE'
+uses-permission: name='com.oppo.launcher.permission.READ_SETTINGS'
+uses-permission: name='com.oppo.launcher.permission.WRITE_SETTINGS'
+uses-permission: name='me.everything.badger.permission.BADGE_COUNT_READ'
+uses-permission: name='me.everything.badger.permission.BADGE_COUNT_WRITE'
+application-label:'Karten'
+launchable-activity: name='com.zabolotny.karten.MainActivity'  label='' icon=''
+native-code: 'arm64-v8a'
+-- manifest flags / components
+      A: android:name(0x01010003)="android.permission.INTERNET" (Raw: "android.permission.INTERNET")
+      A: android:name(0x01010003)="android.permission.VIBRATE" (Raw: "android.permission.VIBRATE")
+          A: android:name(0x01010003)="android.intent.action.VIEW" (Raw: "android.intent.action.VIEW")
+          A: android:name(0x01010003)="android.intent.category.BROWSABLE" (Raw: "android.intent.category.BROWSABLE")
+          A: android:name(0x01010003)="android.intent.action.OPEN_DOCUMENT_TREE" (Raw: "android.intent.action.OPEN_DOCUMENT_TREE")
+          A: android:name(0x01010003)="android.intent.action.TTS_SERVICE" (Raw: "android.intent.action.TTS_SERVICE")
+      A: android:name(0x01010003)="android.permission.RECEIVE_BOOT_COMPLETED" (Raw: "android.permission.RECEIVE_BOOT_COMPLETED")
+      A: android:name(0x01010003)="android.permission.POST_NOTIFICATIONS" (Raw: "android.permission.POST_NOTIFICATIONS")
+      A: android:name(0x01010003)="android.permission.WAKE_LOCK" (Raw: "android.permission.WAKE_LOCK")
+      A: android:name(0x01010003)="android.permission.ACCESS_NETWORK_STATE" (Raw: "android.permission.ACCESS_NETWORK_STATE")
+      A: android:name(0x01010003)="android.permission.FOREGROUND_SERVICE" (Raw: "android.permission.FOREGROUND_SERVICE")
+      A: android:name(0x01010003)="com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" (Raw: "com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
+      A: android:name(0x01010003)="com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" (Raw: "com.zabolotny.karten.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
+      A: android:name(0x01010003)="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" (Raw: "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE")
+      A: android:name(0x01010003)="com.sec.android.provider.badge.permission.READ" (Raw: "com.sec.android.provider.badge.permission.READ")
+      A: android:name(0x01010003)="com.sec.android.provider.badge.permission.WRITE" (Raw: "com.sec.android.provider.badge.permission.WRITE")
+      A: android:name(0x01010003)="com.htc.launcher.permission.READ_SETTINGS" (Raw: "com.htc.launcher.permission.READ_SETTINGS")
+      A: android:name(0x01010003)="com.htc.launcher.permission.UPDATE_SHORTCUT" (Raw: "com.htc.launcher.permission.UPDATE_SHORTCUT")
+      A: android:name(0x01010003)="com.sonyericsson.home.permission.BROADCAST_BADGE" (Raw: "com.sonyericsson.home.permission.BROADCAST_BADGE")
+      A: android:name(0x01010003)="com.sonymobile.home.permission.PROVIDER_INSERT_BADGE" (Raw: "com.sonymobile.home.permission.PROVIDER_INSERT_BADGE")
+      A: android:name(0x01010003)="com.anddoes.launcher.permission.UPDATE_COUNT" (Raw: "com.anddoes.launcher.permission.UPDATE_COUNT")
+      A: android:name(0x01010003)="com.majeur.launcher.permission.UPDATE_BADGE" (Raw: "com.majeur.launcher.permission.UPDATE_BADGE")
+      A: android:name(0x01010003)="com.huawei.android.launcher.permission.CHANGE_BADGE" (Raw: "com.huawei.android.launcher.permission.CHANGE_BADGE")
+      A: android:name(0x01010003)="com.huawei.android.launcher.permission.READ_SETTINGS" (Raw: "com.huawei.android.launcher.permission.READ_SETTINGS")
+      A: android:name(0x01010003)="com.huawei.android.launcher.permission.WRITE_SETTINGS" (Raw: "com.huawei.android.launcher.permission.WRITE_SETTINGS")
+      A: android:name(0x01010003)="android.permission.READ_APP_BADGE" (Raw: "android.permission.READ_APP_BADGE")
+      A: android:name(0x01010003)="com.oppo.launcher.permission.READ_SETTINGS" (Raw: "com.oppo.launcher.permission.READ_SETTINGS")
+      A: android:name(0x01010003)="com.oppo.launcher.permission.WRITE_SETTINGS" (Raw: "com.oppo.launcher.permission.WRITE_SETTINGS")
+      A: android:name(0x01010003)="me.everything.badger.permission.BADGE_COUNT_READ" (Raw: "me.everything.badger.permission.BADGE_COUNT_READ")
+      A: android:name(0x01010003)="me.everything.badger.permission.BADGE_COUNT_WRITE" (Raw: "me.everything.badger.permission.BADGE_COUNT_WRITE")
+      A: android:name(0x01010003)="com.zabolotny.karten.MainApplication" (Raw: "com.zabolotny.karten.MainApplication")
+      A: android:extractNativeLibs(0x010104ea)=(type 0x12)0x0
+        A: android:name(0x01010003)="com.google.firebase.messaging.default_notification_channel_id" (Raw: "com.google.firebase.messaging.default_notification_channel_id")
+        A: android:name(0x01010003)="com.google.firebase.messaging.default_notification_color" (Raw: "com.google.firebase.messaging.default_notification_color")
+        A: android:name(0x01010003)="com.google.firebase.messaging.default_notification_icon" (Raw: "com.google.firebase.messaging.default_notification_icon")
+        A: android:name(0x01010003)="expo.modules.notifications.default_notification_color" (Raw: "expo.modules.notifications.default_notification_color")
+        A: android:name(0x01010003)="expo.modules.notifications.default_notification_icon" (Raw: "expo.modules.notifications.default_notification_icon")
+        A: android:name(0x01010003)="expo.modules.updates.ENABLED" (Raw: "expo.modules.updates.ENABLED")
+        A: android:name(0x01010003)="expo.modules.updates.ENABLE_BSDIFF_PATCH_SUPPORT" (Raw: "expo.modules.updates.ENABLE_BSDIFF_PATCH_SUPPORT")
+        A: android:name(0x01010003)="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" (Raw: "expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH")
+        A: android:name(0x01010003)="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS" (Raw: "expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS")
+      E: service (line=106)
+        A: android:name(0x01010003)="com.reactnativeandroidwidget.RNWidgetCollectionService" (Raw: "com.reactnativeandroidwidget.RNWidgetCollectionService")
+      E: activity (line=110)
+        A: android:name(0x01010003)="com.zabolotny.karten.MainActivity" (Raw: "com.zabolotny.karten.MainActivity")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+            A: android:name(0x01010003)="android.intent.action.MAIN" (Raw: "android.intent.action.MAIN")
+            A: android:name(0x01010003)="android.intent.category.LAUNCHER" (Raw: "android.intent.category.LAUNCHER")
+      E: receiver (line=125)
+        A: android:name(0x01010003)="com.zabolotny.karten.widget.WordOfDay" (Raw: "com.zabolotny.karten.widget.WordOfDay")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="android.appwidget.action.APPWIDGET_UPDATE" (Raw: "android.appwidget.action.APPWIDGET_UPDATE")
+            A: android:name(0x01010003)="com.zabolotny.karten.WIDGET_CLICK" (Raw: "com.zabolotny.karten.WIDGET_CLICK")
+          A: android:name(0x01010003)="android.appwidget.provider" (Raw: "android.appwidget.provider")
+      E: provider (line=139)
+        A: android:name(0x01010003)="com.reactnativeandroidwidget.RNWidgetImageProvider" (Raw: "com.reactnativeandroidwidget.RNWidgetImageProvider")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+        A: android:authorities(0x01010018)="com.zabolotny.karten.rnwidget.imageprovider" (Raw: "com.zabolotny.karten.rnwidget.imageprovider")
+        A: android:name(0x01010003)="org.unimodules.core.AppLoader#react-native-headless" (Raw: "org.unimodules.core.AppLoader#react-native-headless")
+        A: android:name(0x01010003)="com.facebook.soloader.enabled" (Raw: "com.facebook.soloader.enabled")
+      E: provider (line=151)
+        A: android:name(0x01010003)="expo.modules.filesystem.FileSystemFileProvider" (Raw: "expo.modules.filesystem.FileSystemFileProvider")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+        A: android:authorities(0x01010018)="com.zabolotny.karten.FileSystemFileProvider" (Raw: "com.zabolotny.karten.FileSystemFileProvider")
+          A: android:name(0x01010003)="android.support.FILE_PROVIDER_PATHS" (Raw: "android.support.FILE_PROVIDER_PATHS")
+      E: service (line=161)
+        A: android:name(0x01010003)="expo.modules.notifications.service.ExpoFirebaseMessagingService" (Raw: "expo.modules.notifications.service.ExpoFirebaseMessagingService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="com.google.firebase.MESSAGING_EVENT" (Raw: "com.google.firebase.MESSAGING_EVENT")
+      E: receiver (line=169)
+        A: android:name(0x01010003)="expo.modules.notifications.service.NotificationsService" (Raw: "expo.modules.notifications.service.NotificationsService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="expo.modules.notifications.NOTIFICATION_EVENT" (Raw: "expo.modules.notifications.NOTIFICATION_EVENT")
+            A: android:name(0x01010003)="android.intent.action.BOOT_COMPLETED" (Raw: "android.intent.action.BOOT_COMPLETED")
+            A: android:name(0x01010003)="android.intent.action.REBOOT" (Raw: "android.intent.action.REBOOT")
+            A: android:name(0x01010003)="android.intent.action.QUICKBOOT_POWERON" (Raw: "android.intent.action.QUICKBOOT_POWERON")
+            A: android:name(0x01010003)="com.htc.intent.action.QUICKBOOT_POWERON" (Raw: "com.htc.intent.action.QUICKBOOT_POWERON")
+            A: android:name(0x01010003)="android.intent.action.MY_PACKAGE_REPLACED" (Raw: "android.intent.action.MY_PACKAGE_REPLACED")
+      E: activity (line=183)
+        A: android:name(0x01010003)="expo.modules.notifications.service.NotificationForwarderActivity" (Raw: "expo.modules.notifications.service.NotificationForwarderActivity")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: provider (line=192)
+        A: android:name(0x01010003)="androidx.startup.InitializationProvider" (Raw: "androidx.startup.InitializationProvider")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+        A: android:authorities(0x01010018)="com.zabolotny.karten.androidx-startup" (Raw: "com.zabolotny.karten.androidx-startup")
+          A: android:name(0x01010003)="androidx.work.WorkManagerInitializer" (Raw: "androidx.work.WorkManagerInitializer")
+          A: android:name(0x01010003)="androidx.emoji2.text.EmojiCompatInitializer" (Raw: "androidx.emoji2.text.EmojiCompatInitializer")
+          A: android:name(0x01010003)="androidx.lifecycle.ProcessLifecycleInitializer" (Raw: "androidx.lifecycle.ProcessLifecycleInitializer")
+          A: android:name(0x01010003)="androidx.profileinstaller.ProfileInstallerInitializer" (Raw: "androidx.profileinstaller.ProfileInstallerInitializer")
+      E: service (line=210)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.SystemAlarmService" (Raw: "androidx.work.impl.background.systemalarm.SystemAlarmService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: service (line=215)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemjob.SystemJobService" (Raw: "androidx.work.impl.background.systemjob.SystemJobService")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+      E: service (line=221)
+        A: android:name(0x01010003)="androidx.work.impl.foreground.SystemForegroundService" (Raw: "androidx.work.impl.foreground.SystemForegroundService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: receiver (line=227)
+        A: android:name(0x01010003)="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver" (Raw: "androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: receiver (line=232)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="android.intent.action.ACTION_POWER_CONNECTED" (Raw: "android.intent.action.ACTION_POWER_CONNECTED")
+            A: android:name(0x01010003)="android.intent.action.ACTION_POWER_DISCONNECTED" (Raw: "android.intent.action.ACTION_POWER_DISCONNECTED")
+      E: receiver (line=242)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="android.intent.action.BATTERY_OKAY" (Raw: "android.intent.action.BATTERY_OKAY")
+            A: android:name(0x01010003)="android.intent.action.BATTERY_LOW" (Raw: "android.intent.action.BATTERY_LOW")
+      E: receiver (line=252)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="android.intent.action.DEVICE_STORAGE_LOW" (Raw: "android.intent.action.DEVICE_STORAGE_LOW")
+            A: android:name(0x01010003)="android.intent.action.DEVICE_STORAGE_OK" (Raw: "android.intent.action.DEVICE_STORAGE_OK")
+      E: receiver (line=262)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="android.net.conn.CONNECTIVITY_CHANGE" (Raw: "android.net.conn.CONNECTIVITY_CHANGE")
+      E: receiver (line=271)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.RescheduleReceiver" (Raw: "androidx.work.impl.background.systemalarm.RescheduleReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="android.intent.action.BOOT_COMPLETED" (Raw: "android.intent.action.BOOT_COMPLETED")
+            A: android:name(0x01010003)="android.intent.action.TIME_SET" (Raw: "android.intent.action.TIME_SET")
+            A: android:name(0x01010003)="android.intent.action.TIMEZONE_CHANGED" (Raw: "android.intent.action.TIMEZONE_CHANGED")
+      E: receiver (line=282)
+        A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver" (Raw: "androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="androidx.work.impl.background.systemalarm.UpdateProxies" (Raw: "androidx.work.impl.background.systemalarm.UpdateProxies")
+      E: receiver (line=291)
+        A: android:name(0x01010003)="androidx.work.impl.diagnostics.DiagnosticsReceiver" (Raw: "androidx.work.impl.diagnostics.DiagnosticsReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+            A: android:name(0x01010003)="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" (Raw: "androidx.work.diagnostics.REQUEST_DIAGNOSTICS")
+      E: service (line=302)
+        A: android:name(0x01010003)="androidx.room.MultiInstanceInvalidationService" (Raw: "androidx.room.MultiInstanceInvalidationService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+        A: android:name(0x01010003)="androidx.window.extensions" (Raw: "androidx.window.extensions")
+        A: android:name(0x01010003)="androidx.window.sidecar" (Raw: "androidx.window.sidecar")
+      E: receiver (line=314)
+        A: android:name(0x01010003)="com.google.firebase.iid.FirebaseInstanceIdReceiver" (Raw: "com.google.firebase.iid.FirebaseInstanceIdReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+            A: android:name(0x01010003)="com.google.android.c2dm.intent.RECEIVE" (Raw: "com.google.android.c2dm.intent.RECEIVE")
+          A: android:name(0x01010003)="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED" (Raw: "com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED")
+      E: service (line=330)
+        A: android:name(0x01010003)="com.google.firebase.messaging.FirebaseMessagingService" (Raw: "com.google.firebase.messaging.FirebaseMessagingService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+            A: android:name(0x01010003)="com.google.firebase.MESSAGING_EVENT" (Raw: "com.google.firebase.MESSAGING_EVENT")
+      E: service (line=338)
+        A: android:name(0x01010003)="com.google.firebase.components.ComponentDiscoveryService" (Raw: "com.google.firebase.components.ComponentDiscoveryService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+          A: android:name(0x01010003)="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar" (Raw: "com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar")
+          A: android:name(0x01010003)="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar" (Raw: "com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar")
+          A: android:name(0x01010003)="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar" (Raw: "com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar")
+          A: android:name(0x01010003)="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar" (Raw: "com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar")
+          A: android:name(0x01010003)="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar" (Raw: "com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar")
+          A: android:name(0x01010003)="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar" (Raw: "com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar")
+      E: activity (line=362)
+        A: android:name(0x01010003)="com.google.android.gms.common.api.GoogleApiActivity" (Raw: "com.google.android.gms.common.api.GoogleApiActivity")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: provider (line=367)
+        A: android:name(0x01010003)="com.google.firebase.provider.FirebaseInitProvider" (Raw: "com.google.firebase.provider.FirebaseInitProvider")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+        A: android:authorities(0x01010018)="com.zabolotny.karten.firebaseinitprovider" (Raw: "com.zabolotny.karten.firebaseinitprovider")
+        A: android:name(0x01010003)="com.google.android.gms.version" (Raw: "com.google.android.gms.version")
+      E: receiver (line=378)
+        A: android:name(0x01010003)="androidx.profileinstaller.ProfileInstallReceiver" (Raw: "androidx.profileinstaller.ProfileInstallReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0xffffffff
+            A: android:name(0x01010003)="androidx.profileinstaller.action.INSTALL_PROFILE" (Raw: "androidx.profileinstaller.action.INSTALL_PROFILE")
+            A: android:name(0x01010003)="androidx.profileinstaller.action.SKIP_FILE" (Raw: "androidx.profileinstaller.action.SKIP_FILE")
+            A: android:name(0x01010003)="androidx.profileinstaller.action.SAVE_PROFILE" (Raw: "androidx.profileinstaller.action.SAVE_PROFILE")
+            A: android:name(0x01010003)="androidx.profileinstaller.action.BENCHMARK_OPERATION" (Raw: "androidx.profileinstaller.action.BENCHMARK_OPERATION")
+      E: service (line=398)
+        A: android:name(0x01010003)="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery" (Raw: "com.google.android.datatransport.runtime.backends.TransportBackendDiscovery")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+          A: android:name(0x01010003)="backend:com.google.android.datatransport.cct.CctBackendFactory" (Raw: "backend:com.google.android.datatransport.cct.CctBackendFactory")
+      E: service (line=405)
+        A: android:name(0x01010003)="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" (Raw: "com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+      E: receiver (line=411)
+        A: android:name(0x01010003)="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver" (Raw: "com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver")
+        A: android:exported(0x01010010)=(type 0x12)0x0
+-- apksigner (minSdk 24 as in APK)
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Karten, OU=Personal, O=Alexander Zabolotny, L=Wien, C=AT
+Signer #1 certificate SHA-256 digest: 9d9e11e110b18ced20249d389000418cfcd8e8c02e867a6b235da9daee0ad273
+Signer #1 certificate SHA-1 digest: 89772232ffa8b4332f5f3cb28264821af57d9aa7
+Signer #1 certificate MD5 digest: d69ec31f9fe18365d4aa4d33849aaa38
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 1a1fc3a0904e905c5a2247a1a336b79fa8a3d7496119e655c04193d842be53b2
+Signer #1 public key SHA-1 digest: 68540a06502c715b3bd607094d769e9b577fb6bf
+Signer #1 public key MD5 digest: a4ce142988257ee2ca2bc4a1e02eb654
+-- apksigner --min-sdk-version 21 (v1 JAR signature check)
+Verified using v1 scheme (JAR signing): true
+-- zipalign -c -P 16 -v 4
+ 3538944 lib/arm64-v8a/libappmodules.so (OK)
+ 3719168 lib/arm64-v8a/libc++_shared.so (OK)
+ 5013504 lib/arm64-v8a/libdatastore_shared_counter.so (OK)
+ 5029888 lib/arm64-v8a/libexpo-modules-core.so (OK)
+ 6488064 lib/arm64-v8a/libfbjni.so (OK)
+ 6668288 lib/arm64-v8a/libgifimage.so (OK)
+ 6995968 lib/arm64-v8a/libhermestooling.so (OK)
+ 7143424 lib/arm64-v8a/libhermesvm.so (OK)
+ 9633792 lib/arm64-v8a/libimagepipeline.so (OK)
+ 9650176 lib/arm64-v8a/libjsi.so (OK)
+10076160 lib/arm64-v8a/libnative-filters.so (OK)
+10108928 lib/arm64-v8a/libnative-imagetranscoder.so (OK)
+10698752 lib/arm64-v8a/libreact_codegen_safeareacontext.so (OK)
+10862592 lib/arm64-v8a/libreactnative.so (OK)
+17858560 lib/arm64-v8a/libstatic-webp.so (OK)
+18366464 lib/arm64-v8a/libzstd-kmp.so (OK)
+Verification successful
+-- zip entries: .so compression + bundle
+  176024  Stored   176024   0% 1981-01-01 01:01 5f3b62b0  lib/arm64-v8a/libappmodules.so
+ 1292904  Stored  1292904   0% 1981-01-01 01:01 e7c24752  lib/arm64-v8a/libc++_shared.so
+    7112  Stored     7112   0% 1981-01-01 01:01 4f56ac38  lib/arm64-v8a/libdatastore_shared_counter.so
+ 1457240  Stored  1457240   0% 1981-01-01 01:01 24c262a0  lib/arm64-v8a/libexpo-modules-core.so
+  177000  Stored   177000   0% 1981-01-01 01:01 67ad3e05  lib/arm64-v8a/libfbjni.so
+  318992  Stored   318992   0% 1981-01-01 01:01 dc8f7846  lib/arm64-v8a/libgifimage.so
+  141432  Stored   141432   0% 1981-01-01 01:01 e9c8c0e3  lib/arm64-v8a/libhermestooling.so
+ 2477320  Stored  2477320   0% 1981-01-01 01:01 9c86543a  lib/arm64-v8a/libhermesvm.so
+    8760  Stored     8760   0% 1981-01-01 01:01 ba5a5bd2  lib/arm64-v8a/libimagepipeline.so
+  412696  Stored   412696   0% 1981-01-01 01:01 9db4052e  lib/arm64-v8a/libjsi.so
+   23712  Stored    23712   0% 1981-01-01 01:01 5e99aaab  lib/arm64-v8a/libnative-filters.so
+  585376  Stored   585376   0% 1981-01-01 01:01 104fb448  lib/arm64-v8a/libnative-imagetranscoder.so
+  159208  Stored   159208   0% 1981-01-01 01:01 ae8db141  lib/arm64-v8a/libreact_codegen_safeareacontext.so
+ 6985168  Stored  6985168   0% 1981-01-01 01:01 f251f56a  lib/arm64-v8a/libreactnative.so
+  501856  Stored   501856   0% 1981-01-01 01:01 4e0f02ff  lib/arm64-v8a/libstatic-webp.so
+  731872  Stored   731872   0% 1981-01-01 01:01 334dc250  lib/arm64-v8a/libzstd-kmp.so
+ 1482912  Stored  1482912   0% 1981-01-01 01:01 a9df03be  assets/index.android.bundle
+-- ELF LOAD alignment
+libappmodules.so: 0x4000 
+libc++_shared.so: 0x4000 
+libdatastore_shared_counter.so: 0x4000 
+libexpo-modules-core.so: 0x4000 
+libfbjni.so: 0x4000 
+libgifimage.so: 0x4000 
+libhermestooling.so: 0x4000 
+libhermesvm.so: 0x4000 
+libimagepipeline.so: 0x4000 
+libjsi.so: 0x4000 
+libnative-filters.so: 0x4000 
+libnative-imagetranscoder.so: 0x4000 
+libreact_codegen_safeareacontext.so: 0x4000 
+libreactnative.so: 0x4000 
+libstatic-webp.so: 0x4000 
+libzstd-kmp.so: 0x4000 
