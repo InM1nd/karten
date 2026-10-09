@@ -29,7 +29,7 @@ async function runSession(grade: "Помню" | "Не помню" | "Трудн�
 
 async function boot() {
   await render(<App />);
-  expect(await screen.findByLabelText("Настройки")).toBeTruthy();
+  expect(await screen.findByLabelText("Сегодня")).toBeTruthy();
 }
 
 test("home -> daily session -> done; card back shows RU example; progress + achievement persisted", async () => {
@@ -141,7 +141,8 @@ test("typing mode: tolerant check, article hint, give up; answers feed SRS", asy
 
 test("custom words: add, appears in list, dictionary and unlocks badge; delete-safe editor", async () => {
   await boot();
-  await fireEvent.press(screen.getByText("Мои слова"));
+  await fireEvent.press(screen.getByLabelText("Словарь"));
+  await fireEvent.press(screen.getByLabelText("Мои слова"));
   await fireEvent.press(screen.getByText("Добавить слово"));
   await fireEvent.press(screen.getByText("Сохранить"));
   expect(screen.getByText("Введите немецкое слово")).toBeTruthy();
@@ -158,7 +159,6 @@ test("custom words: add, appears in list, dictionary and unlocks badge; delete-s
     expect(d.customWords[0]).toMatchObject({ article: "das", de: "Kaffeehaus", plural: "Kaffeehäuser", topic: "custom" });
   });
   await fireEvent.press(screen.getByLabelText("Назад"));
-  await fireEvent.press(screen.getByText("Словарь"));
   await fireEvent.changeText(screen.getByPlaceholderText("Поиск по-немецки или по-русски"), "kaffee");
   expect(screen.getByText("венское кафе")).toBeTruthy();
 });
@@ -180,7 +180,10 @@ test("reminder: enable from home banner -> permission asked -> notifications sch
 
 test("settings: reminder time adjust; achievements screen lists badges; RU→DE + dark theme", async () => {
   await boot();
+  await fireEvent.press(screen.getByLabelText("Что учим"));
   await fireEvent.press(screen.getByText("RU → DE"));
+  await waitFor(async () => expect((await stored()).settings.direction).toBe("ru-de"));
+  await fireEvent.press(screen.getByLabelText("Профиль"));
   await fireEvent.press(screen.getByLabelText("Настройки"));
   expect(screen.getByText("19:00")).toBeTruthy();
   await fireEvent.press(screen.getByText("+15"));
@@ -193,4 +196,29 @@ test("settings: reminder time adjust; achievements screen lists badges; RU→DE 
   expect(screen.getByText("Echt Wienerisch")).toBeTruthy();
   expect(screen.getByText("0/15")).toBeTruthy();
   await act(async () => {});
+});
+
+test("v1.3: tab bar navigation, undo last grade restores card state", async () => {
+  await boot();
+  await fireEvent.press(screen.getByLabelText("Тренировки"));
+  expect(screen.getByText("der · die · das")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Профиль"));
+  expect(screen.getByText("Разделы")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Сегодня"));
+  expect(screen.getByText("Слово дня")).toBeTruthy();
+  await fireEvent.press(screen.getByText("Начать"));
+  await fireEvent.press(screen.getByText("Показать ответ"));
+  expect(await screen.findByText("Перевод")).toBeTruthy();
+  expect(screen.getByText("Мои будни сейчас довольно напряжённые.")).toBeTruthy();
+  await fireEvent.press(screen.getByText("Помню"));
+  await waitFor(async () => expect(Object.keys((await stored()).cards)).toHaveLength(1));
+  expect(screen.getByText("1 из 10")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Отменить"));
+  expect(screen.getByText("0 из 10")).toBeTruthy();
+  expect(screen.getByText("Помню")).toBeTruthy(); // back on the flipped card
+  await waitFor(async () => {
+    const d = await stored();
+    expect(Object.keys(d.cards)).toHaveLength(0);
+    expect(d.daily.reviewCount).toBe(0);
+  });
 });

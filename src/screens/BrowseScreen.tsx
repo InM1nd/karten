@@ -3,14 +3,14 @@ import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { TOPICS, TopicId, Word } from "../data/types";
 import { useDeck } from "../ui/deck";
 import { CardState, MATURE_INTERVAL } from "../logic/srs";
-import { Chip, FadeIn, GermanWord, grammarLine, IconBtn, ScreenHeader, T } from "../ui/components";
+import { Chip, FadeIn, Pressy, GermanWord, grammarLine, IconBtn, ScreenHeader, T } from "../ui/components";
 import { AtFlag, Icon } from "../ui/Icon";
 import { germanText, speakGerman } from "../ui/speech";
 import { font, useTheme } from "../ui/theme";
 import { plural } from "../ui/format";
 import { Example } from "./SessionScreen";
 
-export function BrowseScreen(p: { cards: Record<string, CardState>; onBack: () => void }) {
+export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () => void; onCustom?: () => void; customCount?: number; bottomInset?: number }) {
   const t = useTheme();
   const [q, setQ] = useState("");
   const [topic, setTopic] = useState<TopicId | null>(null);
@@ -40,6 +40,13 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack: () =
       <ScreenHeader
         title="Словарь"
         onBack={p.onBack}
+        right={p.onCustom ? (
+          <Pressy onPress={p.onCustom} accessibilityRole="button" accessibilityLabel="Мои слова" scaleTo={0.95}
+            style={{ flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderColor: t.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 }}>
+            <Icon name="star" size={16} color={t.text} />
+            <T v="label">Мои слова{p.customCount ? ` · ${p.customCount}` : ""}</T>
+          </Pressy>
+        ) : undefined}
         subtitle={`${list.length} ${plural(list.length, "слово", "слова", "слов")}`}
       />
       <View style={[styles.search, { backgroundColor: t.card }]}>
@@ -72,7 +79,7 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack: () =
       <FlatList
         data={list}
         keyExtractor={(w) => w.id}
-        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: p.bottomInset ?? 40 }}
         initialNumToRender={20}
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={<T v="body" dim style={{ textAlign: "center", marginTop: 40 }}>Ничего не найдено.</T>}

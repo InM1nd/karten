@@ -20,19 +20,29 @@ import { HomeScreen } from "./src/screens/HomeScreen";
 import { SessionItem, SessionScreen } from "./src/screens/SessionScreen";
 import { BrowseScreen } from "./src/screens/BrowseScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
+import { TrainScreen } from "./src/screens/TrainScreen";
+import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { Tab, TAB_SPACE, TabBar } from "./src/ui/TabBar";
+import { wordOfDay } from "./src/logic/games";
+import { TOPICS } from "./src/data/types";
+import { CardState, StreakState } from "./src/logic/srs";
+import { Daily } from "./src/logic/data";
 import { ArticleRoundResult, ArticleScreen } from "./src/screens/ArticleScreen";
 import { SpeedResult, SpeedScreen } from "./src/screens/SpeedScreen";
 import { TypingScreen } from "./src/screens/TypingScreen";
 import { CustomWordsScreen } from "./src/screens/CustomWordsScreen";
 import { AchievementsScreen } from "./src/screens/AchievementsScreen";
 
-type Screen = "home" | "session" | "browse" | "settings" | "article" | "speed" | "typing" | "custom" | "achievements";
+type Screen = "home" | "train" | "profile" | "session" | "browse" | "settings" | "article" | "speed" | "typing" | "custom" | "achievements";
+const TAB_SCREENS: Screen[] = ["home", "train", "browse", "profile"];
 const EXTRA_NEW = 10;
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [writable, setWritable] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
+  const [tab, setTab] = useState<Tab>("home");
+  const undoStack = useRef<{ id: string; card: CardState | undefined; daily: Daily; streak: StreakState }[]>([]);
   const [today, setToday] = useState(dayNumber());
   const [session, setSession] = useState<{ key: number; items: SessionItem[] }>({ key: 0, items: [] });
   const [toasts, setToasts] = useState<string[]>([]);
@@ -68,13 +78,16 @@ export default function App() {
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
       if (screen !== "home") {
-        setScreen("home");
+        const isTab = TAB_SCREENS.includes(screen);
+        const target: Tab = isTab ? "home" : tab;
+        setTab(target);
+        setScreen(target);
         return true;
       }
       return false;
     });
     return () => sub.remove();
-  }, [screen]);
+  }, [screen, tab]);
 
   const deck = useMemo(() => makeDeck(data?.customWords ?? []), [data?.customWords]);
 
@@ -109,6 +122,15 @@ export default function App() {
       stats,
       streak: currentStreak(data.streak, today),
       ctx,
+      firstId: q.due[0] ?? q.fresh[0],
+      wordOfDay: wordOfDay(deck.words, data.cards, today),
+      topicProgress: TOPICS.map((tp) => {
+        const ws = deck.words.filter((w) => w.topic === tp.id);
+        return { id: tp.id, de: tp.de, total: ws.length, seen: ws.filter((w) => data.cards[w.id]).length, learned: ws.filter((w) => (data.cards[w.id]?.interval ?? 0) >= 1).length };
+      })
+        .filter((x) => x.total > 0 && (s.topics.length ? s.topics.includes(x.id) : true))
+        .sort((a, b) => b.seen - a.seen || b.total - a.total)
+        .slice(0, 4),
     };
   }, [data, today, deck]);
 
@@ -164,12 +186,25 @@ export default function App() {
     update((d) => {
       const prev = d.cards[id];
       const daily = dailyFor(d.daily, now);
+      undoStack.current.push({ id, card: prev, daily: d.daily, streak: d.streak });
+      if (undoStack.current.length > 50) undoStack.current.shift();
       return {
         ...d,
         cards: { ...d.cards, [id]: schedule(prev, grade, now) },
         daily: { ...daily, newCount: daily.newCount + (prev ? 0 : 1), reviewCount: daily.reviewCount + 1 },
         streak: recordStudy(d.streak, now),
       };
+    });
+  }, [update]);
+
+  const onUndo = useCallback(() => {
+    const u = undoStack.current.pop();
+    if (!u) return;
+    update((d) => {
+      const cards = { ...d.cards };
+      if (u.card) cards[u.id] = u.card;
+      else delete cards[u.id];
+      return { ...d, cards, daily: u.daily, streak: u.streak };
     });
   }, [update]);
 
@@ -251,6 +286,7 @@ export default function App() {
       dir: st.direction === "mixed" ? (Math.random() < 0.5 ? "de-ru" : "ru-de") : st.direction,
     }));
     if (!items.length) return;
+    undoStack.current = [];
     setSession((x) => ({ key: x.key + 1, items }));
     setScreen("session");
   };
@@ -258,7 +294,11 @@ export default function App() {
   const pref = data?.settings.theme ?? "system";
   const isDark = pref === "dark" || (pref === "system" && scheme === "dark");
   const theme = isDark ? dark : light;
-  const home = () => setScreen("home");
+  const home = () => setScreen(tab);
+  const goTab = (x: Tab) => {
+    setTab(x);
+    setScreen(x);
+  };
   const toast = toasts[0] ? ACHIEVEMENTS_BY_ID[toasts[0]] : undefined;
 
   const body = () => {
@@ -275,13 +315,31 @@ export default function App() {
             streak={derived.streak}
             canLearnMore={derived.unseen > 0}
             onAnswer={onAnswer}
+            onUndo={onUndo}
             onExit={home}
             onLearnMore={() => startSession(true)}
             onComplete={() => update((d) => ({ ...d, counters: { ...d.counters, sessionsDone: d.counters.sessionsDone + 1 } }))}
           />
         );
       case "browse":
-        return <BrowseScreen cards={data.cards} onBack={home} />;
+        return (
+          <BrowseScreen cards={data.cards} onCustom={() => setScreen("custom")} customCount={data.customWords.length} bottomInset={TAB_SPACE + 20} />
+        );
+      case "train":
+        return <TrainScreen articleBest={data.records.articleBest} speedBest={data.records.speedBest} onOpen={setScreen} />;
+      case "profile":
+        return (
+          <ProfileScreen
+            stats={derived.stats}
+            streak={derived.streak}
+            bestStreak={Math.max(data.streak.best, derived.streak)}
+            sessionsDone={data.counters.sessionsDone}
+            achievementsUnlocked={ACHIEVEMENTS.filter((a) => data.achievements[a.id]).length}
+            achievementsTotal={ACHIEVEMENTS.length}
+            onAchievements={() => setScreen("achievements")}
+            onSettings={() => setScreen("settings")}
+          />
+        );
       case "settings":
         return (
           <SettingsScreen
@@ -289,7 +347,7 @@ export default function App() {
             onChange={updateSettings}
             onReset={() => {
               setData({ ...emptyData(), settings: data.settings, customWords: data.customWords });
-              home();
+              goTab("home");
             }}
             onBack={home}
             onToggleReminder={toggleReminder}
@@ -341,16 +399,15 @@ export default function App() {
             queueSize={derived.queueSize}
             unseenInFilter={derived.unseen}
             settings={data.settings}
+            firstWord={derived.firstId ? deck.byId[derived.firstId] : undefined}
+            wordOfDay={derived.wordOfDay}
+            topicProgress={derived.topicProgress}
             onStart={startSession}
             onSettings={updateSettings}
-            onOpenBrowse={() => setScreen("browse")}
-            onOpenSettings={() => setScreen("settings")}
             onOpen={setScreen}
             articleBest={data.records.articleBest}
             speedBest={data.records.speedBest}
             customCount={data.customWords.length}
-            achievementsUnlocked={ACHIEVEMENTS.filter((a) => data.achievements[a.id]).length}
-            achievementsTotal={ACHIEVEMENTS.length}
             onEnableReminder={() => toggleReminder(true)}
           />
         );
@@ -366,6 +423,7 @@ export default function App() {
             <View key={screen} style={{ flex: 1 }}>
               {body()}
             </View>
+            {data && TAB_SCREENS.includes(screen) ? <TabBar active={tab} onChange={goTab} /> : null}
             {toast ? (
               <AchievementToast
                 key={toast.id}

@@ -4,7 +4,7 @@
 interface and a soft spot for Austrian German. No account, no backend, no ads — your progress stays on
 the device.
 
-![Karten overview](design/v1.2-screens/overview.png)
+![Karten overview](design/v1.3-screens/01-today.png)
 
 ## Features
 
@@ -49,7 +49,7 @@ All screenshots are rendered from the real app code (react-native-web + headless
 |---|---|
 | `src/data/` | the deck (`words.ts`, topic → entries, `at` = Austrian word) and RU translations of examples |
 | `src/logic/` | pure logic: data model + migration, store, SRS scheduler, typing checker, games, achievements, reminder plan |
-| `src/screens/` | Home, Session, Browse, Settings, Article, Speed, Typing, CustomWords, Achievements |
+| `src/screens/` | Home (Сегодня), Train, Browse, Profile (tabs) + Session, Settings, Article, Speed, Typing, CustomWords, Achievements |
 | `src/ui/` | theme tokens, components, icon font glyphs, notifications, speech |
 | `src/widget/` | *Word of the day* Android widget |
 | `scripts/` | build configuration, toolchain installer, font / icon / brand asset generators, web screenshots |

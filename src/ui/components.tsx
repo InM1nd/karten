@@ -206,14 +206,16 @@ export function Hairline({ style }: { style?: StyleProp<ViewStyle> }) {
   return <View style={[{ height: 1, backgroundColor: t.border }, style]} />;
 }
 
-export function ScreenHeader(props: { title: string; onBack: () => void; right?: React.ReactNode; compact?: boolean; subtitle?: string }) {
+export function ScreenHeader(props: { title: string; onBack?: () => void; right?: React.ReactNode; compact?: boolean; subtitle?: string }) {
   const t = useTheme();
   return (
     <View style={{ paddingHorizontal: 22, paddingTop: 10, paddingBottom: props.compact ? 6 : 10 }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 36 }}>
-        <Pressy onPress={props.onBack} hitSlop={14} accessibilityRole="button" accessibilityLabel="Назад" scaleTo={0.9} style={{ marginLeft: -4 }}>
-          <Icon name="back" size={26} color={t.text} />
-        </Pressy>
+        {props.onBack ? (
+          <Pressy onPress={props.onBack} hitSlop={14} accessibilityRole="button" accessibilityLabel="Назад" scaleTo={0.9} style={{ marginLeft: -4 }}>
+            <Icon name="back" size={26} color={t.text} />
+          </Pressy>
+        ) : <View />}
         {props.compact ? (
           <Text style={[V.label, { color: t.text, flex: 1, textAlign: "center" }]} numberOfLines={1}>
             {props.title}

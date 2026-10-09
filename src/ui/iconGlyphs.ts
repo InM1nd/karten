@@ -21,4 +21,7 @@ export const ICON_GLYPHS = {
   trash: ["\uE012", "\uE052"],
   keyboard: ["\uE013", "\uE053"],
   rotate: ["\uE014", "\uE054"],
+  home: ["\uE015", "\uE055"],
+  user: ["\uE016", "\uE056"],
+  undo: ["\uE017", "\uE057"],
 } as const;
