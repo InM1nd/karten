@@ -81,5 +81,4 @@ Release signing reads `keystore/keystore.properties`, which is **not** in git. C
 
 ## License
 
-Not chosen yet: `LICENSE` is still the MIT file from the Expo project template (© 650 Industries) and
-should be replaced before publishing. Fonts: Inter Tight (SIL Open Font License 1.1, `assets/fonts/LICENSE.txt`).
+MIT, see [LICENSE](LICENSE). Fonts: Inter Tight (SIL Open Font License 1.1, `assets/fonts/LICENSE.txt`).
