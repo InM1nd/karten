@@ -7,6 +7,8 @@ Current: **1.3.0** (tab bar navigation, new Today screen, detailed card back wit
 - Fill the empty card-back space with a second example or a note
 - "Mistakes of the week" as a separate training
 - First-launch onboarding: level, topics, new words per day
+- Check for updates from Settings (latest GitHub release, download and install the new APK)
+- Interface languages: English and Ukrainian (in addition to Russian), switchable in Settings
 
 ## 1.5 — More content
 - Grow the deck to 800–1000 words up to B1
@@ -31,5 +33,4 @@ Current: **1.3.0** (tab bar navigation, new Today screen, detailed card back wit
 
 ## Later (maybe)
 - Google Play release
-- English interface
 - Sync between devices
