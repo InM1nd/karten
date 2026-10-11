@@ -3,6 +3,7 @@
 Current: **1.3.0** (tab bar navigation, new Today screen, detailed card back with undo).
 
 ## 1.4 — UX polish
+- Fix: achievement toast appears too high on the screen (move it lower, respect safe area)
 - Swipe grading on the card (left: don't remember, up: hard, right: remember)
 - Fill the empty card-back space with a second example or a note
 - "Mistakes of the week" as a separate training
