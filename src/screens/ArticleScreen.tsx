@@ -7,6 +7,7 @@ import { Icon } from "../ui/Icon";
 import { hapticBad, hapticOk } from "../ui/haptics";
 import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
+import { tr, pl } from "../i18n";
 
 export const ARTICLE_ROUND_SECONDS = 60;
 
@@ -105,24 +106,24 @@ export function ArticleScreen(p: {
   if (phase === "intro") {
     return (
       <FadeIn>
-        <ScreenHeader title="Артикли" onBack={p.onBack} subtitle={`${ARTICLE_ROUND_SECONDS} секунд на раунд`} />
+        <ScreenHeader title={tr("Артикли")} onBack={p.onBack} subtitle={tr("{n} секунд на раунд", { n: ARTICLE_ROUND_SECONDS })} />
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30, flexGrow: 1 }}>
           <T v="body" dim style={{ marginTop: 18 }}>
-            Определи артикль как можно большего числа существительных. Свайпни карточку или нажми кнопку. Ошибки попадут в повторение.
+            {tr("Определи артикль как можно большего числа существительных. Свайпни карточку или нажми кнопку. Ошибки попадут в повторение.")}
           </T>
           <View style={{ marginTop: 28 }}>
             {(["der", "die", "das"] as Article[]).map((a, i) => (
               <View key={a} style={[styles.introRow, { borderColor: t.border }, i === 0 && { borderTopWidth: 1 }]}>
                 <Icon name={a === "der" ? "arrowLeft" : a === "die" ? "arrowUp" : "arrowRight"} size={20} color={t.text} />
-                <T v="body" dim style={{ flex: 1 }}>{a === "der" ? "свайп влево" : a === "die" ? "свайп вверх" : "свайп вправо"}</T>
+                <T v="body" dim style={{ flex: 1 }}>{a === "der" ? tr("свайп влево") : a === "die" ? tr("свайп вверх") : tr("свайп вправо")}</T>
                 <View style={[styles.dot, { backgroundColor: t.article[a] }]} />
                 <T v="h3" color={t.article[a]}>{a}</T>
               </View>
             ))}
           </View>
-          <T v="bodyM" style={{ marginTop: 24 }}>Рекорд: {p.best}</T>
+          <T v="bodyM" style={{ marginTop: 24 }}>{tr("Рекорд: {n}", { n: p.best })}</T>
           <View style={{ flex: 1, minHeight: 30 }} />
-          <Btn title="Старт" arrow onPress={start} />
+          <Btn title={tr("Старт")} arrow onPress={start} />
         </ScrollView>
       </FadeIn>
     );
@@ -132,20 +133,20 @@ export function ArticleScreen(p: {
     const record = result.score > prevBest;
     return (
       <FadeIn>
-        <ScreenHeader title="Артикли" onBack={p.onBack} compact />
+        <ScreenHeader title={tr("Артикли")} onBack={p.onBack} compact />
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30 }}>
           <ResultHero
             value={result.score}
-            label="очк."
-            note={record ? "Новый рекорд!" : `Рекорд: ${Math.max(prevBest, result.score)}`}
+            label={tr("очк.")}
+            note={record ? tr("Новый рекорд!") : tr("Рекорд: {n}", { n: Math.max(prevBest, result.score) })}
             accentNote={record}
           />
           <T v="bodyM" dim style={{ marginTop: 10 }}>
-            ответов: {result.answered} · ошибок: {result.mistakes.length}
+            {tr("ответов: {a} · ошибок: {b}", { a: result.answered, b: result.mistakes.length })}
           </T>
           {result.mistakes.length ? (
             <View style={{ marginTop: 28 }}>
-              <T v="caps" dim style={{ marginBottom: 6 }}>Добавлено в повторение</T>
+              <T v="caps" dim style={{ marginBottom: 6 }}>{tr("Добавлено в повторение")}</T>
               {[...new Set(result.mistakes)].map((id) => {
                 const w = words.find((x) => x.id === id);
                 if (!w || !w.article) return null;
@@ -158,8 +159,8 @@ export function ArticleScreen(p: {
               })}
             </View>
           ) : null}
-          <Btn title="Ещё раз" onPress={start} style={{ marginTop: 28 }} />
-          <Btn title="Назад" variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} />
+          <Btn title={tr("Ещё раз")} onPress={start} style={{ marginTop: 28 }} />
+          <Btn title={tr("Назад")} variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} />
         </ScrollView>
       </FadeIn>
     );
@@ -169,12 +170,12 @@ export function ArticleScreen(p: {
   return (
     <View style={{ flex: 1 }}>
       <ScreenHeader
-        title={`Очки: ${score}`}
+        title={tr("Очки: {n}", { n: score })}
         compact
         onBack={p.onBack}
         right={
           <Pressable onPress={finish} hitSlop={10} accessibilityRole="button">
-            <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>Стоп</Text>
+            <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>{tr("Стоп")}</Text>
           </Pressable>
         }
       />
@@ -202,7 +203,7 @@ export function ArticleScreen(p: {
             )}
             <T v="body" dim style={{ marginTop: 12, textAlign: "center" }}>{word.ru}</T>
             <Text style={[font.semibold, { fontSize: 16, marginTop: 18, minHeight: 22, color: feedback ? (feedback.ok ? t.good : t.again) : "transparent" }]}>
-              {feedback ? (feedback.ok ? "✓ Верно" : `✗ Не ${feedback.chosen}`) : " "}
+              {feedback ? (feedback.ok ? tr("✓ Верно") : tr("✗ Не {a}", { a: feedback.chosen })) : " "}
             </Text>
           </Animated.View>
         ) : null}
@@ -225,7 +226,7 @@ export function ArticleScreen(p: {
         ))}
       </View>
       <Hairline style={{ marginHorizontal: 24, marginTop: 6 }} />
-      <T v="small" dim style={{ textAlign: "center", marginVertical: 12 }}>ошибок: {mistakes.length}</T>
+      <T v="small" dim style={{ textAlign: "center", marginVertical: 12 }}>{tr("ошибок: {n}", { n: mistakes.length })}</T>
     </View>
   );
 }

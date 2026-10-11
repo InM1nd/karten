@@ -3,6 +3,7 @@ import { FlexWidget, TextWidget } from "react-native-android-widget";
 import type { WidgetRepresentation } from "react-native-android-widget";
 import { Article } from "../data/types";
 import type { ThemePref } from "../logic/data";
+import { tr, pl } from "../i18n";
 
 export interface WidgetWord {
   article?: Article;
@@ -32,7 +33,7 @@ export function WordOfDayWidget({ word, due, dark = false }: { word?: WidgetWord
   return (
     <FlexWidget
       clickAction="OPEN_APP"
-      accessibilityLabel="Слово дня — открыть Karten"
+      accessibilityLabel={tr("Слово дня — открыть Karten")}
       style={{
         height: "match_parent",
         width: "match_parent",
@@ -48,13 +49,13 @@ export function WordOfDayWidget({ word, due, dark = false }: { word?: WidgetWord
     >
       <FlexWidget style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "match_parent" }}>
         <TextWidget
-          text={word?.at ? "СЛОВО ДНЯ · AT" : "СЛОВО ДНЯ"}
+          text={word?.at ? tr("СЛОВО ДНЯ") + " · AT" : tr("СЛОВО ДНЯ")}
           style={{ fontSize: 11, letterSpacing: 1.5, color: c.dim, fontFamily: F.medium }}
         />
         <FlexWidget style={{ flexDirection: "row", alignItems: "center" }}>
           {due > 0 ? <FlexWidget style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent, marginRight: 6 }} /> : null}
           <TextWidget
-            text={due > 0 ? `${due} к повторению` : "всё повторено"}
+            text={due > 0 ? tr("{n} к повторению", { n: due }) : tr("всё повторено")}
             style={{ fontSize: 12, color: due > 0 ? c.text : c.dim, fontFamily: F.medium }}
           />
         </FlexWidget>
@@ -73,7 +74,7 @@ export function WordOfDayWidget({ word, due, dark = false }: { word?: WidgetWord
           style={{ fontSize: 28, letterSpacing: -0.8, color: c.text, fontFamily: F.semibold }}
         />
         <TextWidget
-          text={word?.ru ?? "Открой приложение, чтобы начать"}
+          text={word?.ru ?? tr("Открой приложение, чтобы начать")}
           maxLines={2}
           truncate="END"
           style={{ fontSize: 15, color: c.dim, fontFamily: F.regular, marginTop: 2 }}

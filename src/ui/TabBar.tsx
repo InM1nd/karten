@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Pressy } from "./components";
 import { Icon, IconName } from "./Icon";
 import { font, useTheme } from "./theme";
+import { tr } from "../i18n";
 
 export type Tab = "home" | "train" | "browse" | "profile";
 export const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -28,13 +29,13 @@ export function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) =
               key={x.id}
               onPress={() => onChange(x.id)}
               accessibilityRole="tab"
-              accessibilityLabel={x.label}
+              accessibilityLabel={tr(x.label)}
               accessibilityState={{ selected: on }}
               scaleTo={0.94}
               style={[styles.item, on && { flex: 1.9, backgroundColor: t.dark ? "#F5F5F5" : "#FFFFFF" }]}
             >
               <Icon name={x.icon} size={22} color={on ? "#111111" : "#8E8E93"} stroke={on ? 2.2 : 1.6} />
-              {on ? <Text style={[font.semibold, { fontSize: 14, color: "#111111" }]} numberOfLines={1}>{x.label}</Text> : null}
+              {on ? <Text style={[font.semibold, { fontSize: 14, color: "#111111" }]} numberOfLines={1}>{tr(x.label)}</Text> : null}
             </Pressy>
           );
         })}

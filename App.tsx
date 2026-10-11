@@ -26,14 +26,19 @@ import { Tab, TAB_SPACE, TabBar } from "./src/ui/TabBar";
 import { wordOfDay } from "./src/logic/games";
 import { TOPICS } from "./src/data/types";
 import { CardState, StreakState } from "./src/logic/srs";
-import { Daily } from "./src/logic/data";
+import { addMistake, Daily, weekMistakes } from "./src/logic/data";
+import { OnboardingScreen } from "./src/screens/OnboardingScreen";
+import { setLang } from "./src/i18n";
+import { ReleaseInfo } from "./src/logic/update";
+import { canSelfUpdate, checkForUpdate } from "./src/ui/updater";
 import { ArticleRoundResult, ArticleScreen } from "./src/screens/ArticleScreen";
 import { SpeedResult, SpeedScreen } from "./src/screens/SpeedScreen";
 import { TypingScreen } from "./src/screens/TypingScreen";
 import { CustomWordsScreen } from "./src/screens/CustomWordsScreen";
 import { AchievementsScreen } from "./src/screens/AchievementsScreen";
+import { tr, pl } from "./src/i18n";
 
-type Screen = "home" | "train" | "profile" | "session" | "browse" | "settings" | "article" | "speed" | "typing" | "custom" | "achievements";
+type Screen = "home" | "train" | "profile" | "mistakes" | "session" | "browse" | "settings" | "article" | "speed" | "typing" | "custom" | "achievements";
 const TAB_SCREENS: Screen[] = ["home", "train", "browse", "profile"];
 const EXTRA_NEW = 10;
 
@@ -42,7 +47,11 @@ export default function App() {
   const [writable, setWritable] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
   const [tab, setTab] = useState<Tab>("home");
-  const undoStack = useRef<{ id: string; card: CardState | undefined; daily: Daily; streak: StreakState }[]>([]);
+  const undoStack = useRef<{ id: string; card: CardState | undefined; daily: Daily; streak: StreakState; mistakes: Record<string, number> }[]>([]);
+  const practiceUndo = useRef<Record<string, number>[]>([]);
+  const [practice, setPractice] = useState<{ key: number; items: SessionItem[] }>({ key: 0, items: [] });
+  const [newRelease, setNewRelease] = useState<ReleaseInfo | null>(null);
+  const checkedUpdate = useRef(false);
   const [today, setToday] = useState(dayNumber());
   const [session, setSession] = useState<{ key: number; items: SessionItem[] }>({ key: 0, items: [] });
   const [toasts, setToasts] = useState<string[]>([]);
@@ -123,6 +132,7 @@ export default function App() {
       streak: currentStreak(data.streak, today),
       ctx,
       firstId: q.due[0] ?? q.fresh[0],
+      mistakesWeek: weekMistakes(data.mistakes, today, (id) => !!deck.byId[id]).length,
       wordOfDay: wordOfDay(deck.words, data.cards, today),
       topicProgress: TOPICS.map((tp) => {
         const ws = deck.words.filter((w) => w.topic === tp.id);
@@ -174,7 +184,14 @@ export default function App() {
   useEffect(() => {
     if (data && screen === "home") refreshExternal(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, !!data, s?.reminderEnabled, s?.reminderHour, s?.reminderMinute, s?.topics, s?.newPerDay, data?.customWords]);
+  }, [screen, !!data, s?.lang, s?.reminderEnabled, s?.reminderHour, s?.reminderMinute, s?.topics, s?.newPerDay, data?.customWords]);
+
+  // ---- optional update check on launch (Android, once per app start) ----
+  useEffect(() => {
+    if (!data || checkedUpdate.current || !canSelfUpdate || !data.settings.autoUpdateCheck) return;
+    checkedUpdate.current = true;
+    checkForUpdate().then(setNewRelease).catch(() => {});
+  }, [data]);
 
   // ---- mutations ----
   const update = useCallback((fn: (d: AppData) => AppData) => setData((d) => (d ? fn(d) : d)), []);
@@ -186,13 +203,14 @@ export default function App() {
     update((d) => {
       const prev = d.cards[id];
       const daily = dailyFor(d.daily, now);
-      undoStack.current.push({ id, card: prev, daily: d.daily, streak: d.streak });
+      undoStack.current.push({ id, card: prev, daily: d.daily, streak: d.streak, mistakes: d.mistakes });
       if (undoStack.current.length > 50) undoStack.current.shift();
       return {
         ...d,
         cards: { ...d.cards, [id]: schedule(prev, grade, now) },
         daily: { ...daily, newCount: daily.newCount + (prev ? 0 : 1), reviewCount: daily.reviewCount + 1 },
         streak: recordStudy(d.streak, now),
+        mistakes: grade === "again" ? addMistake(d.mistakes, id, now) : d.mistakes,
       };
     });
   }, [update]);
@@ -204,14 +222,39 @@ export default function App() {
       const cards = { ...d.cards };
       if (u.card) cards[u.id] = u.card;
       else delete cards[u.id];
-      return { ...d, cards, daily: u.daily, streak: u.streak };
+      return { ...d, cards, daily: u.daily, streak: u.streak, mistakes: u.mistakes };
     });
   }, [update]);
 
   const onMistake = useCallback((id: string) => {
     const now = dayNumber();
-    update((d) => ({ ...d, cards: { ...d.cards, [id]: markMistake(d.cards[id], now) } }));
+    update((d) => ({ ...d, cards: { ...d.cards, [id]: markMistake(d.cards[id], now) }, mistakes: addMistake(d.mistakes, id, now) }));
   }, [update]);
+
+  // "Mistakes of the week": practice only, does not touch the SRS schedule.
+  // "Помню" removes the word from the list, other grades keep it.
+  const onPracticeAnswer = useCallback((id: string, grade: Grade) => {
+    update((d) => {
+      practiceUndo.current.push(d.mistakes);
+      if (grade !== "good") return d;
+      const mistakes = { ...d.mistakes };
+      delete mistakes[id];
+      return { ...d, mistakes };
+    });
+  }, [update]);
+  const onPracticeUndo = useCallback(() => {
+    const m = practiceUndo.current.pop();
+    if (m) update((d) => ({ ...d, mistakes: m }));
+  }, [update]);
+
+  const startMistakes = () => {
+    if (!data) return;
+    const ids = weekMistakes(data.mistakes, dayNumber(), (id) => !!deck.byId[id]);
+    if (!ids.length) return;
+    practiceUndo.current = [];
+    setPractice((x) => ({ key: x.key + 1, items: ids.map((id) => ({ id, dir: "de-ru" as const })) }));
+    setScreen("mistakes");
+  };
 
   const onArticleEnd = useCallback((r: ArticleRoundResult) => {
     update((d) => ({
@@ -258,11 +301,11 @@ export default function App() {
       updateSettings({ reminderEnabled: true, reminderPromptDismissed: true });
     } else {
       Alert.alert(
-        "Нет разрешения на уведомления",
-        "Чтобы получать напоминания, разрешите уведомления для Karten в настройках Android.",
+        tr("Нет разрешения на уведомления"),
+        tr("Чтобы получать напоминания, разрешите уведомления для Karten в настройках Android."),
         [
-          { text: "Не сейчас", style: "cancel" },
-          { text: "Открыть настройки", onPress: () => Linking.openSettings() },
+          { text: tr("Не сейчас"), style: "cancel" },
+          { text: tr("Открыть настройки"), onPress: () => Linking.openSettings() },
         ],
       );
     }
@@ -301,8 +344,23 @@ export default function App() {
   };
   const toast = toasts[0] ? ACHIEVEMENTS_BY_ID[toasts[0]] : undefined;
 
+  if (data) setLang(data.settings.lang);
+  const lang = data?.settings.lang ?? "ru";
+  const onboarding = !!data && !data.settings.onboarded;
+
   const body = () => {
     if (!data || !derived) return <View style={{ flex: 1 }} />;
+    if (onboarding)
+      return (
+        <OnboardingScreen
+          settings={data.settings}
+          onLang={(l) => updateSettings({ lang: l })}
+          onDone={(patch) => {
+            updateSettings(patch);
+            goTab("home");
+          }}
+        />
+      );
     switch (screen) {
       case "session":
         return (
@@ -326,7 +384,27 @@ export default function App() {
           <BrowseScreen cards={data.cards} onCustom={() => setScreen("custom")} customCount={data.customWords.length} bottomInset={TAB_SPACE + 20} />
         );
       case "train":
-        return <TrainScreen articleBest={data.records.articleBest} speedBest={data.records.speedBest} onOpen={setScreen} />;
+        return (
+          <TrainScreen articleBest={data.records.articleBest} speedBest={data.records.speedBest} mistakes={derived.mistakesWeek}
+            onOpen={setScreen} onMistakes={startMistakes} />
+        );
+      case "mistakes":
+        return (
+          <SessionScreen
+            key={`m${practice.key}`}
+            practice
+            items={practice.items}
+            cards={data.cards}
+            today={today}
+            autoSpeak={data.settings.autoSpeak}
+            streak={derived.streak}
+            canLearnMore={false}
+            onAnswer={onPracticeAnswer}
+            onUndo={onPracticeUndo}
+            onExit={home}
+            onLearnMore={() => {}}
+          />
+        );
       case "profile":
         return (
           <ProfileScreen
@@ -352,9 +430,10 @@ export default function App() {
             onBack={home}
             onToggleReminder={toggleReminder}
             onTestReminder={() =>
-              testNotification(`К повторению сегодня: ${derived.stats.dueToday}. Так будет выглядеть напоминание.`).catch(() => {})
+              testNotification(tr("К повторению сегодня: {n}. Так будет выглядеть напоминание.", { n: derived.stats.dueToday })).catch(() => {})
             }
             permission={permission}
+            update={newRelease}
           />
         );
       case "article":
@@ -409,6 +488,12 @@ export default function App() {
             speedBest={data.records.speedBest}
             customCount={data.customWords.length}
             onEnableReminder={() => toggleReminder(true)}
+            update={newRelease && newRelease.tag !== data.settings.updateDismissed ? newRelease : null}
+            onOpenUpdate={() => {
+              setTab("profile");
+              setScreen("settings");
+            }}
+            onDismissUpdate={() => newRelease && updateSettings({ updateDismissed: newRelease.tag })}
           />
         );
     }
@@ -420,16 +505,16 @@ export default function App() {
         <DeckContext.Provider value={deck}>
           <StatusBar style={isDark ? "light" : "dark"} />
           <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
-            <View key={screen} style={{ flex: 1 }}>
+            <View key={`${screen}-${lang}`} style={{ flex: 1 }}>
               {body()}
             </View>
-            {data && TAB_SCREENS.includes(screen) ? <TabBar active={tab} onChange={goTab} /> : null}
+            {data && !onboarding && TAB_SCREENS.includes(screen) ? <TabBar active={tab} onChange={goTab} /> : null}
             {toast ? (
               <AchievementToast
                 key={toast.id}
                 emoji={toast.emoji}
-                title={toast.title}
-                desc={toast.desc}
+                title={tr(toast.title)}
+                desc={tr(toast.desc)}
                 onDone={() => setToasts((q) => q.slice(1))}
               />
             ) : null}

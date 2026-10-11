@@ -9,6 +9,7 @@ import { germanText, speakGerman } from "../ui/speech";
 import { font, useTheme } from "../ui/theme";
 import { plural } from "../ui/format";
 import { Example } from "./SessionScreen";
+import { tr, pl } from "../i18n";
 
 export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () => void; onCustom?: () => void; customCount?: number; bottomInset?: number }) {
   const t = useTheme();
@@ -30,37 +31,37 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
 
   const status = (w: Word) => {
     const c = p.cards[w.id];
-    if (!c) return { label: "новое", color: t.faint };
-    if (c.interval >= MATURE_INTERVAL) return { label: "знаю", color: t.good };
-    return { label: "учу", color: t.hard };
+    if (!c) return { label: tr("новое"), color: t.faint };
+    if (c.interval >= MATURE_INTERVAL) return { label: tr("знаю"), color: t.good };
+    return { label: tr("учу"), color: t.hard };
   };
 
   return (
     <FadeIn>
       <ScreenHeader
-        title="Словарь"
+        title={tr("Словарь")}
         onBack={p.onBack}
         right={p.onCustom ? (
-          <Pressy onPress={p.onCustom} accessibilityRole="button" accessibilityLabel="Мои слова" scaleTo={0.95}
+          <Pressy onPress={p.onCustom} accessibilityRole="button" accessibilityLabel={tr("Мои слова")} scaleTo={0.95}
             style={{ flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderColor: t.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 }}>
             <Icon name="star" size={16} color={t.text} />
-            <T v="label">Мои слова{p.customCount ? ` · ${p.customCount}` : ""}</T>
+            <T v="label">{tr("Мои слова")}{p.customCount ? ` · ${p.customCount}` : ""}</T>
           </Pressy>
         ) : undefined}
-        subtitle={`${list.length} ${plural(list.length, "слово", "слова", "слов")}`}
+        subtitle={`${list.length} ${pl(list.length, "слово", "слова", "слов")}`}
       />
       <View style={[styles.search, { backgroundColor: t.card }]}>
         <Icon name="search" size={18} color={t.textDim} />
         <TextInput
           value={q}
           onChangeText={setQ}
-          placeholder="Поиск по-немецки или по-русски"
+          placeholder={tr("Поиск по-немецки или по-русски")}
           placeholderTextColor={t.textDim}
           selectionColor={t.accent}
           cursorColor={t.accent}
           style={[font.regular, { flex: 1, outlineWidth: 0, color: t.text, fontSize: 16, paddingVertical: 12 }]}
         />
-        {q ? <IconBtn name="x" label="Очистить" size={16} onPress={() => setQ("")} /> : null}
+        {q ? <IconBtn name="x" label={tr("Очистить")} size={16} onPress={() => setQ("")} /> : null}
       </View>
       <View>
         <FlatList
@@ -69,10 +70,10 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 4 }}
           data={[null, ...TOPICS.filter((x) => x.id !== "custom" || WORDS.some((w) => w.custom)).map((x) => x.id)] as (TopicId | null)[]}
           keyExtractor={(x) => x ?? "all"}
-          ListFooterComponent={<Chip label="Австрийские" active={atOnly} onPress={() => setAtOnly(!atOnly)} />}
+          ListFooterComponent={<Chip label={tr("Австрийские")} active={atOnly} onPress={() => setAtOnly(!atOnly)} />}
           renderItem={({ item }) => {
             const tp = TOPICS.find((x) => x.id === item);
-            return <Chip label={tp ? tp.de : "Все"} active={topic === item} onPress={() => setTopic(item)} />;
+            return <Chip label={tp ? tp.de : tr("Все")} active={topic === item} onPress={() => setTopic(item)} />;
           }}
         />
       </View>
@@ -82,7 +83,7 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
         contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: p.bottomInset ?? 40 }}
         initialNumToRender={20}
         keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={<T v="body" dim style={{ textAlign: "center", marginTop: 40 }}>Ничего не найдено.</T>}
+        ListEmptyComponent={<T v="body" dim style={{ textAlign: "center", marginTop: 40 }}>{tr("Ничего не найдено.")}</T>}
         renderItem={({ item: w }) => {
           const st = status(w);
           const g = grammarLine(w);
@@ -116,7 +117,7 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
                     style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 12 }}
                   >
                     <Icon name="volume" size={16} color={t.text} />
-                    <T v="label">Прослушать</T>
+                    <T v="label">{tr("Прослушать")}</T>
                   </Pressable>
                 </View>
               ) : null}

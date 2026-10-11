@@ -8,6 +8,7 @@ import { AtFlag } from "../ui/Icon";
 import { hapticBad, hapticOk } from "../ui/haptics";
 import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
+import { tr, pl } from "../i18n";
 
 export const SPEED_SECONDS = 60;
 
@@ -108,31 +109,31 @@ export function SpeedScreen(p: {
     return (
       <FadeIn>
         {phase === "done" && result ? (
-          <ScreenHeader title="Скорость" onBack={p.onBack} compact />
+          <ScreenHeader title={tr("Скорость")} onBack={p.onBack} compact />
         ) : (
-          <ScreenHeader title="Скорость" onBack={p.onBack} subtitle={`${SPEED_SECONDS} секунд · 4 варианта`} />
+          <ScreenHeader title={tr("Скорость")} onBack={p.onBack} subtitle={tr("{n} секунд · 4 варианта", { n: SPEED_SECONDS })} />
         )}
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30, flexGrow: 1 }}>
           {phase === "done" && result ? (
             <>
-              <ResultHero value={result.score} label="очк." note={record ? "Новый рекорд!" : `Рекорд: ${Math.max(prevBest, result.score)}`} accentNote={record} />
+              <ResultHero value={result.score} label={tr("очк.")} note={record ? tr("Новый рекорд!") : tr("Рекорд: {n}", { n: Math.max(prevBest, result.score) })} accentNote={record} />
               <T v="bodyM" dim style={{ marginTop: 10 }}>
-                верно {result.correct} · ошибок {result.wrong} · лучшее комбо ×{result.maxCombo}
+                {tr("верно {a} · ошибок {b} · лучшее комбо ×{c}", { a: result.correct, b: result.wrong, c: result.maxCombo })}
               </T>
             </>
           ) : (
             <>
               <T v="body" dim style={{ marginTop: 18 }}>
-                Выбери правильный перевод из четырёх. Каждый ответ — 10 очков, каждые 5 подряд увеличивают множитель (×2, ×3…). Ошибка сбрасывает комбо и отправляет слово в повторение.
+                {tr("Выбери правильный перевод из четырёх. Каждый ответ — 10 очков, каждые 5 подряд увеличивают множитель (×2, ×3…). Ошибка сбрасывает комбо и отправляет слово в повторение.")}
               </T>
-              <T v="bodyM" style={{ marginTop: 22 }}>Рекорд: {p.best}</T>
+              <T v="bodyM" style={{ marginTop: 22 }}>{tr("Рекорд: {n}", { n: p.best })}</T>
             </>
           )}
-          <SectionTitle>Направление</SectionTitle>
-          <Segmented value={dir} options={DIRS} onChange={setDir} />
+          <SectionTitle>{tr("Направление")}</SectionTitle>
+          <Segmented value={dir} options={DIRS.map((o) => ({ ...o, label: tr(o.label) }))} onChange={setDir} />
           <View style={{ flex: 1, minHeight: 30 }} />
-          <Btn title={phase === "done" ? "Ещё раз" : "Старт"} arrow={phase !== "done"} onPress={start} />
-          {phase === "done" ? <Btn title="Назад" variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} /> : null}
+          <Btn title={phase === "done" ? tr("Ещё раз") : tr("Старт")} arrow={phase !== "done"} onPress={start} />
+          {phase === "done" ? <Btn title={tr("Назад")} variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} /> : null}
         </ScrollView>
       </FadeIn>
     );
@@ -142,12 +143,12 @@ export function SpeedScreen(p: {
   return (
     <View style={{ flex: 1 }}>
       <ScreenHeader
-        title={`${score} очк.`}
+        title={tr("{n} очк.", { n: score })}
         compact
         onBack={p.onBack}
         right={
           <Pressable onPress={finish} hitSlop={10} accessibilityRole="button">
-            <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>Стоп</Text>
+            <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>{tr("Стоп")}</Text>
           </Pressable>
         }
       />
@@ -164,7 +165,7 @@ export function SpeedScreen(p: {
               )}
             </View>
             <T v="bodyM" color={combo > 0 ? t.accent : "transparent"} style={{ marginTop: 14 }}>
-              {combo > 0 ? `комбо ${combo}${mult > 1 ? ` · ×${mult}` : ""}` : " "}
+              {combo > 0 ? tr("комбо {n}", { n: combo }) + (mult > 1 ? ` · ×${mult}` : "") : " "}
             </T>
           </View>
           <View style={{ gap: 8 }}>

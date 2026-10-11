@@ -17,11 +17,20 @@ the device.
 - **Mini games** — *der / die / das* article game, a speed round and a typing drill with an umlaut/case
   tolerant checker and a character-level diff.
 - **Your own words** — add custom cards, browse and search the whole dictionary.
+- **Swipe grading** (← forgot · ↑ hard · → got it), undo, and a *Mistakes of the week* practice.
+- **First-launch onboarding** (level, topics, new words per day) and **RU / EN / UK interface** (card meanings stay Russian).
+- **In-app updates** — Settings checks the latest GitHub release, shows the changelog, downloads the APK and opens the Android installer.
 - **15 achievements**, daily reminders (local notifications) and a *Word of the day* home-screen widget.
 - **Minimal design** — Inter Tight, light and true-black dark theme, one orange accent, a bundled icon font.
 - Safe data model with versioned migration and backups.
 
 ## Screenshots
+
+| Onboarding | Card back | Swipe | Mistakes of the week | Update | English |
+|---|---|---|---|---|---|
+| ![](design/v1.4-screens/01-onboarding-level.png) | ![](design/v1.4-screens/06-card-back.png) | ![](design/v1.4-screens/07-card-swipe-right.png) | ![](design/v1.4-screens/08-train-mistakes.png) | ![](design/v1.4-screens/05-settings-update-available.png) | ![](design/v1.4-screens/12-today-en.png) |
+
+Older (1.2) screens:
 
 | Home | Card | Article game | Typing | Dark mode |
 |---|---|---|---|---|

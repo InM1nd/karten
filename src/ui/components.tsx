@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, StyleProp, StyleSheet, Text, TextProps, Te
 import { Word } from "../data/types";
 import { font, useTheme } from "./theme";
 import { AtFlag, Icon, IconName } from "./Icon";
+import { tr, pl } from "../i18n";
 
 // ---------- typography ----------
 type Variant = "display" | "h1" | "h2" | "h3" | "body" | "bodyM" | "label" | "small" | "caps" | "num";
@@ -188,9 +189,9 @@ export function GermanWord({ w, size = 34, center = true, stack = false }: { w: 
 /** "мн. ч. die Tische" / verb forms line. */
 export function grammarLine(w: Word): string | null {
   if (w.kind === "noun") {
-    if (w.pluralOnly) return "только мн. ч.";
-    if (w.plural === null || w.plural === undefined) return "мн. ч. нет";
-    return `мн. ч. die ${w.plural}`;
+    if (w.pluralOnly) return tr("только мн. ч.");
+    if (w.plural === null || w.plural === undefined) return tr("мн. ч. нет");
+    return tr("мн. ч. die {p}", { p: w.plural });
   }
   if (w.forms) return w.forms;
   return null;
@@ -212,7 +213,7 @@ export function ScreenHeader(props: { title: string; onBack?: () => void; right?
     <View style={{ paddingHorizontal: 22, paddingTop: 10, paddingBottom: props.compact ? 6 : 10 }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 36 }}>
         {props.onBack ? (
-          <Pressy onPress={props.onBack} hitSlop={14} accessibilityRole="button" accessibilityLabel="Назад" scaleTo={0.9} style={{ marginLeft: -4 }}>
+          <Pressy onPress={props.onBack} hitSlop={14} accessibilityRole="button" accessibilityLabel={tr("Назад")} scaleTo={0.9} style={{ marginLeft: -4 }}>
             <Icon name="back" size={26} color={t.text} />
           </Pressy>
         ) : <View />}

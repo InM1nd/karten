@@ -1,3 +1,4 @@
+import { tr, pl } from "../i18n";
 /**
  * Pure spaced-repetition logic (simplified SM-2). No React Native imports,
  * so it can be unit-tested with plain Node.
@@ -77,14 +78,14 @@ export function markMistake(prev: CardState | undefined, today: number): CardSta
 /** Short human-readable label for the next interval a grade would produce. */
 export function previewLabel(prev: CardState | undefined, grade: Grade, today: number): string {
   const next = schedule(prev, grade, today);
-  if (next.interval === 0) return "сейчас";
+  if (next.interval === 0) return tr("сейчас");
   return formatDays(next.interval);
 }
 
 export function formatDays(n: number): string {
-  if (n < 31) return `${n} дн.`;
-  if (n < 365) return `${Math.round(n / 30)} мес.`;
-  return `${Math.round((n / 365) * 10) / 10} г.`;
+  if (n < 31) return tr("{n} дн.", { n });
+  if (n < 365) return tr("{n} мес.", { n: Math.round(n / 30) });
+  return tr("{n} г.", { n: Math.round((n / 365) * 10) / 10 });
 }
 
 function round2(x: number): number {

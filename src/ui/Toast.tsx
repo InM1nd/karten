@@ -2,10 +2,13 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Easing, Pressable, Text, View } from "react-native";
 import { font, useTheme } from "./theme";
 import { Icon } from "./Icon";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { tr, pl } from "../i18n";
 
 /** Achievement unlock toast: a quiet card that slides down from the top, then away. */
 export function AchievementToast(p: { emoji?: string; title: string; desc: string; onDone: () => void }) {
   const t = useTheme();
+  const insets = useSafeAreaInsets();
   const a = useRef(new Animated.Value(0)).current;
   const done = useRef(p.onDone);
   done.current = p.onDone;
@@ -20,7 +23,9 @@ export function AchievementToast(p: { emoji?: string; title: string; desc: strin
     <Animated.View
       style={{
         position: "absolute",
-        top: 10,
+        // the toast lives inside the SafeAreaView, but absolute children ignore its padding:
+        // offset by the status-bar inset and sit below the screen header instead of over it
+        top: insets.top + 60,
         left: 16,
         right: 16,
         zIndex: 100,
@@ -51,7 +56,7 @@ export function AchievementToast(p: { emoji?: string; title: string; desc: strin
             <Icon name="check" size={20} color="#FFFFFF" stroke={2.2} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={[font.medium, { color: t.textDim, fontSize: 11.5, letterSpacing: 1.4, textTransform: "uppercase" }]}>Достижение получено</Text>
+            <Text style={[font.medium, { color: t.textDim, fontSize: 11.5, letterSpacing: 1.4, textTransform: "uppercase" }]}>{tr("Достижение получено")}</Text>
             <Text style={[font.semibold, { color: t.text, fontSize: 17, letterSpacing: -0.2, marginTop: 2 }]}>{p.title}</Text>
             <Text style={[font.regular, { color: t.textDim, fontSize: 14, marginTop: 1 }]}>{p.desc}</Text>
           </View>

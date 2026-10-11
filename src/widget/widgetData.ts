@@ -4,8 +4,10 @@ import { WORDS } from "../data/words";
 import { dayNumber, isDue } from "../logic/srs";
 import { wordOfDay } from "../logic/games";
 import { WidgetWord } from "./WordOfDayWidget";
+import { setLang } from "../i18n";
 
 export function widgetProps(data: AppData, today = dayNumber()): { word?: WidgetWord; due: number; theme: ThemePref } {
+  setLang(data.settings.lang);
   const words = [...WORDS, ...data.customWords];
   const w = wordOfDay(words, data.cards, today);
   const due = words.filter((x) => isDue(data.cards[x.id], today)).length;

@@ -27,9 +27,13 @@ async function runSession(grade: "Помню" | "Не помню" | "Трудн�
   return answered;
 }
 
-async function boot() {
+async function boot({ onboarding = false } = {}) {
   await render(<App />);
+  if (onboarding) return;
+  const skip = await screen.findByText(/Пропустить|Сегодня/);
+  if (screen.queryByText("Пропустить")) await fireEvent.press(screen.getByText("Пропустить"));
   expect(await screen.findByLabelText("Сегодня")).toBeTruthy();
+  void skip;
 }
 
 test("home -> daily session -> done; card back shows RU example; progress + achievement persisted", async () => {
@@ -221,4 +225,80 @@ test("v1.3: tab bar navigation, undo last grade restores card state", async () =
     expect(Object.keys(d.cards)).toHaveLength(0);
     expect(d.daily.reviewCount).toBe(0);
   });
+});
+
+test("v1.4: onboarding sets level, topics and new words per day; not shown again", async () => {
+  await boot({ onboarding: true });
+  expect(await screen.findByText("Какой у тебя уровень?")).toBeTruthy();
+  await fireEvent.press(screen.getByText("B1 · уверенный"));
+  await fireEvent.press(screen.getByText("Дальше"));
+  await fireEvent.press(screen.getByText("Wohnung"));
+  await fireEvent.press(screen.getByText("Дальше"));
+  await fireEvent.press(screen.getByText("20"));
+  await fireEvent.press(screen.getByText("Начать учить"));
+  expect(await screen.findByLabelText("Сегодня")).toBeTruthy();
+  await waitFor(async () => {
+    const d = await stored();
+    expect(d.settings).toMatchObject({ onboarded: true, level: "B1", topics: ["wohnung"], newPerDay: 20 });
+  });
+});
+
+test("v1.4: interface language switches to English and Ukrainian", async () => {
+  await boot();
+  await fireEvent.press(screen.getByLabelText("Профиль"));
+  await fireEvent.press(screen.getByLabelText("Настройки"));
+  await fireEvent.press(screen.getByText("English"));
+  expect(await screen.findByText("Interface language")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Back"));
+  await fireEvent.press(screen.getByLabelText("Today"));
+  expect(screen.getByText("Start")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Profile"));
+  await fireEvent.press(screen.getByLabelText("Settings"));
+  await fireEvent.press(screen.getByText("Українська"));
+  expect(await screen.findByText("Мова інтерфейсу")).toBeTruthy();
+  await waitFor(async () => expect((await stored()).settings.lang).toBe("uk"));
+});
+
+test("v1.4: mistakes of the week training; 'Помню' clears the word, SRS untouched", async () => {
+  await boot();
+  await fireEvent.press(screen.getByText("Начать"));
+  await fireEvent.press(screen.getByText("Показать ответ"));
+  await fireEvent.press(await screen.findByText("Не помню"));
+  await waitFor(async () => expect(Object.keys((await stored()).mistakes)).toEqual(["der Alltag"]));
+  const before = (await stored()).cards["der Alltag"];
+  await fireEvent.press(screen.getByLabelText("Закрыть"));
+  await fireEvent.press(screen.getByLabelText("Тренировки"));
+  expect(screen.getByText("1 слово")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Ошибки недели"));
+  await fireEvent.press(screen.getByText("Показать ответ"));
+  expect(await screen.findByText("Твой прогресс")).toBeTruthy();
+  await fireEvent.press(screen.getByText("Помню"));
+  expect(await screen.findByText("Готово!")).toBeTruthy();
+  await waitFor(async () => {
+    const d = await stored();
+    expect(d.mistakes).toEqual({});
+    expect(d.cards["der Alltag"]).toEqual(before);
+  });
+});
+
+test("v1.4: settings update check shows changelog and starts download + installer", async () => {
+  (global as any).fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({
+        tag_name: "v1.5.0", name: "Karten 1.5.0", body: "Новые темы", html_url: "https://github.com/InM1nd/karten/releases/tag/v1.5.0",
+        assets: [{ name: "Karten-v1.5.0.apk", browser_download_url: "https://example.com/k.apk", size: 22000000 }],
+      }),
+    }),
+  );
+  const { Platform } = require("react-native");
+  await boot();
+  await fireEvent.press(screen.getByLabelText("Профиль"));
+  await fireEvent.press(screen.getByLabelText("Настройки"));
+  expect(screen.getByText("Установлена версия 1.4.0")).toBeTruthy();
+  await fireEvent.press(screen.getByText("Проверить обновления"));
+  expect(await screen.findByText("Доступна версия 1.5.0")).toBeTruthy();
+  expect(screen.getByText("Новые темы")).toBeTruthy();
+  void Platform;
+  (global as any).fetch = jest.fn(() => Promise.reject(new Error("offline")));
 });

@@ -11,6 +11,7 @@ import { germanText, speakGerman } from "../ui/speech";
 import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
 import { Example } from "./SessionScreen";
+import { tr, pl } from "../i18n";
 
 const KIND_HINT: Record<Word["kind"], string> = {
   noun: "существительное",
@@ -93,31 +94,31 @@ export function TypingScreen(p: {
   if (!w) {
     return (
       <FadeIn>
-        <ScreenHeader title="Письмо" onBack={p.onBack} compact />
+        <ScreenHeader title={tr("Письмо")} onBack={p.onBack} compact />
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30, flexGrow: 1 }}>
           {list.length ? (
             <>
-              <T v="caps" dim style={{ marginTop: 12 }}>Раунд окончен</T>
-              <ResultHero value={stats.correct} label={`из ${list.length} верно`} />
+              <T v="caps" dim style={{ marginTop: 12 }}>{tr("Раунд окончен")}</T>
+              <ResultHero value={stats.correct} label={tr("из {n} верно", { n: list.length })} />
               <View style={{ marginTop: 24 }}>
                 <StatSplit
                   items={[
-                    { value: stats.correct, label: "верно" },
-                    { value: stats.almost, label: "почти" },
-                    { value: stats.wrong, label: "ошибок" },
+                    { value: stats.correct, label: tr("верно") },
+                    { value: stats.almost, label: tr("почти") },
+                    { value: stats.wrong, label: tr("ошибок") },
                   ]}
                 />
               </View>
             </>
           ) : (
             <>
-              <T v="h1" style={{ marginTop: 40 }}>Нет слов</T>
-              <T v="body" dim style={{ marginTop: 10 }}>Выбери темы на главном экране или добавь свои слова.</T>
+              <T v="h1" style={{ marginTop: 40 }}>{tr("Нет слов")}</T>
+              <T v="body" dim style={{ marginTop: 10 }}>{tr("Выбери темы на главном экране или добавь свои слова.")}</T>
             </>
           )}
           <View style={{ flex: 1, minHeight: 30 }} />
-          <Btn title="Ещё 10 слов" onPress={restart} />
-          <Btn title="Назад" variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} />
+          <Btn title={tr("Ещё 10 слов")} onPress={restart} />
+          <Btn title={tr("Назад")} variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} />
         </ScrollView>
       </FadeIn>
     );
@@ -126,25 +127,25 @@ export function TypingScreen(p: {
   const topic = TOPICS.find((x) => x.id === w.topic);
   const verdict =
     res?.status === "correct"
-      ? { text: "Верно!", color: t.good }
+      ? { text: tr("Верно!"), color: t.good }
       : res?.status === "article"
-        ? { text: "Почти: проверь артикль", color: t.hard }
+        ? { text: tr("Почти: проверь артикль"), color: t.hard }
         : res?.status === "typo"
-          ? { text: "Почти: одна опечатка", color: t.hard }
-          : { text: "Неверно", color: t.again };
+          ? { text: tr("Почти: одна опечатка"), color: t.hard }
+          : { text: tr("Неверно"), color: t.again };
   const grammar = grammarLine(w);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
       <View style={styles.top}>
-        <IconBtn name="x" label="Закрыть" onPress={p.onBack} />
-        <T v="label" dim>Письмо · {i + 1} из {list.length}</T>
+        <IconBtn name="x" label={tr("Закрыть")} onPress={p.onBack} />
+        <T v="label" dim>{tr("Письмо")} · {tr("{a} из {b}", { a: i + 1, b: list.length })}</T>
         <View style={{ width: 40 }} />
       </View>
       <ProgressLine progress={(i + (res ? 1 : 0)) / list.length} style={{ marginHorizontal: 24 }} />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 26 }}>
-          <T v="caps" dim>{topic?.ru} · {KIND_HINT[w.kind]}</T>
+          <T v="caps" dim>{tr(topic?.ru ?? "")} · {tr(KIND_HINT[w.kind])}</T>
           {w.at ? <AtFlag width={16} /> : null}
         </View>
         <Text style={[font.semibold, { fontSize: 34, lineHeight: 40, letterSpacing: -1.2, color: t.text, marginTop: 12 }]}>{w.ru}</Text>
@@ -169,7 +170,7 @@ export function TypingScreen(p: {
           autoCorrect={false}
           spellCheck={false}
           autoComplete="off"
-          placeholder={w.kind === "noun" ? "der / die / das …" : "по-немецки…"}
+          placeholder={w.kind === "noun" ? "der / die / das …" : tr("по-немецки…")}
           placeholderTextColor={t.faint}
           onSubmitEditing={() => (res ? next() : check())}
           returnKeyType="done"
@@ -215,7 +216,7 @@ export function TypingScreen(p: {
                     </Text>
                   ))}
                 </Text>
-                <T v="small" dim style={{ marginTop: 4 }}>красным — лишнее, зелёным — пропущенное</T>
+                <T v="small" dim style={{ marginTop: 4 }}>{tr("красным — лишнее, зелёным — пропущенное")}</T>
               </>
             ) : null}
             <View style={[styles.answer, { borderColor: t.border }]}>
@@ -223,7 +224,7 @@ export function TypingScreen(p: {
                 <View style={{ flexShrink: 1 }}>
                   <GermanWord w={w} size={26} center={false} />
                 </View>
-                <IconBtn name="volume" label="Прослушать" onPress={() => speakGerman(germanText(w))} />
+                <IconBtn name="volume" label={tr("Прослушать")} onPress={() => speakGerman(germanText(w))} />
               </View>
               {grammar ? <T v="bodyM" dim style={{ marginTop: 6 }}>{grammar}</T> : null}
               {w.ex ? (
@@ -238,17 +239,17 @@ export function TypingScreen(p: {
 
         <View style={{ flexDirection: "row", gap: 10, marginTop: 22 }}>
           {res ? (
-            <Btn title="Дальше" arrow onPress={next} style={{ flex: 1 }} />
+            <Btn title={tr("Дальше")} arrow onPress={next} style={{ flex: 1 }} />
           ) : (
             <>
-              <Btn title="Не знаю" variant="outline" onPress={() => check(true)} style={{ flex: 1 }} />
-              <Btn title="Проверить" onPress={() => check()} disabled={!text.trim()} style={{ flex: 1.4 }} />
+              <Btn title={tr("Не знаю")} variant="outline" onPress={() => check(true)} style={{ flex: 1 }} />
+              <Btn title={tr("Проверить")} onPress={() => check()} disabled={!text.trim()} style={{ flex: 1.4 }} />
             </>
           )}
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 16 }}>
           <Icon name="keyboard" size={14} color={t.faint} />
-          <T v="small" faint style={{ textAlign: "center" }}>Регистр не важен · ae / oe / ue / ss = ä / ö / ü / ß</T>
+          <T v="small" faint style={{ textAlign: "center" }}>{tr("Регистр не важен · ae / oe / ue / ss = ä / ö / ü / ß")}</T>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

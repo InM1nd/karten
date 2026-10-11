@@ -2,9 +2,13 @@
  * App data model + migrations. Pure (no React Native imports) so it can be unit-tested.
  * v1 (Karten 1.0.x): { version: 1, cards, streak, daily, settings }
  * v2 (Karten 1.1.0): + customWords, achievements, records, counters, reminder settings
+ * 1.4.0 (still v2, additive): + mistakes, settings.lang/level/onboarded/autoUpdateCheck/updateDismissed
  */
 import { Article, TopicId, Word } from "../data/types";
 import { CardState, StreakState } from "./srs";
+
+export type UiLang = "ru" | "en" | "uk";
+export type Level = "A1" | "A2" | "B1";
 
 export type Direction = "de-ru" | "ru-de" | "mixed";
 export type ThemePref = "system" | "light" | "dark";
@@ -20,6 +24,13 @@ export interface Settings {
   reminderHour: number;
   reminderMinute: number;
   reminderPromptDismissed: boolean;
+  lang: UiLang;
+  level: Level;
+  /** first-launch onboarding finished (existing users are migrated as onboarded) */
+  onboarded: boolean;
+  autoUpdateCheck: boolean;
+  /** version tag whose update banner the user dismissed */
+  updateDismissed: string;
 }
 
 export interface Daily {
@@ -52,6 +63,8 @@ export interface AppData {
   achievements: Record<string, number>;
   records: Records;
   counters: Counters;
+  /** word id -> day number of the last mistake ("Mistakes of the week") */
+  mistakes: Record<string, number>;
 }
 
 export const DATA_VERSION = 2 as const;
@@ -69,6 +82,11 @@ export const DEFAULT_SETTINGS: Settings = {
   reminderHour: 19,
   reminderMinute: 0,
   reminderPromptDismissed: false,
+  lang: "ru",
+  level: "A2",
+  onboarded: false,
+  autoUpdateCheck: true,
+  updateDismissed: "",
 };
 
 export function emptyData(): AppData {
@@ -82,6 +100,7 @@ export function emptyData(): AppData {
     achievements: {},
     records: { articleBest: 0, speedBest: 0 },
     counters: { sessionsDone: 0, typingCorrect: 0, articleRounds: 0, articlePerfectRounds: 0, speedRounds: 0 },
+    mistakes: {},
   };
 }
 
@@ -162,6 +181,10 @@ export function migrate(raw: unknown): AppData {
   }
   settings.reminderHour = Math.min(23, Math.max(0, Math.round(settings.reminderHour)));
   settings.reminderMinute = Math.min(59, Math.max(0, Math.round(settings.reminderMinute)));
+  if (!["ru", "en", "uk"].includes(settings.lang)) settings.lang = "ru";
+  if (!["A1", "A2", "B1"].includes(settings.level)) settings.level = "A2";
+  // data saved by an earlier version = an existing user: never show onboarding to them
+  if (typeof s.onboarded !== "boolean") settings.onboarded = true;
 
   const customWords = Array.isArray(raw.customWords)
     ? (raw.customWords.map(cleanCustomWord).filter(Boolean) as Word[])
@@ -170,6 +193,10 @@ export function migrate(raw: unknown): AppData {
   const achievements: Record<string, number> = {};
   if (isObj(raw.achievements)) {
     for (const [k, v] of Object.entries(raw.achievements)) if (typeof v === "number") achievements[k] = v;
+  }
+  const mistakes: Record<string, number> = {};
+  if (isObj(raw.mistakes)) {
+    for (const [k, v] of Object.entries(raw.mistakes)) if (typeof v === "number" && Number.isFinite(v)) mistakes[k] = v;
   }
   const r = isObj(raw.records) ? raw.records : {};
   const c = isObj(raw.counters) ? raw.counters : {};
@@ -189,10 +216,27 @@ export function migrate(raw: unknown): AppData {
       articlePerfectRounds: num(c.articlePerfectRounds, 0),
       speedRounds: num(c.speedRounds, 0),
     },
+    mistakes,
   };
 }
 
 /** Daily counters for `today` (resets when the day changes). */
 export function dailyFor(d: Daily, today: number): Daily {
   return d.day === today ? d : { day: today, newCount: 0, reviewCount: 0 };
+}
+
+/** Remember a mistake for "Mistakes of the week"; entries older than 30 days are pruned. */
+export function addMistake(m: Record<string, number>, id: string, today: number): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(m)) if (v > today - 30) out[k] = v;
+  out[id] = today;
+  return out;
+}
+
+/** Word ids with a mistake in the last 7 days (most recent first). */
+export function weekMistakes(m: Record<string, number>, today: number, known: (id: string) => boolean): string[] {
+  return Object.entries(m)
+    .filter(([id, d]) => d > today - 7 && d <= today && known(id))
+    .sort((a, b) => b[1] - a[1])
+    .map(([id]) => id);
 }

@@ -5,11 +5,13 @@ import { Direction, Settings } from "../logic/data";
 import { DeckStats } from "../logic/srs";
 import { Btn, Chip, FadeIn, GermanWord, Pressy, SectionTitle, Segmented, T } from "../ui/components";
 import { AtFlag, Icon, IconName } from "../ui/Icon";
-import { dateLabel, greeting, plural, weekDots } from "../ui/format";
+import { dateLabel, greeting, weekDots } from "../ui/format";
 import { germanText, speakGerman } from "../ui/speech";
 import { TAB_SPACE } from "../ui/TabBar";
 import { font, useTheme } from "../ui/theme";
 import { Example } from "./SessionScreen";
+import { ReleaseInfo } from "../logic/update";
+import { tr, pl } from "../i18n";
 
 export interface TopicProgress { id: TopicId; de: string; learned: number; total: number }
 
@@ -36,6 +38,9 @@ export interface HomeProps {
   speedBest: number;
   customCount: number;
   onEnableReminder: () => void;
+  update?: ReleaseInfo | null;
+  onOpenUpdate?: () => void;
+  onDismissUpdate?: () => void;
   now?: Date;
 }
 
@@ -69,10 +74,10 @@ export function HomeScreen(p: HomeProps) {
     set.has(id) ? set.delete(id) : set.add(id);
     p.onSettings({ topics: TOPICS.map((x) => x.id).filter((x) => set.has(x)) });
   };
-  const dirLabel = DIRECTION_OPTIONS.find((d) => d.value === p.settings.direction)?.label ?? "";
-  const topicLabel = p.settings.topics.length === 0 ? "все темы"
+  const dirLabel = tr(DIRECTION_OPTIONS.find((d) => d.value === p.settings.direction)?.label ?? "");
+  const topicLabel = p.settings.topics.length === 0 ? tr("все темы")
     : p.settings.topics.length <= 2 ? p.settings.topics.map((id) => TOPICS.find((x) => x.id === id)?.de ?? id).join(", ")
-    : `${p.settings.topics.length} ${plural(p.settings.topics.length, "тема", "темы", "тем")}`;
+    : `${p.settings.topics.length} ${pl(p.settings.topics.length, "тема", "темы", "тем")}`;
   const has = p.queueSize > 0;
   const surface = t.dark ? t.card : "#FFFFFF";
   const wd = p.wordOfDay;
@@ -84,11 +89,22 @@ export function HomeScreen(p: HomeProps) {
           <T v="bodyM" dim>{dateLabel(now)}</T>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
             <View style={[styles.dot, { backgroundColor: p.streak > 0 ? t.accent : t.faint }]} />
-            <T v="bodyM">{p.streak > 0 ? `${p.streak} ${plural(p.streak, "день", "дня", "дней")}` : "серия 0"}</T>
-            {p.bestStreak > 0 ? <T v="bodyM" dim>· рекорд {p.bestStreak}</T> : null}
+            <T v="bodyM">{p.streak > 0 ? `${p.streak} ${pl(p.streak, "день", "дня", "дней")}` : tr("серия 0")}</T>
+            {p.bestStreak > 0 ? <T v="bodyM" dim>{"· " + tr("рекорд {n}", { n: p.bestStreak })}</T> : null}
           </View>
         </View>
         <Text style={[styles.hello, { color: t.text }]}>{g.de}</Text>
+
+        {p.update ? (
+          <Pressy onPress={p.onOpenUpdate} accessibilityRole="button" scaleTo={0.99} style={[styles.upd, { backgroundColor: t.card }]}>
+            <View style={[styles.dot, { backgroundColor: t.accent }]} />
+            <T v="bodyM" style={{ flex: 1 }} numberOfLines={1}>{tr("Доступна версия {v}", { v: p.update.version })}</T>
+            <T v="bodyM" color={t.accent}>{tr("Обновить")}</T>
+            <Pressable onPress={p.onDismissUpdate} hitSlop={10} accessibilityLabel={tr("Скрыть")}>
+              <Icon name="x" size={16} color={t.textDim} />
+            </Pressable>
+          </Pressy>
+        ) : null}
 
         {/* card stack hero */}
         <View style={styles.stack}>
@@ -98,42 +114,42 @@ export function HomeScreen(p: HomeProps) {
             {has ? (
               <>
                 <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 12 }}>
-                  <Text style={[styles.bigNum, { color: t.text }]} accessibilityLabel={`${p.queueSize} карточек на сегодня`}>{p.queueSize}</Text>
+                  <Text style={[styles.bigNum, { color: t.text }]} accessibilityLabel={tr("{n} карточек на сегодня", { n: p.queueSize })}>{p.queueSize}</Text>
                   <T v="body" dim style={{ paddingBottom: 6, fontSize: 15, lineHeight: 19 }}>
-                    {plural(p.queueSize, "карточка", "карточки", "карточек")}{"\n"}≈ {minutes} мин
+                    {pl(p.queueSize, "карточка", "карточки", "карточек")}{"\n"}≈ {tr("{n} мин", { n: minutes })}
                   </T>
                 </View>
-                <T v="bodyM" style={{ marginTop: 16 }}>{p.queueDue} повторить · {p.queueNew} новых</T>
+                <T v="bodyM" style={{ marginTop: 16 }}>{tr("{a} повторить · {b} новых", { a: p.queueDue, b: p.queueNew })}</T>
                 {p.firstWord ? (
                   <T v="small" dim style={{ marginTop: 4 }} numberOfLines={1}>
-                    Первая: {p.firstWord.article ? <Text style={{ color: t.article[p.firstWord.article] }}>{p.firstWord.article} </Text> : null}{p.firstWord.de}
+                    {tr("Первая:")} {p.firstWord.article ? <Text style={{ color: t.article[p.firstWord.article] }}>{p.firstWord.article} </Text> : null}{p.firstWord.de}
                   </T>
                 ) : null}
               </>
             ) : (
               <>
-                <T v="h2">На сегодня всё.</T>
+                <T v="h2">{tr("На сегодня всё.")}</T>
                 <T v="bodyM" dim style={{ marginTop: 8 }}>
-                  {p.reviewsToday > 0 ? `Сегодня повторено: ${p.reviewsToday}. ` : ""}Возвращайся завтра — или выучи ещё несколько слов.
+                  {p.reviewsToday > 0 ? tr("Сегодня повторено: {n}.", { n: p.reviewsToday }) + " " : ""}{tr("Возвращайся завтра — или выучи ещё несколько слов.")}
                 </T>
-                {p.unseenInFilter === 0 ? <T v="small" dim style={{ marginTop: 8 }}>В выбранных темах новых слов больше нет.</T> : null}
+                {p.unseenInFilter === 0 ? <T v="small" dim style={{ marginTop: 8 }}>{tr("В выбранных темах новых слов больше нет.")}</T> : null}
               </>
             )}
           </View>
         </View>
 
         {/* what we study */}
-        <Pressy onPress={() => setSetup((x) => !x)} accessibilityRole="button" accessibilityLabel="Что учим" scaleTo={0.99}
+        <Pressy onPress={() => setSetup((x) => !x)} accessibilityRole="button" accessibilityLabel={tr("Что учим")} scaleTo={0.99}
           style={[styles.setup, { borderColor: t.border, backgroundColor: surface }]}>
           <Icon name="sliders" size={18} color={t.text} />
           <T v="bodyM" style={{ flex: 1 }} numberOfLines={1}>{dirLabel} · {topicLabel}</T>
-          <T v="bodyM" color={t.accent}>{setup ? "Готово" : "Изменить"}</T>
+          <T v="bodyM" color={t.accent}>{setup ? tr("Готово") : tr("Изменить")}</T>
         </Pressy>
         {setup ? (
           <View style={{ marginTop: 14 }}>
-            <Segmented value={p.settings.direction} options={DIRECTION_OPTIONS} onChange={(v) => p.onSettings({ direction: v })} />
+            <Segmented value={p.settings.direction} options={DIRECTION_OPTIONS.map((o) => ({ ...o, label: tr(o.label) }))} onChange={(v) => p.onSettings({ direction: v })} />
             <View style={[styles.chips, { marginTop: 12 }]}>
-              <Chip label="Все темы" active={p.settings.topics.length === 0} onPress={() => p.onSettings({ topics: [] })} />
+              <Chip label={tr("Все темы")} active={p.settings.topics.length === 0} onPress={() => p.onSettings({ topics: [] })} />
               {TOPICS.filter((tp) => tp.id !== "custom" || p.customCount > 0).map((tp) => (
                 <Chip key={tp.id} label={tp.de} active={p.settings.topics.includes(tp.id)} onPress={() => toggleTopic(tp.id)} />
               ))}
@@ -143,8 +159,8 @@ export function HomeScreen(p: HomeProps) {
 
         {wd ? (
           <>
-            <SectionTitle style={{ marginTop: 26 }}>Слово дня</SectionTitle>
-            <Pressable onPress={() => speakGerman(germanText(wd))} accessibilityHint="Произнести"
+            <SectionTitle style={{ marginTop: 26 }}>{tr("Слово дня")}</SectionTitle>
+            <Pressable onPress={() => speakGerman(germanText(wd))} accessibilityHint={tr("Произнести")}
               style={[styles.wod, { borderColor: t.border, backgroundColor: surface }]}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                 <View style={{ flex: 1 }}><GermanWord w={wd} size={22} center={false} /></View>
@@ -158,16 +174,16 @@ export function HomeScreen(p: HomeProps) {
           </>
         ) : null}
 
-        <SectionTitle style={{ marginTop: 26 }}>Быстрая тренировка</SectionTitle>
+        <SectionTitle style={{ marginTop: 26 }}>{tr("Быстрая тренировка")}</SectionTitle>
         <View style={{ flexDirection: "row", gap: 8 }}>
-          <QuickTile icon="target" title="Артикли" sub={`рекорд ${p.articleBest}`} onPress={() => p.onOpen("article")} />
-          <QuickTile icon="bolt" title="Скорость" sub={`рекорд ${p.speedBest}`} onPress={() => p.onOpen("speed")} />
-          <QuickTile icon="pen" title="Письмо" sub="10 за раунд" onPress={() => p.onOpen("typing")} />
+          <QuickTile icon="target" title={tr("Артикли")} sub={tr("рекорд {n}", { n: p.articleBest })} onPress={() => p.onOpen("article")} />
+          <QuickTile icon="bolt" title={tr("Скорость")} sub={tr("рекорд {n}", { n: p.speedBest })} onPress={() => p.onOpen("speed")} />
+          <QuickTile icon="pen" title={tr("Письмо")} sub={tr("10 за раунд")} onPress={() => p.onOpen("typing")} />
         </View>
 
         {p.topicProgress.length ? (
           <>
-            <SectionTitle style={{ marginTop: 26 }}>Темы</SectionTitle>
+            <SectionTitle style={{ marginTop: 26 }}>{tr("Темы")}</SectionTitle>
             {p.topicProgress.map((tp) => (
               <View key={tp.id} style={{ marginBottom: 12 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -182,7 +198,7 @@ export function HomeScreen(p: HomeProps) {
           </>
         ) : null}
 
-        <SectionTitle style={{ marginTop: 16 }}>Неделя</SectionTitle>
+        <SectionTitle style={{ marginTop: 16 }}>{tr("Неделя")}</SectionTitle>
         <View style={styles.week}>
           {week.map((d) => (
             <View key={d.day} style={styles.wd}>
@@ -197,11 +213,11 @@ export function HomeScreen(p: HomeProps) {
         {!p.settings.reminderEnabled && !p.settings.reminderPromptDismissed ? (
           <View style={[styles.banner, { borderColor: t.border }]}>
             <Icon name="bell" size={20} color={t.text} />
-            <T v="bodyM" style={{ flex: 1 }}>Напоминать каждый день в {hh}:{mm}?</T>
+            <T v="bodyM" style={{ flex: 1 }}>{tr("Напоминать каждый день в {t}?", { t: `${hh}:${mm}` })}</T>
             <Pressable onPress={p.onEnableReminder} hitSlop={8} accessibilityRole="button">
-              <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>Включить</Text>
+              <Text style={[font.semibold, { color: t.accent, fontSize: 15 }]}>{tr("Включить")}</Text>
             </Pressable>
-            <Pressable onPress={() => p.onSettings({ reminderPromptDismissed: true })} hitSlop={10} accessibilityLabel="Скрыть">
+            <Pressable onPress={() => p.onSettings({ reminderPromptDismissed: true })} hitSlop={10} accessibilityLabel={tr("Скрыть")}>
               <Icon name="x" size={18} color={t.textDim} />
             </Pressable>
           </View>
@@ -213,9 +229,9 @@ export function HomeScreen(p: HomeProps) {
       {/* sticky CTA above the tab bar */}
       <View pointerEvents="box-none" style={[styles.cta, { bottom: TAB_SPACE }]}>
         {has ? (
-          <Btn title="Начать" arrow onPress={() => p.onStart(false)} style={styles.ctaShadow} />
+          <Btn title={tr("Начать")} arrow onPress={() => p.onStart(false)} style={styles.ctaShadow} />
         ) : (
-          <Btn title="Ещё 10 новых слов" disabled={p.unseenInFilter === 0} onPress={() => p.onStart(true)}
+          <Btn title={tr("Ещё 10 новых слов")} disabled={p.unseenInFilter === 0} onPress={() => p.onStart(true)}
             style={[styles.ctaShadow, p.unseenInFilter === 0 && { opacity: 0.4 }]} />
         )}
       </View>
@@ -232,6 +248,7 @@ const styles = StyleSheet.create({
   sheet: { position: "absolute", left: 6, right: 6, top: 0, height: 196, borderRadius: 26, borderWidth: 1 },
   front: { top: 14, left: 4, right: 4, padding: 22, justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.07, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 3 },
   bigNum: { ...font.semibold, fontSize: 84, lineHeight: 84, letterSpacing: -5, includeFontPadding: false },
+  upd: { flexDirection: "row", alignItems: "center", gap: 10, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 11, marginTop: 14 },
   setup: { flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 13, marginTop: 6 },
   chips: { flexDirection: "row", flexWrap: "wrap" },
   wod: { borderWidth: 1, borderRadius: 20, padding: 16 },

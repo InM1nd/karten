@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, Easing, LayoutChangeEvent, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { TOPICS, Word } from "../data/types";
 import { useDeck } from "../ui/deck";
-import { CardState, Grade, nextQueue, previewLabel } from "../logic/srs";
+import { CardState, formatDays, Grade, nextQueue, previewLabel } from "../logic/srs";
 import { Btn, FadeIn, GermanWord, grammarLine, IconBtn, ProgressLine, Pressy, ResultHero, StatSplit, T } from "../ui/components";
 import { AtFlag, Icon } from "../ui/Icon";
 import { plural } from "../ui/format";
 import { germanText, speakGerman } from "../ui/speech";
 import { font, useTheme } from "../ui/theme";
+import { tr, pl } from "../i18n";
 
 export interface SessionItem {
   id: string;
@@ -26,6 +27,9 @@ export interface SessionProps {
   onUndo?: () => void;
   onExit: () => void;
   onLearnMore: () => void;
+  /** practice mode (Mistakes of the week): different finish texts, no "learn more" */
+  practice?: boolean;
+  title?: string;
   /** called once when the queue is finished */
   onComplete?: () => void;
 }
@@ -83,6 +87,35 @@ export function SessionScreen(p: SessionProps) {
   const completed = useRef(false);
   const history = useRef<{ queue: SessionItem[]; done: Set<string>; tally: typeof tally }[]>([]);
   const [canUndo, setCanUndo] = useState(false);
+  // swipe grading: left = again, up = hard, right = good
+  const pan = useRef(new Animated.ValueXY()).current;
+  const answerRef = useRef<(g: Grade) => void>(() => {});
+  const flippedRef = useRef(false);
+  flippedRef.current = flipped;
+  const [scrollable, setScrollable] = useState(false);
+  const boxH = useRef(0);
+  const SWIPE = 90;
+  const responder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_e, g) => flippedRef.current && (Math.abs(g.dx) > 14 || g.dy < -14) && Math.abs(g.dx) + Math.abs(g.dy) > 14,
+        onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+        onPanResponderRelease: (_e, g) => {
+          const grade: Grade | null = g.dx > SWIPE ? "good" : g.dx < -SWIPE ? "again" : g.dy < -SWIPE && Math.abs(g.dx) < SWIPE ? "hard" : null;
+          if (!grade) {
+            Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false, friction: 6 }).start();
+            return;
+          }
+          const to = grade === "good" ? { x: 500, y: g.dy } : grade === "again" ? { x: -500, y: g.dy } : { x: g.dx, y: -700 };
+          Animated.timing(pan, { toValue: to, duration: 160, useNativeDriver: false }).start(() => {
+            pan.setValue({ x: 0, y: 0 });
+            answerRef.current(grade);
+          });
+        },
+        onPanResponderTerminate: () => Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start(),
+      }),
+    [pan],
+  );
 
   const total = p.items.length;
   const current = queue[0];
@@ -124,6 +157,8 @@ export function SessionScreen(p: SessionProps) {
     Animated.timing(enter, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   };
 
+  answerRef.current = answer;
+
   const undo = () => {
     const h = history.current.pop();
     if (!h) return;
@@ -159,20 +194,20 @@ export function SessionScreen(p: SessionProps) {
     return (
       <FadeIn>
         <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 40, flexGrow: 1 }}>
-          <T v="caps" dim>Занятие завершено</T>
-          <T v="h1" style={{ marginTop: 14 }}>Готово!</T>
+          <T v="caps" dim>{p.practice ? tr("Ошибки недели") : tr("Занятие завершено")}</T>
+          <T v="h1" style={{ marginTop: 14 }}>{tr("Готово!")}</T>
           <ResultHero
             value={total}
-            label={`${plural(total, "карточка", "карточки", "карточек")}\nза сегодня`}
-            note={p.streak > 0 ? `Серия: ${p.streak} ${plural(p.streak, "день", "дня", "дней")} подряд` : undefined}
+            label={p.practice ? tr("слов из ошибок\nпройдено") : `${pl(total, "карточка", "карточки", "карточек")}\n${tr("за сегодня")}`}
+            note={p.streak > 0 ? tr("Серия: {n} {w} подряд", { n: p.streak, w: pl(p.streak, "день", "дня", "дней") }) : undefined}
             accentNote
           />
           <View style={{ marginTop: 26 }}>
-            <StatSplit items={[{ value: tally.good, label: "помню" }, { value: tally.hard, label: "трудно" }, { value: tally.again, label: "не помню" }]} />
+            <StatSplit items={[{ value: tally.good, label: tr("помню") }, { value: tally.hard, label: tr("трудно") }, { value: tally.again, label: tr("не помню") }]} />
           </View>
           <View style={{ flex: 1, minHeight: 30 }} />
-          <Btn title="На главную" onPress={p.onExit} />
-          {p.canLearnMore ? <Btn title="Ещё 10 новых слов" variant="outline" onPress={p.onLearnMore} style={{ marginTop: 10 }} /> : null}
+          <Btn title={tr("На главную")} onPress={p.onExit} />
+          {p.canLearnMore ? <Btn title={tr("Ещё 10 новых слов")} variant="outline" onPress={p.onLearnMore} style={{ marginTop: 10 }} /> : null}
         </ScrollView>
       </FadeIn>
     );
@@ -183,7 +218,8 @@ export function SessionScreen(p: SessionProps) {
   const frontIsGerman = current.dir === "de-ru";
   const progress = total ? done.size / total : 0;
   const showGerman = frontIsGerman || flipped;
-  const isNew = !p.cards[current.id];
+  const card = p.cards[current.id];
+  const isNew = !card;
 
   return (
     <View style={{ flex: 1 }}>
@@ -191,20 +227,31 @@ export function SessionScreen(p: SessionProps) {
         <ProgressLine progress={progress} style={{ flex: 1, height: 4 }} />
       </View>
       <View style={styles.topBar}>
-        <Pressy onPress={p.onExit} hitSlop={12} accessibilityRole="button" accessibilityLabel="Закрыть" style={styles.topBtn}>
+        <Pressy onPress={p.onExit} hitSlop={12} accessibilityRole="button" accessibilityLabel={tr("Закрыть")} style={styles.topBtn}>
           <Icon name="x" size={18} color={t.textDim} />
-          <T v="bodyM" dim>Выйти</T>
+          <T v="bodyM" dim>{tr("Выйти")}</T>
         </Pressy>
         <T v="bodyM" dim style={{ fontVariant: ["tabular-nums"] }}>
-          {done.size} из {total}
+          {tr("{a} из {b}", { a: done.size, b: total })}
         </T>
-        <Pressy onPress={undo} disabled={!canUndo} hitSlop={12} accessibilityRole="button" accessibilityLabel="Отменить"
+        <Pressy onPress={undo} disabled={!canUndo} hitSlop={12} accessibilityRole="button" accessibilityLabel={tr("Отменить")}
           style={[styles.topBtn, { opacity: canUndo ? 1 : 0.35 }]}>
           <Icon name="undo" size={18} color={t.textDim} />
-          <T v="bodyM" dim>Отменить</T>
+          <T v="bodyM" dim>{tr("Отменить")}</T>
         </Pressy>
       </View>
 
+      <Animated.View
+        {...responder.panHandlers}
+        style={{
+          flex: 1,
+          transform: [
+            { translateX: pan.x },
+            { translateY: pan.y.interpolate({ inputRange: [-1000, 0, 1000], outputRange: [-1000, 0, 0], extrapolate: "clamp" }) },
+            { rotate: pan.x.interpolate({ inputRange: [-300, 0, 300], outputRange: ["-8deg", "0deg", "8deg"] }) },
+          ],
+        }}
+      >
       <Animated.View
         style={{
           flex: 1,
@@ -216,10 +263,16 @@ export function SessionScreen(p: SessionProps) {
           ],
         }}
       >
-        <Pressable onPress={flip} style={{ flex: 1 }} accessibilityHint="Нажмите, чтобы перевернуть карточку">
-          <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+        <Pressable onPress={flip} style={{ flex: 1 }} accessibilityHint={tr("Нажмите, чтобы перевернуть карточку")}>
+          <ScrollView
+            contentContainerStyle={styles.body}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={scrollable}
+            onLayout={(e: LayoutChangeEvent) => { boxH.current = e.nativeEvent.layout.height; }}
+            onContentSizeChange={(_w, h) => setScrollable(h > boxH.current + 4)}
+          >
             <View style={styles.meta}>
-              <T v="caps" dim>{topic ? topic.ru : ""}{isNew ? " · новое" : ""}</T>
+              <T v="caps" dim>{topic ? tr(topic.ru) : ""}{isNew ? tr(" · новое") : ""}</T>
               {word.at ? <AtFlag width={18} /> : null}
             </View>
 
@@ -228,7 +281,7 @@ export function SessionScreen(p: SessionProps) {
                 <View style={{ flex: 1 }}>
                   <GermanWord w={word} size={word.de.length > 16 ? 34 : 42} center={false} />
                 </View>
-                <IconBtn name="volume" label="Произнести" onPress={() => speakGerman(germanText(word))} />
+                <IconBtn name="volume" label={tr("Произнести")} onPress={() => speakGerman(germanText(word))} />
               </View>
             ) : (
               <T v="h1" style={{ marginTop: 22, fontSize: 40, lineHeight: 46, letterSpacing: -1.4 }}>{word.ru}</T>
@@ -236,42 +289,65 @@ export function SessionScreen(p: SessionProps) {
 
             {flipped ? (
               <View style={{ marginTop: 14 }}>
-                <DetailRow label="Перевод" inline>
+                <DetailRow label={tr("Перевод")} inline>
                   <Text style={[font.semibold, { fontSize: 20, color: t.text, textAlign: "right" }]}>{word.ru}</Text>
                 </DetailRow>
                 {grammar ? (
-                  <DetailRow label={word.kind === "noun" ? "Мн. ч." : "Формы"} inline>
-                    <T v="bodyM" style={{ textAlign: "right" }}>{word.kind === "noun" ? grammar.replace(/^мн\. ч\. /, "") : grammar}</T>
+                  <DetailRow label={word.kind === "noun" ? tr("Мн. ч.") : tr("Формы")} inline>
+                    <T v="bodyM" style={{ textAlign: "right" }}>{word.kind === "noun" ? (grammar === tr("мн. ч. нет") ? tr("нет") : grammar.replace(tr("мн. ч. die {p}", { p: "" }), "die ")) : grammar}</T>
                   </DetailRow>
                 ) : null}
                 {word.ex ? (
-                  <DetailRow label="Пример">
+                  <DetailRow label={tr("Пример")}>
                     <Example w={word} size={17} />
                     {word.exRu ? <T v="body" dim style={{ marginTop: 6, fontSize: 15, lineHeight: 21 }}>{word.exRu}</T> : null}
                   </DetailRow>
                 ) : null}
                 {word.note ? (
-                  <DetailRow label={word.at ? "В Австрии" : "Заметка"} icon={word.at ? <AtFlag width={16} /> : undefined}>
+                  <DetailRow label={word.at ? tr("В Австрии") : tr("Заметка")} icon={word.at ? <AtFlag width={16} /> : undefined}>
                     <T v="bodyM">{word.note}</T>
                   </DetailRow>
                 ) : null}
+                {/* real per-card data instead of empty space: review history of this word */}
+                <DetailRow label={tr("Твой прогресс")}>
+                  <T v="bodyM">
+                    {card
+                      ? tr("повторений: {r} · ошибок: {l} · интервал: {i}", { r: card.reps, l: card.lapses, i: card.interval > 0 ? formatDays(card.interval) : tr("сегодня") })
+                      : tr("Новое слово — первый показ")}
+                  </T>
+                </DetailRow>
+                <T v="small" faint style={{ marginTop: 16, textAlign: "center" }}>{tr("Свайп: ← не помню · ↑ трудно · → помню")}</T>
               </View>
             ) : (
-              <T v="bodyM" faint style={{ marginTop: 40 }}>Нажми на карточку, чтобы перевернуть</T>
+              <T v="bodyM" faint style={{ marginTop: 40 }}>{tr("Нажми на карточку, чтобы перевернуть")}</T>
             )}
           </ScrollView>
         </Pressable>
+      </Animated.View>
+      {flipped ? (
+        <>
+          <Animated.View pointerEvents="none" style={[styles.stamp, { right: 22, backgroundColor: t.bg, borderColor: t.again, opacity: pan.x.interpolate({ inputRange: [-SWIPE, -20, 0], outputRange: [1, 0, 0], extrapolate: "clamp" }) }]}>
+            <Text style={[font.semibold, { color: t.again, fontSize: 15 }]}>{tr("НЕ ПОМНЮ")}</Text>
+          </Animated.View>
+          <Animated.View pointerEvents="none" style={[styles.stamp, { left: 22, backgroundColor: t.bg, borderColor: t.good, opacity: pan.x.interpolate({ inputRange: [0, 20, SWIPE], outputRange: [0, 0, 1], extrapolate: "clamp" }) }]}>
+            <Text style={[font.semibold, { color: t.good, fontSize: 15 }]}>{tr("ПОМНЮ")}</Text>
+          </Animated.View>
+          <Animated.View pointerEvents="none" style={[styles.stamp, { alignSelf: "center", left: "35%", backgroundColor: t.bg, borderColor: t.hard, opacity: pan.y.interpolate({ inputRange: [-SWIPE, -20, 0], outputRange: [1, 0, 0], extrapolate: "clamp" }) }]}>
+            <Text style={[font.semibold, { color: t.hard, fontSize: 15 }]}>{tr("ТРУДНО")}</Text>
+          </Animated.View>
+        </>
+      ) : null}
       </Animated.View>
 
       <View style={styles.actions}>
         {flipped && labels ? (
           <View style={styles.row}>
-            <GradeBtn title="Не помню" sub={labels.again} tone="again" onPress={() => answer("again")} />
-            <GradeBtn title="Трудно" sub={labels.hard} tone="hard" onPress={() => answer("hard")} />
-            <GradeBtn title="Помню" sub={labels.good} tone="good" onPress={() => answer("good")} />
+            <GradeBtn title={tr("Не помню")} sub={p.practice ? tr("ещё раз") : labels.again} tone="again" onPress={() => answer("again")} />
+            <GradeBtn title={tr("Трудно")} sub={p.practice ? tr("оставить в списке") : labels.hard} tone="hard" onPress={() => answer("hard")} />
+            <GradeBtn title={tr("Помню")} sub={p.practice ? tr("убрать из списка") : labels.good} tone="good" onPress={() => answer("good")} />
           </View>
         ) : (
-          <Btn title="Показать ответ" onPress={flip} style={{ minHeight: 72, borderRadius: 22 }} />
+          <Btn title={tr("Показать ответ")} onPress={flip} style={{ minHeight: 72, borderRadius: 22 }} />
         )}
       </View>
     </View>
@@ -287,5 +363,6 @@ const styles = StyleSheet.create({
   drow: { paddingVertical: 14, borderBottomWidth: 1 },
   actions: { paddingHorizontal: 20, paddingBottom: 18, paddingTop: 8 },
   row: { flexDirection: "row", gap: 10 },
+  stamp: { position: "absolute", top: 22, zIndex: 10, borderWidth: 2, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 5 },
   grade: { flex: 1, height: 74, borderRadius: 22, alignItems: "center", justifyContent: "center" },
 });

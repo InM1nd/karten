@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import { ReminderItem } from "../logic/reminders";
+import { tr, pl } from "../i18n";
 
 export const CHANNEL_ID = "daily-reminder";
 
@@ -17,8 +18,8 @@ Notifications.setNotificationHandler({
 export async function ensureChannel() {
   if (Platform.OS !== "android") return;
   await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-    name: "Ежедневное напоминание",
-    description: "Напоминание о занятии в выбранное время",
+    name: tr("Ежедневное напоминание"),
+    description: tr("Напоминание о занятии в выбранное время"),
     importance: Notifications.AndroidImportance.DEFAULT,
   });
 }

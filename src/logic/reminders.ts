@@ -1,5 +1,6 @@
 /** Daily reminder planning. Pure: produces the list of notifications to schedule. */
 import { CardState } from "./srs";
+import { tr, pl } from "../i18n";
 
 export interface ReminderInput {
   enabled: boolean;
@@ -37,9 +38,9 @@ const plural = (n: number, one: string, few: string, many: string) => {
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
   return many;
 };
-export const cardsWord = (n: number) => plural(n, "карточка", "карточки", "карточек");
-export const newWordsWord = (n: number) => plural(n, "новое слово", "новых слова", "новых слов");
-export const daysWord = (n: number) => plural(n, "день", "дня", "дней");
+export const cardsWord = (n: number) => pl(n, "карточка", "карточки", "карточек");
+export const newWordsWord = (n: number) => pl(n, "новое слово", "новых слова", "новых слов");
+export const daysWord = (n: number) => pl(n, "день", "дня", "дней");
 
 export function planReminders(i: ReminderInput): ReminderItem[] {
   if (!i.enabled) return [];
@@ -57,11 +58,11 @@ export function planReminders(i: ReminderInput): ReminderItem[] {
     const total = due + fresh;
     if (total === 0) continue;
     const parts: string[] = [];
-    if (due > 0) parts.push(`${due} ${cardsWord(due)} к повторению`);
+    if (due > 0) parts.push(tr("{n} {w} к повторению", { n: due, w: cardsWord(due) }));
     if (fresh > 0) parts.push(`${fresh} ${newWordsWord(fresh)}`);
-    let body = `${parts.join(" и ")} · ~${minutesFor(Math.min(total, 30))} мин.`;
-    if (off === 0 && i.streak > 0) body += ` Не прерывай серию: 🔥 ${i.streak} ${daysWord(i.streak)}!`;
-    out.push({ date, title: off === 0 ? "Пора повторить немецкий 🇦🇹" : "Karten: 5 минут немецкого", body });
+    let body = `${parts.join(tr(" и "))} · ~${tr("{n} мин", { n: minutesFor(Math.min(total, 30)) })}.`;
+    if (off === 0 && i.streak > 0) body += " " + tr("Не прерывай серию: 🔥 {n} {w}!", { n: i.streak, w: daysWord(i.streak) });
+    out.push({ date, title: off === 0 ? tr("Пора повторить немецкий 🇦🇹") : tr("Karten: 5 минут немецкого"), body });
   }
   return out;
 }

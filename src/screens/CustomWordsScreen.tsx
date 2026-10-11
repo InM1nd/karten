@@ -7,6 +7,7 @@ import { Btn, FadeIn, GermanWord, Pressy, ScreenHeader, SectionTitle, Segmented,
 import { Icon } from "../ui/Icon";
 import { font, useTheme } from "../ui/theme";
 import { useDeck } from "../ui/deck";
+import { tr, pl } from "../i18n";
 
 type ArtChoice = "none" | Article;
 
@@ -30,8 +31,8 @@ export function newCustomId(): string {
 export function formToWord(f: Form, id: string): Word | string {
   const de = f.de.trim().replace(/^(der|die|das)\s+/i, "");
   const ru = f.ru.trim();
-  if (!de) return "Введите немецкое слово";
-  if (!ru) return "Введите перевод";
+  if (!de) return tr("Введите немецкое слово");
+  if (!ru) return tr("Введите перевод");
   const base = { id, topic: "custom" as const, de, ru, ex: f.ex.trim(), custom: true };
   const exRu = f.exRu.trim();
   if (f.article !== "none") {
@@ -79,10 +80,10 @@ export function CustomWordsScreen(p: {
       setError(null);
     };
     const del = () =>
-      Alert.alert("Удалить слово?", `«${f.de}» и его прогресс будут удалены.`, [
-        { text: "Отмена", style: "cancel" },
+      Alert.alert(tr("Удалить слово?"), tr("«{w}» и его прогресс будут удалены.", { w: f.de }), [
+        { text: tr("Отмена"), style: "cancel" },
         {
-          text: "Удалить",
+          text: tr("Удалить"),
           style: "destructive",
           onPress: () => {
             p.onDelete(editing.id!);
@@ -115,13 +116,13 @@ export function CustomWordsScreen(p: {
     );
     return (
       <FadeIn key={editing.id ?? "new"}>
-        <ScreenHeader title={editing.id ? "Изменить слово" : "Новое слово"} onBack={() => setEditing(null)} />
+        <ScreenHeader title={editing.id ? tr("Изменить слово") : tr("Новое слово")} onBack={() => setEditing(null)} />
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
-          <SectionTitle>Артикль</SectionTitle>
+          <SectionTitle>{tr("Артикль")}</SectionTitle>
           <Segmented<ArtChoice>
             value={f.article}
             options={[
-              { value: "none", label: "нет" },
+              { value: "none", label: tr("нет") },
               { value: "der", label: "der" },
               { value: "die", label: "die" },
               { value: "das", label: "das" },
@@ -133,32 +134,32 @@ export function CustomWordsScreen(p: {
               <Segmented<Form["kind"]>
                 value={f.kind}
                 options={[
-                  { value: "verb", label: "Глагол" },
-                  { value: "adj", label: "Прил./нар." },
-                  { value: "phrase", label: "Фраза" },
+                  { value: "verb", label: tr("Глагол") },
+                  { value: "adj", label: tr("Прил./нар.") },
+                  { value: "phrase", label: tr("Фраза") },
                 ]}
                 onChange={(v) => set({ kind: v })}
               />
             </View>
           ) : null}
-          {input("По-немецки *", f.de, (v) => set({ de: v }), f.article === "none" ? "z. B. sich beeilen" : "z. B. Kaffeehaus", false, true)}
+          {input(tr("По-немецки *"), f.de, (v) => set({ de: v }), f.article === "none" ? "z. B. sich beeilen" : "z. B. Kaffeehaus", false, true)}
           {dup ? (
             <T v="small" color={t.hard} style={{ marginTop: 8 }}>
-              Похожее слово уже есть: {dup.article ? dup.article + " " : ""}{dup.de} — {dup.ru}
+              {tr("Похожее слово уже есть:")} {dup.article ? dup.article + " " : ""}{dup.de} — {dup.ru}
             </T>
           ) : null}
-          {f.article !== "none" ? input("Множественное число", f.plural, (v) => set({ plural: v }), "z. B. Kaffeehäuser (пусто — нет)") : null}
-          {input("Перевод *", f.ru, (v) => set({ ru: v }), "по-русски")}
-          {input("Пример (по-немецки)", f.ex, (v) => set({ ex: v }), "необязательно", true)}
-          {input("Перевод примера", f.exRu, (v) => set({ exRu: v }), "необязательно", true)}
+          {f.article !== "none" ? input(tr("Множественное число"), f.plural, (v) => set({ plural: v }), tr("z. B. Kaffeehäuser (пусто — нет)")) : null}
+          {input(tr("Перевод *"), f.ru, (v) => set({ ru: v }), tr("по-русски"))}
+          {input(tr("Пример (по-немецки)"), f.ex, (v) => set({ ex: v }), tr("необязательно"), true)}
+          {input(tr("Перевод примера"), f.exRu, (v) => set({ exRu: v }), tr("необязательно"), true)}
           {error ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 16 }}>
               <View style={[styles.dot, { backgroundColor: t.again }]} />
               <T v="bodyM" color={t.again}>{error}</T>
             </View>
           ) : null}
-          <Btn title="Сохранить" onPress={save} style={{ marginTop: 28 }} />
-          {editing.id ? <Btn title="Удалить" variant="danger" icon="trash" onPress={del} style={{ marginTop: 10 }} /> : null}
+          <Btn title={tr("Сохранить")} onPress={save} style={{ marginTop: 28 }} />
+          {editing.id ? <Btn title={tr("Удалить")} variant="danger" icon="trash" onPress={del} style={{ marginTop: 10 }} /> : null}
         </ScrollView>
       </FadeIn>
     );
@@ -166,28 +167,28 @@ export function CustomWordsScreen(p: {
 
   return (
     <FadeIn>
-      <ScreenHeader title="Мои слова" onBack={p.onBack} subtitle={p.custom.length ? `${p.custom.length} в словаре` : undefined} />
+      <ScreenHeader title={tr("Мои слова")} onBack={p.onBack} subtitle={p.custom.length ? tr("{n} в словаре", { n: p.custom.length }) : undefined} />
       <FlatList
         data={p.custom}
         keyExtractor={(w) => w.id}
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
         ListHeaderComponent={
           <View style={{ marginTop: 18, marginBottom: 14 }}>
-            <Btn title="Добавить слово" icon="plus" onPress={() => setEditing({ id: null, form: emptyForm })} />
+            <Btn title={tr("Добавить слово")} icon="plus" onPress={() => setEditing({ id: null, form: emptyForm })} />
             <T v="bodyM" dim style={{ marginTop: 14 }}>
-              Свои слова попадают в ежедневные занятия и повторения так же, как встроенные (тема «Мои слова»).
+              {tr("Свои слова попадают в ежедневные занятия и повторения так же, как встроенные (тема «Мои слова»).")}
             </T>
           </View>
         }
         ListEmptyComponent={
           <View style={{ alignItems: "center", marginTop: 50 }}>
             <Icon name="pen" size={28} color={t.faint} />
-            <T v="body" dim style={{ textAlign: "center", marginTop: 12 }}>Пока нет своих слов.</T>
+            <T v="body" dim style={{ textAlign: "center", marginTop: 12 }}>{tr("Пока нет своих слов.")}</T>
           </View>
         }
         renderItem={({ item: w, index }) => {
           const c = p.cards[w.id];
-          const status = !c ? "новое" : c.interval >= MATURE_INTERVAL ? "знаю" : "учу";
+          const status = !c ? tr("новое") : c.interval >= MATURE_INTERVAL ? tr("знаю") : tr("учу");
           return (
             <Pressy
               scaleTo={0.99}
@@ -199,7 +200,7 @@ export function CustomWordsScreen(p: {
                 <GermanWord w={w} size={19} center={false} />
                 <T v="bodyM" dim style={{ marginTop: 3 }}>{w.ru}</T>
               </View>
-              <Text style={[font.medium, { color: status === "знаю" ? t.text : t.textDim, fontSize: 13 }]}>{status}</Text>
+              <Text style={[font.medium, { color: status === tr("знаю") ? t.text : t.textDim, fontSize: 13 }]}>{status}</Text>
               <Icon name="chevron" size={16} color={t.faint} />
             </Pressy>
           );
