@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Alert, AppState, BackHandler, Linking, useColorScheme, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Word } from "./src/data/types";
+import { PackId, PACKS, Word } from "./src/data/types";
 import {
-  buildQueue, currentStreak, dayNumber, deckStats, Grade, markMistake, recordStudy, schedule,
+  buildQueue, currentStreak, dayNumber, deckStats, freezeLeft, Grade, markMistake, recordStudy, schedule,
 } from "./src/logic/srs";
 import { AppData, dailyFor, emptyData, Settings } from "./src/logic/data";
 import { loadData, saveData } from "./src/logic/store";
@@ -37,8 +37,12 @@ import { TypingScreen } from "./src/screens/TypingScreen";
 import { CustomWordsScreen } from "./src/screens/CustomWordsScreen";
 import { AchievementsScreen } from "./src/screens/AchievementsScreen";
 import { tr, pl } from "./src/i18n";
+import { ListenResult, ListenScreen } from "./src/screens/ListenScreen";
+import { PacksScreen } from "./src/screens/PacksScreen";
+import { Confetti } from "./src/ui/Confetti";
+import { packWords } from "./src/logic/games";
 
-type Screen = "home" | "train" | "profile" | "mistakes" | "session" | "browse" | "settings" | "article" | "speed" | "typing" | "custom" | "achievements";
+type Screen = "home" | "train" | "profile" | "mistakes" | "session" | "browse" | "settings" | "article" | "speed" | "typing" | "custom" | "achievements" | "listen" | "packs" | "pack";
 const TAB_SCREENS: Screen[] = ["home", "train", "browse", "profile"];
 const EXTRA_NEW = 10;
 
@@ -55,6 +59,8 @@ export default function App() {
   const [today, setToday] = useState(dayNumber());
   const [session, setSession] = useState<{ key: number; items: SessionItem[] }>({ key: 0, items: [] });
   const [toasts, setToasts] = useState<string[]>([]);
+  const [confetti, setConfetti] = useState(false);
+  const [packSession, setPackSession] = useState<{ key: number; items: SessionItem[]; title: string; practice: boolean }>({ key: 0, items: [], title: "", practice: false });
   const [permission, setPermission] = useState<PermState | null>(null);
   const scheme = useColorScheme();
   const dataRef = useRef<AppData | null>(null);
@@ -98,7 +104,9 @@ export default function App() {
     return () => sub.remove();
   }, [screen, tab]);
 
-  const deck = useMemo(() => makeDeck(data?.customWords ?? []), [data?.customWords]);
+  const trLang = data?.settings.trLang ?? "ru";
+  const level = data?.settings.level ?? "A2";
+  const deck = useMemo(() => makeDeck(data?.customWords ?? [], trLang, level), [data?.customWords, trLang, level]);
 
   const derived = useMemo(() => {
     if (!data) return null;
@@ -155,13 +163,23 @@ export default function App() {
     hapticOk();
   }, [data, derived]);
 
+  // ---- daily goal: confetti once per day when new + reviews reach the goal ----
+  useEffect(() => {
+    if (!data || !derived) return;
+    const dl = derived.daily;
+    if (dl.goalShown || dl.newCount + dl.reviewCount < data.settings.dailyGoal) return;
+    setData((d) => (d ? { ...d, daily: { ...dailyFor(d.daily, dl.day), goalShown: true } } : d));
+    setConfetti(true);
+    hapticOk();
+  }, [data, derived]);
+
   // ---- reminders + widget ----
   const lastPlan = useRef<string | null>(null);
   const refreshExternal = useCallback((d: AppData) => {
     const now = new Date();
     const t0 = dayNumber(now);
     const s = d.settings;
-    const words = makeDeck(d.customWords).words;
+    const words = makeDeck(d.customWords, s.trLang, s.level).words;
     const pool = s.topics.length ? words.filter((w) => s.topics.includes(w.topic)) : words;
     const daily = dailyFor(d.daily, t0);
     const q = buildQueue(words, d.cards, { today: t0, maxCards: s.sessionSize, newPerDay: s.newPerDay, newDoneToday: daily.newCount, topics: s.topics });
@@ -184,7 +202,7 @@ export default function App() {
   useEffect(() => {
     if (data && screen === "home") refreshExternal(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, !!data, s?.lang, s?.reminderEnabled, s?.reminderHour, s?.reminderMinute, s?.topics, s?.newPerDay, data?.customWords]);
+  }, [screen, !!data, s?.lang, s?.trLang, s?.level, s?.reminderEnabled, s?.reminderHour, s?.reminderMinute, s?.topics, s?.newPerDay, data?.customWords]);
 
   // ---- optional update check on launch (Android, once per app start) ----
   useEffect(() => {
@@ -278,6 +296,31 @@ export default function App() {
     }));
   }, [update]);
 
+  const onListenEnd = useCallback((r: ListenResult) => {
+    update((d) => ({
+      ...d,
+      records: { ...d.records, listenBest: Math.max(d.records.listenBest, r.score) },
+      counters: { ...d.counters, listenRounds: d.counters.listenRounds + 1 },
+      streak: r.correct + r.wrong > 0 ? recordStudy(d.streak, dayNumber()) : d.streak,
+    }));
+  }, [update]);
+
+  // Situation pack: due + new phrases go through the normal SRS; if none are due, a practice run.
+  const startPack = (pack: PackId) => {
+    if (!data) return;
+    const now = dayNumber();
+    const ws = packWords(deck.words, pack);
+    const todo = ws.filter((w) => !data.cards[w.id] || data.cards[w.id].due <= now);
+    const practice = todo.length === 0;
+    const items: SessionItem[] = (practice ? ws : todo).map((w) => ({ id: w.id, dir: "de-ru" as const }));
+    if (!items.length) return;
+    undoStack.current = [];
+    practiceUndo.current = [];
+    const pk = PACKS.find((x) => x.id === pack)!;
+    setPackSession((x) => ({ key: x.key + 1, items, title: pk.de, practice }));
+    setScreen("pack");
+  };
+
   const onSaveCustom = useCallback((w: Word) => {
     update((d) => {
       const exists = d.customWords.some((x) => x.id === w.id);
@@ -354,7 +397,7 @@ export default function App() {
       return (
         <OnboardingScreen
           settings={data.settings}
-          onLang={(l) => updateSettings({ lang: l })}
+          onLang={(l) => updateSettings({ lang: l, trLang: l })}
           onDone={(patch) => {
             updateSettings(patch);
             goTab("home");
@@ -385,7 +428,7 @@ export default function App() {
         );
       case "train":
         return (
-          <TrainScreen articleBest={data.records.articleBest} speedBest={data.records.speedBest} mistakes={derived.mistakesWeek}
+          <TrainScreen articleBest={data.records.articleBest} speedBest={data.records.speedBest} listenBest={data.records.listenBest} mistakes={derived.mistakesWeek}
             onOpen={setScreen} onMistakes={startMistakes} />
         );
       case "mistakes":
@@ -402,6 +445,28 @@ export default function App() {
             onAnswer={onPracticeAnswer}
             onUndo={onPracticeUndo}
             onExit={home}
+            onLearnMore={() => {}}
+          />
+        );
+      case "listen":
+        return <ListenScreen best={data.records.listenBest} cards={data.cards} onMistake={onMistake} onRoundEnd={onListenEnd} onBack={home} />;
+      case "packs":
+        return <PacksScreen cards={data.cards} today={today} onStart={startPack} onBack={home} />;
+      case "pack":
+        return (
+          <SessionScreen
+            key={`p${packSession.key}`}
+            practice={packSession.practice}
+            title={packSession.title}
+            items={packSession.items}
+            cards={data.cards}
+            today={today}
+            autoSpeak={data.settings.autoSpeak}
+            streak={derived.streak}
+            canLearnMore={false}
+            onAnswer={packSession.practice ? () => {} : onAnswer}
+            onUndo={packSession.practice ? () => {} : onUndo}
+            onExit={() => setScreen("packs")}
             onLearnMore={() => {}}
           />
         );
@@ -486,6 +551,8 @@ export default function App() {
             onOpen={setScreen}
             articleBest={data.records.articleBest}
             speedBest={data.records.speedBest}
+            doneToday={derived.daily.newCount + derived.daily.reviewCount}
+            freezeLeft={freezeLeft(data.streak, today)}
             customCount={data.customWords.length}
             onEnableReminder={() => toggleReminder(true)}
             update={newRelease && newRelease.tag !== data.settings.updateDismissed ? newRelease : null}
@@ -509,6 +576,7 @@ export default function App() {
               {body()}
             </View>
             {data && !onboarding && TAB_SCREENS.includes(screen) ? <TabBar active={tab} onChange={goTab} /> : null}
+            {confetti ? <Confetti goal={data?.settings.dailyGoal ?? 20} onDone={() => setConfetti(false)} /> : null}
             {toast ? (
               <AchievementToast
                 key={toast.id}

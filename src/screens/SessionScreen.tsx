@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, LayoutChangeEvent, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { TOPICS, Word } from "../data/types";
-import { useDeck } from "../ui/deck";
+import { ex2Text, useDeck } from "../ui/deck";
 import { CardState, formatDays, Grade, nextQueue, previewLabel } from "../logic/srs";
 import { Btn, FadeIn, GermanWord, grammarLine, IconBtn, ProgressLine, Pressy, ResultHero, StatSplit, T } from "../ui/components";
 import { AtFlag, Icon } from "../ui/Icon";
@@ -83,7 +83,7 @@ export function SessionScreen(p: SessionProps) {
   const rot = useRef(new Animated.Value(0)).current;
   const enter = useRef(new Animated.Value(1)).current;
   const busy = useRef(false);
-  const { byId } = useDeck();
+  const { byId, trLang } = useDeck();
   const completed = useRef(false);
   const history = useRef<{ queue: SessionItem[]; done: Set<string>; tally: typeof tally }[]>([]);
   const [canUndo, setCanUndo] = useState(false);
@@ -194,11 +194,11 @@ export function SessionScreen(p: SessionProps) {
     return (
       <FadeIn>
         <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 40, flexGrow: 1 }}>
-          <T v="caps" dim>{p.practice ? tr("Ошибки недели") : tr("Занятие завершено")}</T>
+          <T v="caps" dim>{p.title ?? (p.practice ? tr("Ошибки недели") : tr("Занятие завершено"))}</T>
           <T v="h1" style={{ marginTop: 14 }}>{tr("Готово!")}</T>
           <ResultHero
             value={total}
-            label={p.practice ? tr("слов из ошибок\nпройдено") : `${pl(total, "карточка", "карточки", "карточек")}\n${tr("за сегодня")}`}
+            label={p.practice && p.title ? tr("фраз\nповторено") : p.practice ? tr("слов из ошибок\nпройдено") : `${pl(total, "карточка", "карточки", "карточек")}\n${tr("за сегодня")}`}
             note={p.streak > 0 ? tr("Серия: {n} {w} подряд", { n: p.streak, w: pl(p.streak, "день", "дня", "дней") }) : undefined}
             accentNote
           />
@@ -301,6 +301,12 @@ export function SessionScreen(p: SessionProps) {
                   <DetailRow label={tr("Пример")}>
                     <Example w={word} size={17} />
                     {word.exRu ? <T v="body" dim style={{ marginTop: 6, fontSize: 15, lineHeight: 21 }}>{word.exRu}</T> : null}
+                    {word.ex2 ? (
+                      <>
+                        <T v="body" style={{ marginTop: 12, fontSize: 17, lineHeight: 23 }}>{word.ex2.de}</T>
+                        <T v="body" dim style={{ marginTop: 4, fontSize: 15, lineHeight: 21 }}>{ex2Text(word, trLang)}</T>
+                      </>
+                    ) : null}
                   </DetailRow>
                 ) : null}
                 {word.note ? (
@@ -343,8 +349,8 @@ export function SessionScreen(p: SessionProps) {
         {flipped && labels ? (
           <View style={styles.row}>
             <GradeBtn title={tr("Не помню")} sub={p.practice ? tr("ещё раз") : labels.again} tone="again" onPress={() => answer("again")} />
-            <GradeBtn title={tr("Трудно")} sub={p.practice ? tr("оставить в списке") : labels.hard} tone="hard" onPress={() => answer("hard")} />
-            <GradeBtn title={tr("Помню")} sub={p.practice ? tr("убрать из списка") : labels.good} tone="good" onPress={() => answer("good")} />
+            <GradeBtn title={tr("Трудно")} sub={p.practice ? (p.title ? tr("без изменений") : tr("оставить в списке")) : labels.hard} tone="hard" onPress={() => answer("hard")} />
+            <GradeBtn title={tr("Помню")} sub={p.practice ? (p.title ? tr("без изменений") : tr("убрать из списка")) : labels.good} tone="good" onPress={() => answer("good")} />
           </View>
         ) : (
           <Btn title={tr("Показать ответ")} onPress={flip} style={{ minHeight: 72, borderRadius: 22 }} />

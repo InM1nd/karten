@@ -1,9 +1,9 @@
-// Builds realistic AppData states for the v1.2 screenshots, using the app's own logic.
+// Builds realistic AppData states for the screenshots (v1.2+, updated for the 1.5 deck), using the app's own logic.
 import { writeFileSync } from "node:fs";
-import { emptyData, AppData } from "/tmp/karten-web/src/logic/data";
-import { WORDS } from "/tmp/karten-web/src/data/words";
-import { dayNumber, deckStats, schedule } from "/tmp/karten-web/src/logic/srs";
-import { ACHIEVEMENTS } from "/tmp/karten-web/src/logic/achievements";
+import { emptyData, AppData } from "../../src/logic/data";
+import { DECK15 as WORDS } from "../../src/data/deck15";
+import { dayNumber, deckStats, schedule } from "../../src/logic/srs";
+import { ACHIEVEMENTS } from "../../src/logic/achievements";
 
 const today = dayNumber(new Date(2026, 9, 8, 8, 40));
 const custom = [
@@ -15,6 +15,7 @@ const custom = [
 function base(): AppData {
   const d = emptyData();
   d.customWords = custom;
+  d.settings = { ...d.settings, onboarded: true, level: "B1" };
   const words = [...WORDS, ...custom];
   // 150 words seen: mix of mature, young and due today
   words.slice(0, 150).forEach((w, i) => {
@@ -25,8 +26,8 @@ function base(): AppData {
   });
   d.streak = { lastDay: today - 1, streak: 6, best: 12 };
   d.daily = { day: today, newCount: 0, reviewCount: 0 };
-  d.records = { articleBest: 31, speedBest: 260 };
-  d.counters = { sessionsDone: 34, typingCorrect: 21, articleRounds: 9, articlePerfectRounds: 1, speedRounds: 6 };
+  d.records = { articleBest: 31, speedBest: 260, listenBest: 84 };
+  d.counters = { sessionsDone: 34, typingCorrect: 21, articleRounds: 9, articlePerfectRounds: 1, speedRounds: 6, listenRounds: 3 };
   const stats = deckStats(words as any, d.cards, today);
   const ctx = {
     bestStreak: 12, learned: stats.learned, mature: stats.mature,
@@ -34,7 +35,7 @@ function base(): AppData {
     sessionsDone: 34, articleBest: 31, articlePerfectRounds: 1, speedBest: 260, typingCorrect: 21, customWords: custom.length,
   };
   const t0 = new Date(2026, 8, 1).getTime();
-  ACHIEVEMENTS.forEach((a, i) => { if (a.progress(ctx) >= a.goal) d.achievements[a.id] = t0 + i * 2 * 86400000; });
+  ACHIEVEMENTS.forEach((a: (typeof ACHIEVEMENTS)[number], i: number) => { if (a.progress(ctx) >= a.goal) d.achievements[a.id] = t0 + i * 2 * 86400000; });
   return d;
 }
 
@@ -51,5 +52,13 @@ short.daily = { day: today, newCount: 9, reviewCount: 0 };
 const toast = base();
 delete toast.achievements["custom_first"];
 const fresh = emptyData();
-writeFileSync("/workspace/tools/seeds.json", JSON.stringify({ main, dark, finished, short, toast, fresh }));
+const en = { ...base(), settings: { ...base().settings, trLang: "en" as const } };
+const uk = { ...base(), settings: { ...base().settings, trLang: "uk" as const, lang: "uk" as const } };
+// one card short of the daily goal (20): finishing a card fires the confetti
+const nearGoal = base();
+nearGoal.daily = { day: today, newCount: 8, reviewCount: 11 };
+// missed yesterday, streak kept by this week's freeze
+const frozen = base();
+frozen.streak = { lastDay: today - 2, streak: 6, best: 12 };
+writeFileSync("/workspace/tools/seeds.json", JSON.stringify({ main, dark, finished, short, toast, fresh, en, uk, nearGoal, frozen }));
 console.log("today", today, "cards", Object.keys(main.cards).length, "ach", Object.keys(main.achievements).length);

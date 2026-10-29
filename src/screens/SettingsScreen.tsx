@@ -1,7 +1,9 @@
 import React from "react";
 import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Settings, ThemePref } from "../logic/data";
-import { useDeck } from "../ui/deck";
+import { dirLabel, useDeck } from "../ui/deck";
+import { DAILY_GOALS } from "../logic/data";
+import { TrLang } from "../data/types";
 import { PermState } from "../ui/notifications";
 import { Btn, FadeIn, Pressy, ScreenHeader, SectionTitle, Segmented, T } from "../ui/components";
 import { speakGerman } from "../ui/speech";
@@ -40,7 +42,7 @@ export function SettingsScreen(p: {
   update?: ReleaseInfo | null;
 }) {
   const t = useTheme();
-  const { words: WORDS } = useDeck();
+  const { words: WORDS, trLang } = useDeck();
   const s = p.settings;
   const shiftTime = (deltaMin: number) => {
     const total = (s.reminderHour * 60 + s.reminderMinute + deltaMin + 24 * 60) % (24 * 60);
@@ -64,10 +66,33 @@ export function SettingsScreen(p: {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
         <SectionTitle>{tr("Язык интерфейса")}</SectionTitle>
         <Segmented<Lang> value={s.lang} options={LANGS} onChange={(v) => p.onChange({ lang: v })} />
-        <T v="small" dim style={{ marginTop: 8 }}>{tr("Переводы слов в карточках пока только на русском.")}</T>
+
+        <SectionTitle>{tr("Язык перевода карточек")}</SectionTitle>
+        <Segmented<TrLang>
+          value={s.trLang}
+          options={[{ value: "ru", label: "Русский" }, { value: "uk", label: "Українська" }, { value: "en", label: "English" }]}
+          onChange={(v) => p.onChange({ trLang: v })}
+        />
+        <T v="small" dim style={{ marginTop: 8 }}>{tr("Переводы слов, примеров и заметок. Свои слова остаются как вы их ввели.")}</T>
 
         <SectionTitle>{tr("Направление карточек")}</SectionTitle>
-        <Segmented value={s.direction} options={DIRECTION_OPTIONS.map((o) => ({ ...o, label: tr(o.label) }))} onChange={(v) => p.onChange({ direction: v })} />
+        <Segmented value={s.direction} options={DIRECTION_OPTIONS.map((o) => ({ ...o, label: dirLabel(tr(o.label), trLang) }))} onChange={(v) => p.onChange({ direction: v })} />
+
+        <SectionTitle>{tr("Цель дня (карточек)")}</SectionTitle>
+        <Segmented
+          value={s.dailyGoal}
+          options={DAILY_GOALS.map((n) => ({ value: n, label: String(n) }))}
+          onChange={(v) => p.onChange({ dailyGoal: v })}
+        />
+        <T v="small" dim style={{ marginTop: 8 }}>{tr("Раз в неделю пропущенный день не сбрасывает серию — сработает заморозка.")}</T>
+
+        <SectionTitle>{tr("Уровень")}</SectionTitle>
+        <Segmented
+          value={s.level}
+          options={(["A1", "A2", "B1"] as const).map((n) => ({ value: n, label: n }))}
+          onChange={(v) => p.onChange({ level: v })}
+        />
+        <T v="small" dim style={{ marginTop: 8 }}>{tr("Новые слова выше вашего уровня придут позже.")}</T>
 
         <SectionTitle>{tr("Новых слов в день")}</SectionTitle>
         <Segmented

@@ -149,7 +149,7 @@ export function CustomWordsScreen(p: {
             </T>
           ) : null}
           {f.article !== "none" ? input(tr("Множественное число"), f.plural, (v) => set({ plural: v }), tr("z. B. Kaffeehäuser (пусто — нет)")) : null}
-          {input(tr("Перевод *"), f.ru, (v) => set({ ru: v }), tr("по-русски"))}
+          {input(tr("Перевод *"), f.ru, (v) => set({ ru: v }), tr("на вашем языке"))}
           {input(tr("Пример (по-немецки)"), f.ex, (v) => set({ ex: v }), tr("необязательно"), true)}
           {input(tr("Перевод примера"), f.exRu, (v) => set({ exRu: v }), tr("необязательно"), true)}
           {error ? (

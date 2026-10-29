@@ -54,7 +54,7 @@ export function OnboardingScreen(p: { settings: Settings; onLang: (l: Lang) => v
                 );
               })}
             </View>
-            <T v="small" dim style={{ marginTop: 12 }}>{tr("От уровня зависит темп новых слов. Словарь рассчитан на A2–B1.")}</T>
+            <T v="small" dim style={{ marginTop: 12 }}>{tr("От уровня зависит темп новых слов. Словарь рассчитан на A1–B1.")}</T>
             <T v="caps" dim style={{ marginTop: 26, marginBottom: 10 }}>{tr("Язык интерфейса")}</T>
             <Segmented<Lang> value={p.settings.lang} options={LANGS} onChange={p.onLang} />
           </>

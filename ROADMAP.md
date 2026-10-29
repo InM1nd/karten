@@ -1,6 +1,6 @@
 # Karten — Roadmap
 
-Current: **1.4.0** (swipe grading, Mistakes of the week, onboarding, in-app updates, RU/EN/UK interface).
+Current: **1.5.0** (999 words A1–B1, RU/UK/EN card translations, situation packs, listening mode, daily goal + streak freeze, animated tab bar).
 
 ## 1.4 — UX polish ✅ (done in 1.4.0)
 - Fix: achievement toast appears too high on the screen (move it lower, respect safe area)
@@ -11,18 +11,21 @@ Current: **1.4.0** (swipe grading, Mistakes of the week, onboarding, in-app upda
 - Check for updates from Settings (latest GitHub release, download and install the new APK)
 - Interface languages: English and Ukrainian (in addition to Russian), switchable in Settings
 
-## 1.5 — More content
-- Grow the deck to 800–1000 words up to B1
-- New topics: Work & AMS, Wohnung & Mietvertrag, Arzt
-- Short phrases and set expressions, not only single words
-- More Austrian variants
-- Second example sentences for cards; EN/UK translations of word meanings (cards are RU-only for now)
+## 1.5 — More content ✅ (done in 1.5.0)
+- Deck grown to 999 entries (A1 301 · A2 425 · B1 273) in 16 topics: + Bank & money, Study & courses, Leisure, People & feelings, Situations
+- Short phrases and set expressions (123), situation packs: Am Amt, Beim Arzt, Mit dem Vermieter
+- More Austrian variants (116 entries)
+- Second example sentences for 31 cards; RU/UK/EN translations of meanings, examples and notes, chosen in Settings
+- Listening mode (hear the word, pick the translation) — moved up from 1.6
+- Daily goal with confetti, weekly streak freeze, level-aware ordering of new words
+- Springy Reanimated tab bar (stretching capsule, label crossfade)
 
 ## 1.6 — Deeper learning
 - "Build the sentence" mode
 - Cases and prepositions drill (mit + Dativ, etc.)
 - Verb conjugation
-- Listening: hear the word, pick the translation
+- Listening with dictation (type what you hear)
+- More second examples and situation packs (Bank, Schule, Arbeit)
 
 ## 1.7–1.9
 - To be defined

@@ -3,8 +3,10 @@
  * v1 (Karten 1.0.x): { version: 1, cards, streak, daily, settings }
  * v2 (Karten 1.1.0): + customWords, achievements, records, counters, reminder settings
  * 1.4.0 (still v2, additive): + mistakes, settings.lang/level/onboarded/autoUpdateCheck/updateDismissed
+ * 1.5.0 (still v2, additive): + settings.trLang/dailyGoal, streak.freezeWeek, records.listenBest,
+ *   counters.listenRounds, daily.goalShown. Card ids are unchanged, so all progress carries over.
  */
-import { Article, TopicId, Word } from "../data/types";
+import { Article, TopicId, TrLang, Word } from "../data/types";
 import { CardState, StreakState } from "./srs";
 
 export type UiLang = "ru" | "en" | "uk";
@@ -31,17 +33,26 @@ export interface Settings {
   autoUpdateCheck: boolean;
   /** version tag whose update banner the user dismissed */
   updateDismissed: string;
+  /** 1.5: language of card translations (independent of the UI language). */
+  trLang: TrLang;
+  /** 1.5: cards per day for the daily goal ring. */
+  dailyGoal: number;
 }
+
+export const DAILY_GOALS = [10, 20, 30, 50];
 
 export interface Daily {
   day: number;
   newCount: number;
   reviewCount: number;
+  /** 1.5: goal celebration (confetti) already shown today. */
+  goalShown?: boolean;
 }
 
 export interface Records {
   articleBest: number;
   speedBest: number;
+  listenBest: number;
 }
 
 export interface Counters {
@@ -50,6 +61,7 @@ export interface Counters {
   articleRounds: number;
   articlePerfectRounds: number;
   speedRounds: number;
+  listenRounds: number;
 }
 
 export interface AppData {
@@ -87,6 +99,8 @@ export const DEFAULT_SETTINGS: Settings = {
   onboarded: false,
   autoUpdateCheck: true,
   updateDismissed: "",
+  trLang: "ru",
+  dailyGoal: 20,
 };
 
 export function emptyData(): AppData {
@@ -98,8 +112,8 @@ export function emptyData(): AppData {
     settings: { ...DEFAULT_SETTINGS },
     customWords: [],
     achievements: {},
-    records: { articleBest: 0, speedBest: 0 },
-    counters: { sessionsDone: 0, typingCorrect: 0, articleRounds: 0, articlePerfectRounds: 0, speedRounds: 0 },
+    records: { articleBest: 0, speedBest: 0, listenBest: 0 },
+    counters: { sessionsDone: 0, typingCorrect: 0, articleRounds: 0, articlePerfectRounds: 0, speedRounds: 0, listenRounds: 0 },
     mistakes: {},
   };
 }
@@ -168,8 +182,10 @@ export function migrate(raw: unknown): AppData {
     streak: Math.max(0, num(st.streak, 0)),
     best: Math.max(0, num(st.best, 0), num(st.streak, 0)),
   };
+  if (typeof st.freezeWeek === "number" && Number.isFinite(st.freezeWeek)) streak.freezeWeek = st.freezeWeek;
   const dl = isObj(raw.daily) ? raw.daily : {};
   const daily: Daily = { day: num(dl.day, 0), newCount: num(dl.newCount, 0), reviewCount: num(dl.reviewCount, 0) };
+  if (dl.goalShown === true) daily.goalShown = true;
 
   const s = isObj(raw.settings) ? raw.settings : {};
   const settings: Settings = { ...base.settings };
@@ -183,6 +199,9 @@ export function migrate(raw: unknown): AppData {
   settings.reminderMinute = Math.min(59, Math.max(0, Math.round(settings.reminderMinute)));
   if (!["ru", "en", "uk"].includes(settings.lang)) settings.lang = "ru";
   if (!["A1", "A2", "B1"].includes(settings.level)) settings.level = "A2";
+  // 1.5: existing users keep Russian card translations unless they choose otherwise
+  if (!["ru", "uk", "en"].includes(settings.trLang)) settings.trLang = "ru";
+  if (!DAILY_GOALS.includes(settings.dailyGoal)) settings.dailyGoal = 20;
   // data saved by an earlier version = an existing user: never show onboarding to them
   if (typeof s.onboarded !== "boolean") settings.onboarded = true;
 
@@ -208,13 +227,14 @@ export function migrate(raw: unknown): AppData {
     settings,
     customWords,
     achievements,
-    records: { articleBest: num(r.articleBest, 0), speedBest: num(r.speedBest, 0) },
+    records: { articleBest: num(r.articleBest, 0), speedBest: num(r.speedBest, 0), listenBest: num(r.listenBest, 0) },
     counters: {
       sessionsDone: num(c.sessionsDone, 0),
       typingCorrect: num(c.typingCorrect, 0),
       articleRounds: num(c.articleRounds, 0),
       articlePerfectRounds: num(c.articlePerfectRounds, 0),
       speedRounds: num(c.speedRounds, 0),
+      listenRounds: num(c.listenRounds, 0),
     },
     mistakes,
   };

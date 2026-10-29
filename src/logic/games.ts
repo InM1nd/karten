@@ -87,3 +87,28 @@ export function wordOfDay(words: Word[], cards: Record<string, CardState>, day: 
   h = (h ^ (h >>> 16)) >>> 0;
   return pool[h % pool.length];
 }
+
+// ---------- 1.5: listening mode & phrase packs ----------
+
+export const LISTEN_ROUND = 10;
+
+/**
+ * Listening round: weakest seen cards first (they benefit most from audio), padded with
+ * random other words; phrases are welcome here (they are what you hear at the Amt).
+ */
+export function listenSelection(words: Word[], cards: Record<string, CardState>, n = LISTEN_ROUND, rnd: Rng = Math.random): Word[] {
+  const seen = words.filter((w) => cards[w.id]).sort((a, b) => cards[a.id].interval - cards[b.id].interval);
+  const weak = seen.slice(0, Math.ceil(n / 2));
+  const rest = shuffle(words.filter((w) => !weak.includes(w)), rnd).slice(0, n - weak.length);
+  return shuffle([...weak, ...rest], rnd);
+}
+
+/** Points for a listening round: correct answers, first-try bonus for no replays. */
+export function listenScore(correct: number, replays: number): number {
+  return Math.max(0, correct * 10 - replays * 2);
+}
+
+/** Words of a situation pack, in deck order. */
+export function packWords(words: Word[], pack: string): Word[] {
+  return words.filter((w) => w.packs?.includes(pack as never));
+}

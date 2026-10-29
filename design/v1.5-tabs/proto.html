@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset=utf-8><style>
+*{box-sizing:border-box;margin:0}body{width:412px;height:892px;font-family:sans-serif;background:#fff;overflow:hidden;position:relative}
+.lbl{position:absolute;top:14px;left:0;right:0;text-align:center;font:600 13px sans-serif;color:#8e8e93;z-index:5}
+.stage{position:absolute;inset:40px 0 110px;overflow:hidden}
+.scr{position:absolute;inset:0;padding:24px}.scr h1{font-size:30px;margin-bottom:16px}
+.blk{background:#f6f6f4;border-radius:18px;height:90px;margin-bottom:12px}
+.a{background:#FF6B00;height:140px}.b{background:#111;height:140px}
+.bar{position:absolute;bottom:26px;left:40px;right:40px;height:64px;border-radius:32px;background:#111;display:flex;align-items:center;justify-content:space-around;padding:0 8px}
+.pill{position:absolute;top:8px;height:48px;border-radius:24px;background:#FF6B00}
+.ic{width:22px;height:22px;border-radius:6px;border:2.5px solid #777;z-index:2}.ic.on{border-color:#fff}
+</style></head><body><div class=lbl id=l></div><div class=stage id=st>
+<div class=scr id=s1><h1>Сегодня</h1><div class="blk a"></div><div class=blk></div><div class=blk></div></div>
+<div class=scr id=s2><h1>Тренировки</h1><div class="blk b"></div><div class=blk></div><div class=blk></div></div></div>
+<div class=bar id=bar><div class=pill id=p></div><div class=ic id=i0></div><div class=ic id=i1></div><div class=ic></div><div class=ic></div></div>
+<script>
+const ease=t=>1-Math.pow(1-t,3),spring=t=>1-Math.exp(-6*t)*Math.cos(9*t),lerp=(a,b,t)=>a+(b-a)*t;
+window.render=(v,t)=>{const s1=s1el(),s2=s2el();const e=ease(t),sp=spring(t);
+const x0=8,x1=83,w=110;let px=lerp(x0,x1,v==2?sp:e),pw=w;
+if(v==2){const st=Math.sin(Math.PI*Math.min(t*1.4,1));pw=w+60*st;px-=v==2?30*st:0}
+p.style.left=px+'px';p.style.width=(v==2?pw:w)+'px';
+i0.className='ic'+(t<.5?' on':'');i1.className='ic'+(t>=.5?' on':'');
+if(v==1){l.textContent='A · Slide + parallax (по направлению вкладок)';s1.style.cssText=`transform:translateX(${-30*e}%);opacity:${1-.6*e}`;s2.style.cssText=`transform:translateX(${100-100*e}%)`;}
+if(v==2){l.textContent='B · Fade-through + «тягучая» капсула (spring)';const o1=Math.max(0,1-t*2.5),o2=Math.max(0,(t-.35)/.65);s1.style.cssText=`opacity:${o1};transform:scale(${1-.04*t})`;s2.style.cssText=`opacity:${o2};transform:scale(${.94+.06*ease(o2)})`;}
+if(v==3){l.textContent='C · Shared-axis Z: зум + блюр, капсула прыгает';s1.style.cssText=`opacity:${1-e};transform:scale(${1+.08*e});filter:blur(${6*e}px)`;s2.style.cssText=`opacity:${e};transform:scale(${.9+.1*sp});filter:blur(${6-6*e}px)`;p.style.transform=`translateY(${-10*Math.sin(Math.PI*t)}px)`;}
+};const s1el=()=>s1,s2el=()=>s2;
+</script></body></html>

@@ -12,6 +12,7 @@ import { font, useTheme } from "../ui/theme";
 import { Example } from "./SessionScreen";
 import { ReleaseInfo } from "../logic/update";
 import { tr, pl } from "../i18n";
+import { dirLabel, useDeck } from "../ui/deck";
 
 export interface TopicProgress { id: TopicId; de: string; learned: number; total: number }
 
@@ -33,7 +34,11 @@ export interface HomeProps {
   topicProgress: TopicProgress[];
   onStart: (extraNew: boolean) => void;
   onSettings: (patch: Partial<Settings>) => void;
-  onOpen: (screen: "article" | "speed" | "typing") => void;
+  onOpen: (screen: "article" | "speed" | "typing" | "listen") => void;
+  /** cards answered today (new + reviews) vs. the daily goal */
+  doneToday?: number;
+  /** weekly streak freeze still available this week */
+  freezeLeft?: boolean;
   articleBest: number;
   speedBest: number;
   customCount: number;
@@ -61,8 +66,29 @@ function QuickTile(p: { icon: IconName; title: string; sub: string; onPress: () 
   );
 }
 
+/** Daily goal progress line + weekly streak-freeze status. */
+export function GoalBar({ done, goal, freezeLeft }: { done: number; goal: number; freezeLeft?: boolean }) {
+  const t = useTheme();
+  const pct = Math.min(1, done / Math.max(1, goal));
+  const reached = done >= goal;
+  return (
+    <View style={{ marginTop: 14 }} accessibilityLabel={tr("Цель дня: {a} из {b}", { a: Math.min(done, goal), b: goal })}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <T v="bodyM">{reached ? tr("Цель дня выполнена") : tr("Цель дня: {a} из {b}", { a: done, b: goal })}</T>
+        {freezeLeft !== undefined ? (
+          <T v="small" dim>{freezeLeft ? tr("❄ заморозка есть") : tr("❄ заморозка использована")}</T>
+        ) : null}
+      </View>
+      <View style={[styles.track, { backgroundColor: t.border, height: 6, borderRadius: 3 }]}>
+        <View style={{ height: "100%", borderRadius: 3, width: `${Math.round(pct * 100)}%`, backgroundColor: reached ? t.good : t.accent }} />
+      </View>
+    </View>
+  );
+}
+
 export function HomeScreen(p: HomeProps) {
   const t = useTheme();
+  const { trLang } = useDeck();
   const [setup, setSetup] = useState(false);
   const now = p.now ?? new Date();
   const g = greeting(now);
@@ -74,7 +100,7 @@ export function HomeScreen(p: HomeProps) {
     set.has(id) ? set.delete(id) : set.add(id);
     p.onSettings({ topics: TOPICS.map((x) => x.id).filter((x) => set.has(x)) });
   };
-  const dirLabel = tr(DIRECTION_OPTIONS.find((d) => d.value === p.settings.direction)?.label ?? "");
+  const dirText = dirLabel(tr(DIRECTION_OPTIONS.find((d) => d.value === p.settings.direction)?.label ?? ""), trLang);
   const topicLabel = p.settings.topics.length === 0 ? tr("все темы")
     : p.settings.topics.length <= 2 ? p.settings.topics.map((id) => TOPICS.find((x) => x.id === id)?.de ?? id).join(", ")
     : `${p.settings.topics.length} ${pl(p.settings.topics.length, "тема", "темы", "тем")}`;
@@ -94,6 +120,7 @@ export function HomeScreen(p: HomeProps) {
           </View>
         </View>
         <Text style={[styles.hello, { color: t.text }]}>{g.de}</Text>
+        <GoalBar done={p.doneToday ?? p.newToday + p.reviewsToday} goal={p.settings.dailyGoal} freezeLeft={p.freezeLeft} />
 
         {p.update ? (
           <Pressy onPress={p.onOpenUpdate} accessibilityRole="button" scaleTo={0.99} style={[styles.upd, { backgroundColor: t.card }]}>
@@ -142,12 +169,12 @@ export function HomeScreen(p: HomeProps) {
         <Pressy onPress={() => setSetup((x) => !x)} accessibilityRole="button" accessibilityLabel={tr("Что учим")} scaleTo={0.99}
           style={[styles.setup, { borderColor: t.border, backgroundColor: surface }]}>
           <Icon name="sliders" size={18} color={t.text} />
-          <T v="bodyM" style={{ flex: 1 }} numberOfLines={1}>{dirLabel} · {topicLabel}</T>
+          <T v="bodyM" style={{ flex: 1 }} numberOfLines={1}>{dirText} · {topicLabel}</T>
           <T v="bodyM" color={t.accent}>{setup ? tr("Готово") : tr("Изменить")}</T>
         </Pressy>
         {setup ? (
           <View style={{ marginTop: 14 }}>
-            <Segmented value={p.settings.direction} options={DIRECTION_OPTIONS.map((o) => ({ ...o, label: tr(o.label) }))} onChange={(v) => p.onSettings({ direction: v })} />
+            <Segmented value={p.settings.direction} options={DIRECTION_OPTIONS.map((o) => ({ ...o, label: dirLabel(tr(o.label), trLang) }))} onChange={(v) => p.onSettings({ direction: v })} />
             <View style={[styles.chips, { marginTop: 12 }]}>
               <Chip label={tr("Все темы")} active={p.settings.topics.length === 0} onPress={() => p.onSettings({ topics: [] })} />
               {TOPICS.filter((tp) => tp.id !== "custom" || p.customCount > 0).map((tp) => (
@@ -178,7 +205,10 @@ export function HomeScreen(p: HomeProps) {
         <View style={{ flexDirection: "row", gap: 8 }}>
           <QuickTile icon="target" title={tr("Артикли")} sub={tr("рекорд {n}", { n: p.articleBest })} onPress={() => p.onOpen("article")} />
           <QuickTile icon="bolt" title={tr("Скорость")} sub={tr("рекорд {n}", { n: p.speedBest })} onPress={() => p.onOpen("speed")} />
+        </View>
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
           <QuickTile icon="pen" title={tr("Письмо")} sub={tr("10 за раунд")} onPress={() => p.onOpen("typing")} />
+          <QuickTile icon="volume" title={tr("На слух")} sub={tr("услышь и выбери")} onPress={() => p.onOpen("listen")} />
         </View>
 
         {p.topicProgress.length ? (

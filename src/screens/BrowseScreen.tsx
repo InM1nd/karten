@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { TOPICS, TopicId, Word } from "../data/types";
-import { useDeck } from "../ui/deck";
+import { ex2Text, matchesQuery, useDeck } from "../ui/deck";
 import { CardState, MATURE_INTERVAL } from "../logic/srs";
 import { Chip, FadeIn, Pressy, GermanWord, grammarLine, IconBtn, ScreenHeader, T } from "../ui/components";
 import { AtFlag, Icon } from "../ui/Icon";
@@ -17,7 +17,7 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
   const [topic, setTopic] = useState<TopicId | null>(null);
   const [atOnly, setAtOnly] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
-  const { words: WORDS } = useDeck();
+  const { words: WORDS, trLang } = useDeck();
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -25,7 +25,7 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
       (w) =>
         (!topic || w.topic === topic) &&
         (!atOnly || w.at) &&
-        (!s || w.de.toLowerCase().includes(s) || w.ru.toLowerCase().includes(s)),
+        matchesQuery(w, s),
     );
   }, [q, topic, atOnly, WORDS]);
 
@@ -55,7 +55,7 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
         <TextInput
           value={q}
           onChangeText={setQ}
-          placeholder={tr("Поиск по-немецки или по-русски")}
+          placeholder={tr("Поиск по-немецки или по переводу")}
           placeholderTextColor={t.textDim}
           selectionColor={t.accent}
           cursorColor={t.accent}
@@ -96,7 +96,8 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
                   <T v="bodyM" dim style={{ marginTop: 3 }}>{w.ru}</T>
                 </View>
                 {w.at ? <AtFlag width={16} /> : null}
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, minWidth: 54, justifyContent: "flex-end" }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, minWidth: 74, justifyContent: "flex-end" }}>
+                  {w.level ? <T v="small" faint>{w.level}</T> : null}
                   <View style={[styles.dot, { backgroundColor: st.color }]} />
                   <T v="small" dim>{st.label}</T>
                 </View>
@@ -108,6 +109,8 @@ export function BrowseScreen(p: { cards: Record<string, CardState>; onBack?: () 
                     <View style={[styles.ex, { borderColor: t.border }]}>
                       <Example w={w} size={16} />
                       {w.exRu ? <T v="bodyM" dim style={{ marginTop: 3 }}>{w.exRu}</T> : null}
+                      {w.ex2 ? <T v="bodyM" style={{ marginTop: 8 }}>{w.ex2.de}</T> : null}
+                      {w.ex2 ? <T v="bodyM" dim style={{ marginTop: 3 }}>{ex2Text(w, trLang)}</T> : null}
                     </View>
                   ) : null}
                   {w.note ? <T v="small" dim style={{ marginTop: 10 }}>{w.note}</T> : null}

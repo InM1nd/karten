@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import App from "../App";
-import { WORDS } from "../src/data/words";
+import { DECK15 as WORDS } from "../src/data/deck15";
 
 const KEY = "karten:data:v1";
 
@@ -128,7 +128,7 @@ test("typing mode: tolerant check, article hint, give up; answers feed SRS", asy
   await fireEvent.press(screen.getByText("Проверить"));
   expect(screen.getByText("Верно!")).toBeTruthy();
   await fireEvent.press(screen.getByText("Дальше"));
-  await fireEvent.changeText(screen.getByPlaceholderText(/der \/ die \/ das|по-немецки/), "Gewohnheit");
+  await fireEvent.changeText(screen.getByPlaceholderText(/der \/ die \/ das|по-немецки/), "Schlüssel");
   await fireEvent.press(screen.getByText("Проверить"));
   expect(screen.getByText("Почти: проверь артикль")).toBeTruthy();
   await fireEvent.press(screen.getByText("Дальше"));
@@ -138,7 +138,7 @@ test("typing mode: tolerant check, article hint, give up; answers feed SRS", asy
   await waitFor(async () => {
     const d = await stored();
     expect(d.cards["der Alltag"].interval).toBe(1);
-    expect(d.cards["die Gewohnheit"]).toBeTruthy();
+    expect(d.cards["der Schlüssel"]).toBeTruthy();
     expect(d.counters.typingCorrect).toBe(1);
   });
 });
@@ -163,7 +163,7 @@ test("custom words: add, appears in list, dictionary and unlocks badge; delete-s
     expect(d.customWords[0]).toMatchObject({ article: "das", de: "Kaffeehaus", plural: "Kaffeehäuser", topic: "custom" });
   });
   await fireEvent.press(screen.getByLabelText("Назад"));
-  await fireEvent.changeText(screen.getByPlaceholderText("Поиск по-немецки или по-русски"), "kaffee");
+  await fireEvent.changeText(screen.getByPlaceholderText("Поиск по-немецки или по переводу"), "kaffee");
   expect(screen.getByText("венское кафе")).toBeTruthy();
 });
 
@@ -247,14 +247,14 @@ test("v1.4: interface language switches to English and Ukrainian", async () => {
   await boot();
   await fireEvent.press(screen.getByLabelText("Профиль"));
   await fireEvent.press(screen.getByLabelText("Настройки"));
-  await fireEvent.press(screen.getByText("English"));
+  await fireEvent.press(screen.getAllByText("English")[0]);
   expect(await screen.findByText("Interface language")).toBeTruthy();
   await fireEvent.press(screen.getByLabelText("Back"));
   await fireEvent.press(screen.getByLabelText("Today"));
   expect(screen.getByText("Start")).toBeTruthy();
   await fireEvent.press(screen.getByLabelText("Profile"));
   await fireEvent.press(screen.getByLabelText("Settings"));
-  await fireEvent.press(screen.getByText("Українська"));
+  await fireEvent.press(screen.getAllByText("Українська")[0]);
   expect(await screen.findByText("Мова інтерфейсу")).toBeTruthy();
   await waitFor(async () => expect((await stored()).settings.lang).toBe("uk"));
 });
@@ -286,8 +286,8 @@ test("v1.4: settings update check shows changelog and starts download + installe
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve({
-        tag_name: "v1.5.0", name: "Karten 1.5.0", body: "Новые темы", html_url: "https://github.com/InM1nd/karten/releases/tag/v1.5.0",
-        assets: [{ name: "Karten-v1.5.0.apk", browser_download_url: "https://example.com/k.apk", size: 22000000 }],
+        tag_name: "v1.6.0", name: "Karten 1.6.0", body: "Новые темы", html_url: "https://github.com/InM1nd/karten/releases/tag/v1.6.0",
+        assets: [{ name: "Karten-v1.6.0.apk", browser_download_url: "https://example.com/k.apk", size: 22000000 }],
       }),
     }),
   );
@@ -295,10 +295,65 @@ test("v1.4: settings update check shows changelog and starts download + installe
   await boot();
   await fireEvent.press(screen.getByLabelText("Профиль"));
   await fireEvent.press(screen.getByLabelText("Настройки"));
-  expect(screen.getByText("Установлена версия 1.4.0")).toBeTruthy();
+  expect(screen.getByText("Установлена версия 1.5.0")).toBeTruthy();
   await fireEvent.press(screen.getByText("Проверить обновления"));
-  expect(await screen.findByText("Доступна версия 1.5.0")).toBeTruthy();
+  expect(await screen.findByText("Доступна версия 1.6.0")).toBeTruthy();
   expect(screen.getByText("Новые темы")).toBeTruthy();
   void Platform;
   (global as any).fetch = jest.fn(() => Promise.reject(new Error("offline")));
+});
+
+test("v1.5: translation language EN — cards show English, interface stays Russian, saved", async () => {
+  await boot();
+  await fireEvent.press(screen.getByLabelText("Профиль"));
+  await fireEvent.press(screen.getByLabelText("Настройки"));
+  expect(screen.getByText("Язык перевода карточек")).toBeTruthy();
+  await fireEvent.press(screen.getAllByText("English")[1]);
+  await waitFor(async () => expect((await stored()).settings.trLang).toBe("en"));
+  expect((await stored()).settings.lang).toBe("ru");
+  expect(screen.getAllByText("DE → EN").length).toBeGreaterThan(0);
+  await fireEvent.press(screen.getByLabelText("Назад"));
+  await fireEvent.press(screen.getByLabelText("Сегодня"));
+  await fireEvent.press(screen.getByText("Начать"));
+  await fireEvent.press(screen.getByText("Показать ответ"));
+  const alltag = WORDS.find((w) => w.id === "der Alltag")!;
+  expect(await screen.findByText(alltag.exTr!.en)).toBeTruthy();
+});
+
+test("v1.5: listening mode speaks German, answer reveals, score saved at the end", async () => {
+  const Speech = require("expo-speech");
+  await boot();
+  await fireEvent.press(screen.getByText("На слух"));
+  await fireEvent.press(screen.getByText("Старт"));
+  await waitFor(() => expect(Speech.speak).toHaveBeenCalled());
+  const said = Speech.speak.mock.calls.at(-1)[0] as string;
+  expect(said).toMatch(/[A-Za-zÄÖÜäöüß]/);
+  await fireEvent.press(screen.getByText("Медленнее"));
+  expect(Speech.speak.mock.calls.at(-1)[1]).toMatchObject({ rate: 0.6 });
+  for (let i = 0; i < 10; i++) {
+    const shown = WORDS.find((w) => screen.queryByText(w.ru))!;
+    await fireEvent.press(screen.getAllByText(shown.ru)[0]);
+    await fireEvent.press(screen.getByText(i < 9 ? "Дальше" : "Готово"));
+  }
+  expect(await screen.findByText(/верно \d+ · ошибок \d+/)).toBeTruthy();
+  await waitFor(async () => expect((await stored()).counters.listenRounds).toBe(1));
+});
+
+test("v1.5: situation packs — Amt/Arzt/Vermieter listed, learning a pack starts a session", async () => {
+  await boot();
+  await fireEvent.press(screen.getByLabelText("Тренировки"));
+  await fireEvent.press(screen.getByText("Ситуации"));
+  expect(screen.getByText(/В учреждении/)).toBeTruthy();
+  expect(screen.getByText(/У врача/)).toBeTruthy();
+  expect(screen.getByText(/С арендодателем/)).toBeTruthy();
+  await fireEvent.press(screen.getAllByText(/Учить · \d+/)[0]);
+  expect(await screen.findByText("Показать ответ")).toBeTruthy();
+});
+
+test("v1.5: animated tab bar switches screens", async () => {
+  await boot();
+  await fireEvent.press(screen.getByLabelText("Словарь"));
+  expect(await screen.findByPlaceholderText("Поиск по-немецки или по переводу")).toBeTruthy();
+  await fireEvent.press(screen.getByLabelText("Сегодня"));
+  expect(screen.getByText("Начать")).toBeTruthy();
 });

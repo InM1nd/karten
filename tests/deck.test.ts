@@ -5,7 +5,9 @@ import { TOPICS } from "../src/data/types";
 
 test("deck size and topics", () => {
   assert.ok(WORDS.length >= 280, `only ${WORDS.length} words`);
-  for (const t of TOPICS.filter((x) => x.id !== "custom")) {
+  // 1.5 topics live only in the new content (see content15.test.ts)
+  const NEW15 = ["bank", "bildung", "freizeit", "gefuehle", "situationen"];
+  for (const t of TOPICS.filter((x) => x.id !== "custom" && !NEW15.includes(x.id))) {
     const n = WORDS.filter((w) => w.topic === t.id).length;
     assert.ok(n >= 20, `topic ${t.id} has ${n}`);
   }

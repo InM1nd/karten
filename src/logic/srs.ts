@@ -180,17 +180,41 @@ export interface StreakState {
   lastDay: number | null;
   streak: number;
   best: number;
+  /** 1.5: week number in which the weekly streak freeze was used. */
+  freezeWeek?: number;
+}
+
+/** Week number (Monday-based) of a day number (day 0 = Thu 1970-01-01). */
+export const weekOf = (day: number) => Math.floor((day + 3) / 7);
+
+/** True if one missed day (yesterday) can be covered by this week's freeze. */
+export function freezeAvailable(s: StreakState, today: number): boolean {
+  return s.lastDay === today - 2 && s.streak > 0 && s.freezeWeek !== weekOf(today - 1);
 }
 
 export function recordStudy(s: StreakState, today: number): StreakState {
   if (s.lastDay === today) return s;
-  const streak = s.lastDay === today - 1 ? s.streak + 1 : 1;
-  return { lastDay: today, streak, best: Math.max(s.best, streak) };
+  if (s.lastDay === today - 1) {
+    const streak = s.streak + 1;
+    return { ...s, lastDay: today, streak, best: Math.max(s.best, streak) };
+  }
+  if (freezeAvailable(s, today)) {
+    // one missed day per week is forgiven: the freeze covers yesterday
+    const streak = s.streak + 1;
+    return { ...s, lastDay: today, streak, best: Math.max(s.best, streak), freezeWeek: weekOf(today - 1) };
+  }
+  return { ...s, lastDay: today, streak: 1, best: Math.max(s.best, 1) };
 }
 
 export function currentStreak(s: StreakState, today: number): number {
   if (s.lastDay === null) return 0;
-  return s.lastDay === today || s.lastDay === today - 1 ? s.streak : 0;
+  if (s.lastDay === today || s.lastDay === today - 1) return s.streak;
+  return freezeAvailable(s, today) ? s.streak : 0;
+}
+
+/** Is this week's freeze still unused? */
+export function freezeLeft(s: StreakState, today: number): boolean {
+  return s.freezeWeek !== weekOf(today);
 }
 
 // ---------- Stats ----------

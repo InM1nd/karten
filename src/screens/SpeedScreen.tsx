@@ -7,7 +7,7 @@ import { Btn, FadeIn, GermanWord, Pressy, ResultHero, ScreenHeader, SectionTitle
 import { AtFlag } from "../ui/Icon";
 import { hapticBad, hapticOk } from "../ui/haptics";
 import { font, useTheme } from "../ui/theme";
-import { useDeck } from "../ui/deck";
+import { dirLabel, useDeck } from "../ui/deck";
 import { tr, pl } from "../i18n";
 
 export const SPEED_SECONDS = 60;
@@ -34,7 +34,7 @@ export function SpeedScreen(p: {
   onBack: () => void;
 }) {
   const t = useTheme();
-  const { words } = useDeck();
+  const { words, trLang } = useDeck();
   const pool = useMemo(() => speedPool(words, p.cards), [words]); // eslint-disable-line react-hooks/exhaustive-deps
   const [dir, setDir] = useState<Direction>(p.direction);
   const [phase, setPhase] = useState<"intro" | "play" | "done">("intro");
@@ -130,7 +130,7 @@ export function SpeedScreen(p: {
             </>
           )}
           <SectionTitle>{tr("Направление")}</SectionTitle>
-          <Segmented value={dir} options={DIRS.map((o) => ({ ...o, label: tr(o.label) }))} onChange={setDir} />
+          <Segmented value={dir} options={DIRS.map((o) => ({ ...o, label: dirLabel(tr(o.label), trLang) }))} onChange={setDir} />
           <View style={{ flex: 1, minHeight: 30 }} />
           <Btn title={phase === "done" ? tr("Ещё раз") : tr("Старт")} arrow={phase !== "done"} onPress={start} />
           {phase === "done" ? <Btn title={tr("Назад")} variant="outline" onPress={p.onBack} style={{ marginTop: 10 }} /> : null}

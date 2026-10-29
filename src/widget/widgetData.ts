@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KEY, migrate, AppData, ThemePref } from "../logic/data";
-import { WORDS } from "../data/words";
+import { makeDeck } from "../ui/deck";
 import { dayNumber, isDue } from "../logic/srs";
 import { wordOfDay } from "../logic/games";
 import { WidgetWord } from "./WordOfDayWidget";
@@ -8,7 +8,7 @@ import { setLang } from "../i18n";
 
 export function widgetProps(data: AppData, today = dayNumber()): { word?: WidgetWord; due: number; theme: ThemePref } {
   setLang(data.settings.lang);
-  const words = [...WORDS, ...data.customWords];
+  const words = makeDeck(data.customWords, data.settings.trLang, data.settings.level).words;
   const w = wordOfDay(words, data.cards, today);
   const due = words.filter((x) => isDue(data.cards[x.id], today)).length;
   return { word: w && { article: w.article, de: w.de, ru: w.ru, at: w.at }, due, theme: data.settings.theme };

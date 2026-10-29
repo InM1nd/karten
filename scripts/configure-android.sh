@@ -18,6 +18,11 @@ set_prop kotlin.compiler.execution.strategy in-process
 set_prop expo.useLegacyPackaging false
 set_prop android.enableMinifyInReleaseBuilds true
 set_prop android.enableShrinkResourcesInReleaseBuilds true
+# 1.5: the JS bundle (1000 words x 3 languages) is deflated inside the APK
+set_prop android.enableBundleCompression true
+# the app ships only PNG/vector assets: no GIF/WebP decoders needed (~0.8 MB of native libs)
+set_prop expo.gif.enabled false
+set_prop expo.webp.enabled false
 
 APPG=android/app/build.gradle
 if ! grep -q 'karten-release' $APPG; then
@@ -51,5 +56,9 @@ blk_end = s.index("signingConfig signingConfigs.debug", rel)
 s = s[:blk_end] + "signingConfig signingConfigs.release" + s[blk_end+len("signingConfig signingConfigs.debug"):]
 open(p, "w").write(s)
 PY
+fi
+# 1.5: keep only the app's languages in resources.arsc (library translations for ~80 locales are dead weight)
+if ! grep -q 'resourceConfigurations' $APPG; then
+  sed -i '0,/defaultConfig {/s//defaultConfig {\n        resourceConfigurations += ["en", "ru", "uk", "de"]/' $APPG
 fi
 echo "android/ configured"

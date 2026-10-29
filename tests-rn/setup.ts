@@ -26,7 +26,7 @@ jest.mock("react-native-android-widget", () => ({
   FlexWidget: () => null,
   TextWidget: () => null,
 }));
-jest.mock("expo-constants", () => ({ __esModule: true, default: { expoConfig: { version: "1.4.0" } } }));
+jest.mock("expo-constants", () => ({ __esModule: true, default: { expoConfig: { version: "1.5.0" } } }));
 jest.mock("expo-file-system/legacy", () => ({
   cacheDirectory: "file:///cache/",
   makeDirectoryAsync: jest.fn(() => Promise.resolve()),
@@ -42,3 +42,5 @@ jest.mock("expo-file-system/legacy", () => ({
 }));
 jest.mock("expo-intent-launcher", () => ({ startActivityAsync: jest.fn(() => Promise.resolve({ resultCode: 0 })) }));
 (global as any).fetch = jest.fn(() => Promise.reject(new Error("offline")));
+jest.mock("react-native-worklets", () => require("react-native-worklets/src/mock"));
+jest.mock("react-native-reanimated", () => require("react-native-reanimated/mock"));

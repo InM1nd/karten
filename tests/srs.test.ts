@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  buildQueue, CardState, currentStreak, dayNumber, deckStats, nextQueue, recordStudy, schedule, MIN_EASE, MAX_INTERVAL,
+  buildQueue, CardState, freezeLeft, weekOf, currentStreak, dayNumber, deckStats, nextQueue, recordStudy, schedule, MIN_EASE, MAX_INTERVAL,
 } from "../src/logic/srs";
 import { WORDS } from "../src/data/words";
 
@@ -80,7 +80,8 @@ test("streak logic", () => {
   s = recordStudy(s, T); assert.equal(s.streak, 1);
   s = recordStudy(s, T + 1); assert.equal(s.streak, 2);
   assert.equal(currentStreak(s, T + 2), 2); // still alive the next day
-  assert.equal(currentStreak(s, T + 3), 0); // broken
+  assert.equal(currentStreak(s, T + 3), 2); // one missed day: weekly freeze keeps it
+  assert.equal(currentStreak(s, T + 4), 0); // broken
   s = recordStudy(s, T + 5); assert.equal(s.streak, 1); assert.equal(s.best, 2);
 });
 
@@ -120,4 +121,25 @@ test("full simulated month of daily sessions stays sane", () => {
   const st = deckStats(words, cards, T + 30);
   assert.ok(st.seen > 100 && st.seen <= 300, `seen ${st.seen}`);
   assert.ok(Object.values(cards).every((c) => c.ease >= MIN_EASE && c.interval >= 0));
+});
+
+test("weekly streak freeze covers one missed day per week", () => {
+  const mon = 20_000 - ((20_000 + 3) % 7); // a Monday
+  assert.equal(weekOf(mon), weekOf(mon + 6));
+  assert.notEqual(weekOf(mon), weekOf(mon + 7));
+  let s = { lastDay: null as number | null, streak: 0, best: 0 } as Parameters<typeof recordStudy>[0];
+  s = recordStudy(s, mon);
+  s = recordStudy(s, mon + 1); // Tue
+  assert.equal(freezeLeft(s, mon + 2), true);
+  s = recordStudy(s, mon + 3); // skipped Wed -> freeze used
+  assert.equal(s.streak, 3);
+  assert.equal(s.freezeWeek, weekOf(mon + 2));
+  assert.equal(freezeLeft(s, mon + 3), false);
+  s = recordStudy(s, mon + 5); // skipped Fri, freeze already used this week
+  assert.equal(s.streak, 1);
+  assert.equal(s.best, 3);
+  s = recordStudy(s, mon + 6);
+  s = recordStudy(s, mon + 8); // skipped next Monday -> new week, fresh freeze
+  assert.equal(s.streak, 3);
+  assert.equal(currentStreak({ lastDay: mon, streak: 4, best: 4, freezeWeek: weekOf(mon + 1) }, mon + 2), 0);
 });

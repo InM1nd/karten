@@ -21,7 +21,7 @@ function Tile(p: { icon: IconName; title: string; sub: string; desc?: string; he
   );
 }
 
-export function TrainScreen(p: { articleBest: number; speedBest: number; mistakes: number; onOpen: (s: "article" | "speed" | "typing") => void; onMistakes: () => void }) {
+export function TrainScreen(p: { articleBest: number; speedBest: number; listenBest?: number; mistakes: number; onOpen: (s: "article" | "speed" | "typing" | "listen" | "packs") => void; onMistakes: () => void }) {
   return (
     <FadeIn>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 22, paddingBottom: TAB_SPACE + 20 }}>
@@ -31,6 +31,8 @@ export function TrainScreen(p: { articleBest: number; speedBest: number; mistake
           <Tile hero icon="target" title="der · die · das" sub={`${tr("Артикли")} · ${tr("рекорд {n}", { n: p.articleBest })}`} desc={tr("Свайп влево / вверх / вправо")} onPress={() => p.onOpen("article")} />
           <Tile icon="bolt" title={tr("Скорость")} sub={tr("рекорд {n}", { n: p.speedBest })} desc={tr("4 варианта на время")} onPress={() => p.onOpen("speed")} />
           <Tile icon="pen" title={tr("Письмо")} sub={tr("10 за раунд")} desc={tr("Набери слово с артиклем")} onPress={() => p.onOpen("typing")} />
+          <Tile icon="volume" title={tr("На слух")} sub={tr("рекорд {n}", { n: p.listenBest ?? 0 })} desc={tr("Услышь слово — выбери перевод")} onPress={() => p.onOpen("listen")} />
+          <Tile icon="book" title={tr("Ситуации")} sub="Amt · Arzt · Vermieter" desc={tr("Фразы для жизни в Австрии")} onPress={() => p.onOpen("packs")} />
           <Tile icon="undo" title={tr("Ошибки недели")} wide disabled={!p.mistakes}
             sub={p.mistakes ? `${p.mistakes} ${pl(p.mistakes, "слово", "слова", "слов")}` : tr("Пока нет ошибок — так держать")}
             desc={tr("Слова, в которых ты ошибся за 7 дней")} onPress={p.onMistakes} />
